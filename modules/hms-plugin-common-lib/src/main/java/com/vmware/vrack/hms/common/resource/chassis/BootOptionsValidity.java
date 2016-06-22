@@ -1,0 +1,40 @@
+/* ********************************************************************************
+ * BootOptionsValidity.java
+ * 
+ * Copyright (C) 2014-2016 VMware, Inc. - All rights reserved.
+ *
+ * *******************************************************************************/
+package com.vmware.vrack.hms.common.resource.chassis;
+
+/**
+ * Enum for Validity of SystemBootOptions
+ * 
+ * @author VMware, Inc.
+ */
+public enum BootOptionsValidity
+{
+    NextBootOnly( (byte) 0x00 ), Persistent( (byte) 0x01 );
+    private byte code;
+
+    private BootOptionsValidity( byte code )
+    {
+        this.code = code;
+    }
+
+    public byte getCode()
+    {
+        return this.code;
+    }
+
+    public static BootOptionsValidity getBootOptionsValidity( byte inputCode )
+    {
+        if ( ( inputCode & Persistent.getCode() ) != 0 )
+        {
+            return Persistent;
+        }
+        else
+        {
+            return NextBootOnly;
+        }
+    }
+}
