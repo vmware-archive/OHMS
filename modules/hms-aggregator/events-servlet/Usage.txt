@@ -1,0 +1,51 @@
+Usage:
+
+*************************************
+1. Register for Non Maskable Events:
+*************************************
+
+http://localhost:8080/hms-local/api/1.0/hms/events/register
+Method: POST
+
+Body:
+
+[
+  {
+    "requestMethod": "POST",
+    "notificationEndpoint": "http://localhost:8080/events-servlet/events/nonmaskable"
+  }
+]
+
+*********************************
+2. Subscribe for Events
+*********************************
+
+http://localhost:8080/hms-local/api/1.0/hms/events/subscribe
+Method: POST
+
+
+Request body:
+[
+    {
+        "subscriberId": "PRM",
+        "nodeId": "localhost",
+        "component": "CPU",
+        "requestMethod": "POST",
+        "notificationEndpoint": "http://localhost:8080/events-servlet/events/subscribed"
+    },
+    {
+        "subscriberId": "PRM",
+        "nodeId": "N1",
+        "component": "CPU",
+        "requestMethod": "POST",
+        "notificationEndpoint": "http://localhost:8080/events-servlet/events/subscribed"
+    }
+]
+
+Response: 
+
+
+    {
+       "statusCode": 202,
+       "statusMessage": "Event Registration suceeded for subcription request."
+    }

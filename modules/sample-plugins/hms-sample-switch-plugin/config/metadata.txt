@@ -1,0 +1,3 @@
+sdk-version=0.0.8-SNAPSHOT
+hms-version=0.0.1-SNAPSHOT
+api-version=0.0.1-SNAPSHOT
