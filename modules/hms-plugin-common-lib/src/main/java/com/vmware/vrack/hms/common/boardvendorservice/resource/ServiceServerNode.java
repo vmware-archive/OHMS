@@ -1,0 +1,91 @@
+/* ********************************************************************************
+ * ServiceServerNode.java
+ * 
+ * Copyright (C) 2014-2016 VMware, Inc. - All rights reserved.
+ *
+ * *******************************************************************************/
+package com.vmware.vrack.hms.common.boardvendorservice.resource;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+/**
+ * @author VMware, Inc.
+ */
+@JsonIgnoreProperties( ignoreUnknown = true )
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public class ServiceServerNode
+    extends ServiceHmsNode
+{
+    private String ibIpAddress = "0.0.0.0";
+
+    private String osUserName;
+
+    private String osPassword;
+
+    private int sshPort = 22;
+
+    private String boardProductName;
+
+    private String boardVendor;
+
+    public String getIbIpAddress()
+    {
+        return ibIpAddress;
+    }
+
+    public void setIbIpAddress( String ibIpAddress )
+    {
+        this.ibIpAddress = ibIpAddress;
+    }
+
+    public String getOsUserName()
+    {
+        return osUserName;
+    }
+
+    public void setOsUserName( String osUserName )
+    {
+        this.osUserName = osUserName;
+    }
+
+    public String getOsPassword()
+    {
+        return osPassword;
+    }
+
+    public void setOsPassword( String osPassword )
+    {
+        this.osPassword = osPassword;
+    }
+
+    public String getBoardProductName()
+    {
+        return boardProductName;
+    }
+
+    public void setBoardProductName( String boardProductName )
+    {
+        this.boardProductName = boardProductName;
+    }
+
+    public String getBoardVendor()
+    {
+        return boardVendor;
+    }
+
+    public void setBoardVendor( String boardVendor )
+    {
+        this.boardVendor = boardVendor;
+    }
+
+    public int getSshPort()
+    {
+        return sshPort;
+    }
+
+    public void setSshPort( int sshPort )
+    {
+        this.sshPort = sshPort;
+    }
+}
