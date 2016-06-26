@@ -6,18 +6,37 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.aggregator.util;
 
-import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.vmware.vrack.common.event.Event;
+import com.vmware.vrack.common.event.enums.EventCatalog;
+import com.vmware.vrack.common.event.enums.EventComponent;
+import com.vmware.vrack.common.event.util.EventFactory;
+import com.vmware.vrack.hms.common.HmsNode;
+import com.vmware.vrack.hms.common.boardvendorservice.api.IComponentEventInfoProvider;
+import com.vmware.vrack.hms.common.boardvendorservice.api.IComponentSwitchEventInfoProvider;
+import com.vmware.vrack.hms.common.events.BaseEventMonitoringSubscription;
+import com.vmware.vrack.hms.common.exception.HMSRestException;
+import com.vmware.vrack.hms.common.exception.HmsException;
+import com.vmware.vrack.hms.common.monitoring.MonitoringTaskRequestHandler;
+import com.vmware.vrack.hms.common.monitoring.MonitoringTaskResponse;
+import com.vmware.vrack.hms.common.resource.AboutResponse;
+import com.vmware.vrack.hms.common.resource.fru.EthernetController;
+import com.vmware.vrack.hms.common.rest.model.SwitchInfo;
+import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
+import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
+import com.vmware.vrack.hms.common.servernodes.api.ServerNodePowerStatus;
+import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
+import com.vmware.vrack.hms.common.servernodes.api.cpu.CPUInfo;
+import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
+import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
+import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
+import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
+import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
+import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
+import com.vmware.vrack.hms.common.util.Constants;
+import com.vmware.vrack.hms.common.util.NetworkInterfaceUtil;
+import com.vmware.vrack.hms.controller.HMSLocalServerRestService;
+import com.vmware.vrack.hms.inventory.InventoryLoader;
+import com.vmware.vrack.hms.service.provider.InBandServiceProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.log4j.Logger;
@@ -34,32 +53,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import com.vmware.vrack.common.event.Event;
-import com.vmware.vrack.common.event.enums.EventCatalog;
-import com.vmware.vrack.common.event.enums.EventComponent;
-import com.vmware.vrack.common.event.util.EventFactory;
-import com.vmware.vrack.hms.common.HmsNode;
-import com.vmware.vrack.hms.common.boardvendorservice.api.IComponentEventInfoProvider;
-import com.vmware.vrack.hms.common.boardvendorservice.api.IComponentSwitchEventInfoProvider;
-import com.vmware.vrack.hms.common.events.BaseEventMonitoringSubscription;
-import com.vmware.vrack.hms.common.exception.HMSRestException;
-import com.vmware.vrack.hms.common.exception.HmsException;
-import com.vmware.vrack.hms.common.monitoring.MonitoringTaskRequestHandler;
-import com.vmware.vrack.hms.common.monitoring.MonitoringTaskResponse;
-import com.vmware.vrack.hms.common.resource.AboutResponse;
-import com.vmware.vrack.hms.common.rest.model.SwitchInfo;
-import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
-import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
-import com.vmware.vrack.hms.common.servernodes.api.ServerNodePowerStatus;
-import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
-import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
-import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
-import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
-import com.vmware.vrack.hms.common.util.Constants;
-import com.vmware.vrack.hms.common.util.NetworkInterfaceUtil;
-import com.vmware.vrack.hms.controller.HMSLocalServerRestService;
-import com.vmware.vrack.hms.inventory.InventoryLoader;
-import com.vmware.vrack.hms.service.provider.InBandServiceProvider;
+import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Yagnesh Chawda
@@ -78,6 +82,28 @@ public class MonitoringUtil
     private static String hmsLocalProtocol;
 
     private static HMSLocalServerRestService hmsLocalServerRestService;
+
+    private final static Map<Class, ParameterizedTypeReference> TYPE_REFERENCE_MAP = new HashMap<>();
+
+    static
+    {
+        TYPE_REFERENCE_MAP.put( CPUInfo.class, new ParameterizedTypeReference<List<CPUInfo>>()
+        {
+        } );
+        TYPE_REFERENCE_MAP.put( HddInfo.class, new ParameterizedTypeReference<List<HddInfo>>()
+        {
+        } );
+        TYPE_REFERENCE_MAP.put( PhysicalMemory.class, new ParameterizedTypeReference<List<PhysicalMemory>>()
+        {
+        } );
+        TYPE_REFERENCE_MAP.put( EthernetController.class, new ParameterizedTypeReference<List<EthernetController>>()
+        {
+        } );
+        TYPE_REFERENCE_MAP.put( StorageControllerInfo.class,
+                                new ParameterizedTypeReference<List<StorageControllerInfo>>()
+                                {
+                                } );
+    }
 
     private static final String HMS_AGENT_STATUS_DESC_SEPARATOR = " -";
 
@@ -595,9 +621,16 @@ public class MonitoringUtil
      * @return
      * @throws HmsException
      */
-    public static <T> List<T> getServerComponentOOB( String endpoint )
+    public static <T> List<T> getServerComponentOOB( String endpoint, Class<T> type )
         throws HmsException
     {
+        ParameterizedTypeReference typeReference = TYPE_REFERENCE_MAP.get( type );
+
+        if ( typeReference == null )
+        {
+            throw new HmsException( "Server component of type: " + type + " is not available" );
+        }
+
         URI uri = null;
         try
         {
@@ -606,10 +639,8 @@ public class MonitoringUtil
             HttpHeaders headers = new HttpHeaders();
             headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
             HttpEntity<Object> entity = new HttpEntity<Object>( headers );
-            ParameterizedTypeReference<List<T>> typeRef = new ParameterizedTypeReference<List<T>>()
-            {
-            };
-            ResponseEntity<List<T>> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeRef );
+
+            ResponseEntity<List<T>> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeReference );
             if ( oobResponse.getStatusCode() != HttpStatus.OK )
             {
                 throw new HmsException( "Error while getting Response from Hms-core for server component. Status Code : "
