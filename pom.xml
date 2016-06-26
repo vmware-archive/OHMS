@@ -155,6 +155,7 @@
                 <module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+                <module>modules/sample-plugins/hms-redfish-server-plugin</module>
             </modules>
         </profile>
         <profile>
@@ -205,6 +206,7 @@
                 <module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+                <module>modules/sample-plugins/hms-redfish-server-plugin</module>
             </modules>
         </profile>
     </profiles>

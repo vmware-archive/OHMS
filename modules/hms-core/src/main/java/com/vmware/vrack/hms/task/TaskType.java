@@ -8,6 +8,7 @@ package com.vmware.vrack.hms.task;
 
 public enum TaskType
 {
+    /* Core HMS tasks */
     HMSBootUp,
     DiscoverServer,
     PowerStatusServer,
@@ -37,5 +38,8 @@ public enum TaskType
     StorageControllerInfo,
     SelInfo,
     SwitchMonitorService,
-    GetSupportedAPI
+    GetSupportedAPI,
+
+    /* Redfish-related tasks */
+    RedfishDiscoverComputerSystems
 }

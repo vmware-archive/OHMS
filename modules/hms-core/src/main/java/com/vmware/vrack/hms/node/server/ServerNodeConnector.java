@@ -6,26 +6,19 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.node.server;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.log4j.Logger;
-import org.eclipse.jetty.server.ConnectorStatistics;
-import org.eclipse.jetty.server.Server;
-
 import com.vmware.vrack.hms.HMSMonitorService;
 import com.vmware.vrack.hms.HmsApp;
 import com.vmware.vrack.hms.TaskRequestHandler;
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
+import com.vmware.vrack.hms.common.ExternalService;
 import com.vmware.vrack.hms.common.HmsConfigHolder;
 import com.vmware.vrack.hms.common.HmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.configuration.HmsInventoryConfiguration;
 import com.vmware.vrack.hms.common.configuration.ServerItem;
+import com.vmware.vrack.hms.common.configuration.ServiceItem;
+import com.vmware.vrack.hms.common.exception.HmsException;
+import com.vmware.vrack.hms.common.exception.HmsResourceBusyException;
 import com.vmware.vrack.hms.common.monitoring.MonitorTaskSuite;
 import com.vmware.vrack.hms.common.monitoring.MonitoringTaskRequestHandler;
 import com.vmware.vrack.hms.common.monitoring.MonitoringTaskResponse;
@@ -37,8 +30,23 @@ import com.vmware.vrack.hms.common.notification.TaskResponse;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
+import com.vmware.vrack.hms.task.TaskFactory;
 import com.vmware.vrack.hms.task.TaskType;
+import com.vmware.vrack.hms.task.oob.redfish.RedfishDiscoverComputerSystemsTask;
 import com.vmware.vrack.hms.utils.NodeDiscoveryUtil;
+import org.apache.log4j.Logger;
+import org.eclipse.jetty.server.ConnectorStatistics;
+import org.eclipse.jetty.server.Server;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.vmware.vrack.hms.boardservice.BoardServiceProvider.prepareBoardServiceClassesForServices;
+import static com.vmware.vrack.hms.task.TaskType.RedfishDiscoverComputerSystems;
 
 public class ServerNodeConnector
 {
@@ -46,16 +54,19 @@ public class ServerNodeConnector
 
     private static volatile ServerNodeConnector instance = new ServerNodeConnector();
 
-    private ServerNode applicationNode = new ServerNode( "HMS_OOB_AGENT", null, null, null );
+    public Map<String, HmsNode> nodeMap = new ConcurrentHashMap<>();
 
-    public Map<String, HmsNode> nodeMap = new ConcurrentHashMap<String, HmsNode>();
+    public Map<String, ExternalService> serviceMap = new ConcurrentHashMap<>();
 
     public Server server = null;
 
     public boolean shutDownJetty = false;
 
+    private ServerNode applicationNode = new ServerNode( "HMS_OOB_AGENT", null, null, null );
+
     private boolean enableMonitoring =
-        Boolean.parseBoolean( HmsConfigHolder.getProperty( HmsConfigHolder.HMS_CONFIG_PROPS, "enable_monitoring" ) );
+        Boolean.parseBoolean( HmsConfigHolder.getProperty( HmsConfigHolder.HMS_CONFIG_PROPS,
+                                                           "enable_monitoring" ) );
 
     private ServerNodeConnector()
     {
@@ -76,6 +87,31 @@ public class ServerNodeConnector
     public static ServerNodeConnector getInstance()
     {
         return instance;
+    }
+
+    /*
+     * public void initHandshake() throws Exception { TaskResponse response = new TaskResponse();
+     * TaskRequestHandler.getInstance().executeServerTask(TaskType.HmsPrmHandshake,response); } public void
+     * initHmsResourceMonitor() throws Exception { TaskResponse response = new TaskResponse();
+     * TaskRequestHandler.getInstance().executeServerTask(TaskType.HMSResourceMonitor,response); }
+     */
+    public static void notifyHMSFailure( String failureCode, String failureMessage )
+    {
+        ArrayList<Map<String, String>> results = new ArrayList<>();
+        Map<String, String> failure = new HashMap<>();
+        failure.put( failureCode, failureMessage );
+        results.add( failure );
+        HMSNotificationRequest notification =
+            CallbackRequestFactory.getNotificationRequest( EventType.HMS_FAILURE, "HMS_0", results );
+        HMSMonitorService notifier = new HMSMonitorService();
+        notifier.update( new HMSSwitchNode( "HMS_0", null, null, null ), notification );
+    }
+
+    public static List<ServerComponent> getMonitoredServerComponents()
+    {
+        List<ServerComponent> monitoredComponents =
+            new ArrayList<>( Arrays.asList( ServerComponent.values() ) );
+        return monitoredComponents;
     }
 
     public Server getServer()
@@ -163,12 +199,22 @@ public class ServerNodeConnector
                 nodeMap.put( server.getId(), discoverHosts( server ) );
                 logger.debug( "Inserting server id " + server.getId() + " into server node map." );
             }
+            prepareExternalServices( hic.getServices() );
+            Map<String, HmsNode> externalServiceNodes = discoverExternalServiceNodes( hic.getServices() );
+            for ( Map.Entry<String, HmsNode> stringHmsNodeEntry : externalServiceNodes.entrySet() )
+            {
+                HmsNode node = stringHmsNodeEntry.getValue();
+                nodeMap.put( stringHmsNodeEntry.getKey(), node );
+                logger.debug( "Inserting server id " + node.getNodeID() + " into server node map." );
+
+            }
         }
         catch ( Exception e )
         {
             ServerNodeConnector.notifyHMSFailure( "ERROR_HMS_HOSTS_BOOTUP", e.getMessage() );
             throw e;
         }
+
         // Discover Node to BoardService Mapping
         prepareNodeToBoardServiceMapping();
         // Perform Bootup task on all Nodes
@@ -181,6 +227,62 @@ public class ServerNodeConnector
         }
     }
 
+    private Map<String, HmsNode> discoverExternalServiceNodes( List<ServiceItem> services )
+        throws HmsException
+    {
+        Map<String, HmsNode> hmsNodeMap = new HashMap<>();
+        for ( ServiceItem service : services )
+        {
+            List<HmsNode> nodes = getNodesForService( service );
+            for ( HmsNode node : nodes )
+            {
+                hmsNodeMap.put( node.getNodeID(), node );
+            }
+        }
+        return hmsNodeMap;
+    }
+
+    private List<HmsNode> getNodesForService( ServiceItem service )
+        throws HmsException
+    {
+        try
+        {
+            RedfishDiscoverComputerSystemsTask task = (RedfishDiscoverComputerSystemsTask) TaskFactory.getTask(
+                RedfishDiscoverComputerSystems, null );
+            ExternalService externalService = serviceMap.get( service.getServiceEndpoint() );
+            task.setExternalService( externalService );
+            task.executeTask();
+            return task.getDiscoveredNodes();
+        }
+        catch ( HmsResourceBusyException e )
+        {
+            String message = "Encountered HmsResourceBusyException during execution of task";
+            logger.error( message, e );
+            throw new HmsException( message, e );
+        }
+        catch ( HmsException e )
+        {
+            logger.error( "Encountered exception during execution of task", e );
+            throw e;
+        }
+        catch ( Exception e )
+        {
+            String message = "Encountered exception during execution of task";
+            logger.error( message, e );
+            throw new HmsException( message );
+        }
+    }
+
+    private void prepareExternalServices( List<ServiceItem> services )
+    {
+        for ( ServiceItem service : services )
+        {
+            serviceMap.put( service.getServiceEndpoint(),
+                            new ExternalService( service.getServiceType(), service.getServiceEndpoint() ) );
+        }
+        prepareBoardServiceClassesForServices( new ArrayList<>( serviceMap.values() ) );
+    }
+
     /**
      * Calls each BoardService implementing class to figureout which all board it can support and puts that mapping in
      * the BoardServiceProvider
@@ -189,9 +291,9 @@ public class ServerNodeConnector
         throws Exception
     {
         // For now to keep thing simple, doing discovery of node in single thread, but we can surely put them in
-        // Executor service lateron
+        // Executor service later on
         // ExecutorService executor = Executors.newFixedThreadPool(3);
-        List<HmsNode> hmsNodes = new ArrayList<HmsNode>( nodeMap.values() );
+        List<HmsNode> hmsNodes = new ArrayList<>( nodeMap.values() );
         /*
          * //prepare list of ServiceServerNode from ServerNode final List<ServiceHmsNode> serviceHmsNodes = new
          * ArrayList<ServiceHmsNode>(); for(HmsNode hmsNode: hmsNodes) { serviceHmsNodes.add(((ServerNode)
@@ -235,7 +337,6 @@ public class ServerNodeConnector
         node.setOsPassword( server.getIbPassword() );
         node.setOsUserName( server.getIbUsername() );
         node.setOsEncodedPassword( server.getIbPassword() );
-        node.setLocation( server.getLocation() );
         if ( server.getBoardInfo() != null )
         {
             node.setBoardProductName( server.getBoardInfo().getModel() );
@@ -268,36 +369,12 @@ public class ServerNodeConnector
         TaskRequestHandler.getInstance().executeServerTask( TaskType.HMSBootUp, response );
     }
 
-    /*
-     * public void initHandshake() throws Exception { TaskResponse response = new TaskResponse();
-     * TaskRequestHandler.getInstance().executeServerTask(TaskType.HmsPrmHandshake,response); } public void
-     * initHmsResourceMonitor() throws Exception { TaskResponse response = new TaskResponse();
-     * TaskRequestHandler.getInstance().executeServerTask(TaskType.HMSResourceMonitor,response); }
-     */
-    public static void notifyHMSFailure( String failureCode, String failureMessage )
-    {
-        ArrayList<Map<String, String>> results = new ArrayList<Map<String, String>>();
-        Map<String, String> failure = new HashMap<String, String>();
-        failure.put( failureCode, failureMessage );
-        results.add( failure );
-        HMSNotificationRequest notification =
-            CallbackRequestFactory.getNotificationRequest( EventType.HMS_FAILURE, "HMS_0", results );
-        HMSMonitorService notifier = new HMSMonitorService();
-        notifier.update( new HMSSwitchNode( "HMS_0", null, null, null ), notification );
-    }
-
-    public static List<ServerComponent> getMonitoredServerComponents()
-    {
-        List<ServerComponent> monitoredComponents =
-            new ArrayList<ServerComponent>( Arrays.asList( ServerComponent.values() ) );
-        return monitoredComponents;
-    }
-
     private void initMonitoring()
         throws Exception
     {
-        MonitoringTaskRequestHandler.init( Integer.parseInt( HmsConfigHolder.getProperty( HmsConfigHolder.HMS_CONFIG_PROPS,
-                                                                                          "MONITORING_THREAD_POOL_SIZE" ) ) );
+        MonitoringTaskRequestHandler.init(
+            Integer.parseInt( HmsConfigHolder.getProperty( HmsConfigHolder.HMS_CONFIG_PROPS,
+                                                           "MONITORING_THREAD_POOL_SIZE" ) ) );
         try
         {
             HMSMonitorService monitor = new HMSMonitorService();
@@ -313,17 +390,19 @@ public class ServerNodeConnector
                         // MonitoringTaskResponse monitoringResponse = new MonitoringTaskResponse((node),
                         // ServerComponent.CPU, boardService);
                         MonitoringTaskResponse monitoringResponse =
-                            new MonitoringTaskResponse( ( node ), getMonitoredServerComponents(), boardService );
+                            new MonitoringTaskResponse( ( node ), getMonitoredServerComponents(),
+                                                        boardService );
                         MonitorTaskSuite task =
                             new MonitorTaskSuite( monitoringResponse,
-                                                  Long.parseLong( HmsConfigHolder.getHMSConfigProperty( "HOST_NODE_MONITOR_FREQUENCY" ) ) );
+                                                  Long.parseLong( HmsConfigHolder.getHMSConfigProperty(
+                                                      "HOST_NODE_MONITOR_FREQUENCY" ) ) );
                         MonitoringTaskRequestHandler.getInstance().executeServerMonitorTask( task );
                     }
                 }
                 catch ( Exception e )
                 {
-                    logger.error( "Error occured during submission of node [ " + node.getNodeID()
-                        + " ] for monitoring. ", e );
+                    logger.error( "Error occurred during submission of node [ " + node.getNodeID()
+                                      + " ] for monitoring. ", e );
                 }
             }
         }
