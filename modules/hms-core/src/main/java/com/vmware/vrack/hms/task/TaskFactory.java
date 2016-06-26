@@ -25,6 +25,7 @@ import com.vmware.vrack.hms.task.oob.ipmi.SelInfoTask;
 import com.vmware.vrack.hms.task.oob.ipmi.SelfTestTask;
 import com.vmware.vrack.hms.task.oob.ipmi.ServerInfoServerTask;
 import com.vmware.vrack.hms.task.oob.ipmi.SetSystemBootOptionsTask;
+import com.vmware.vrack.hms.task.oob.redfish.RedfishDiscoverComputerSystemsTask;
 import com.vmware.vrack.hms.task.oob.rmm.CpuInformationTask;
 import com.vmware.vrack.hms.task.oob.rmm.HddInformationTask;
 import com.vmware.vrack.hms.task.oob.rmm.MemoryInformationTask;
@@ -108,6 +109,9 @@ public class TaskFactory
                 break;
             case GetSupportedAPI:
                 task = new GetSupportedAPI( response );
+                break;
+            case RedfishDiscoverComputerSystems:
+                task = new RedfishDiscoverComputerSystemsTask();
                 break;
             default:
                 return task;

@@ -1,0 +1,1898 @@
+[
+  {
+    "url": "/redfish/v1",
+    "body": {
+      "@odata.context": "/redfish/v1$metadata#ServiceRoot",
+      "@odata.id": "/redfish/v1",
+      "@odata.type": "#ServiceRoot.1.0.0.ServiceRoot",
+      "Id": "RootService",
+      "Name": "Root Service",
+      "RedfishVersion": "1.0.0",
+      "UUID": "f39d0de0-37c5-11e6-898f-49b20eae009e",
+      "Systems": {
+        "@odata.id": "/redfish/v1/Systems"
+      },
+      "Chassis": {
+        "@odata.id": "/redfish/v1/Chassis"
+      },
+      "Managers": {
+        "@odata.id": "/redfish/v1/Managers"
+      },
+      "EventService": {
+        "@odata.id": "/redfish/v1/EventService"
+      },
+      "Services": {
+        "@odata.id": "/redfish/v1/Services"
+      },
+      "Nodes": {
+        "@odata.id": "/redfish/v1/Nodes"
+      },
+      "EthernetSwitches": {
+        "@odata.id": "/redfish/v1/EthernetSwitches"
+      },
+      "Oem": {},
+      "Links": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems",
+      "@odata.id": "/redfish/v1/Systems",
+      "@odata.type": "#ComputerSystemCollection.ComputerSystemCollection",
+      "Name": "Computer System Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Chassis",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Chassis",
+      "@odata.id": "/redfish/v1/Chassis",
+      "@odata.type": "#ChassisCollection.ChassisCollection",
+      "Name": "Chassis Collection",
+      "Members@odata.count": 4,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Chassis/drawer1"
+        },
+        {
+          "@odata.id": "/redfish/v1/Chassis/sled2"
+        },
+        {
+          "@odata.id": "/redfish/v1/Chassis/blade3"
+        },
+        {
+          "@odata.id": "/redfish/v1/Chassis/module4"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/EventService",
+    "body": {
+      "@odata.context": "/redfish/v1/EventService/$metadata#EventService.EventService",
+      "@odata.id": "/redfish/v1/EventService",
+      "@odata.type": "#EventService.1.0.0.EventService",
+      "Id": "EventService",
+      "Name": "Event Service",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "ServiceEnabled": true,
+      "DeliveryRetryAttempts": 3,
+      "DeliveryRetryIntervalSeconds": 60,
+      "EventTypesForSubscription": [
+        "StatusChange",
+        "ResourceUpdated",
+        "ResourceAdded",
+        "ResourceRemoved",
+        "Alert"
+      ],
+      "Subscriptions": {
+        "@odata.id": "/redfish/v1/EventService/Subscriptions"
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#ManagerCollection.ManagerCollection",
+      "@odata.id": "/redfish/v1/Managers",
+      "@odata.type": "#ManagerCollection.ManagerCollection",
+      "Name": "Manager Collection",
+      "Members@odata.count": 3,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Managers/1"
+        },
+        {
+          "@odata.id": "/redfish/v1/Managers/2"
+        },
+        {
+          "@odata.id": "/redfish/v1/Managers/3"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Services",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Services",
+      "@odata.id": "/redfish/v1/Services",
+      "@odata.type": "#StorageServiceCollection.StorageServiceCollection",
+      "Name": "Storage Services Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Nodes",
+    "body": {
+      "@odata.context": "/redfish/v1$metadata#Nodes",
+      "@odata.id": "/redfish/v1/Nodes",
+      "@odata.type": "#ComposedNodeCollection.ComposedNodeCollection",
+      "Name": "Composed Nodes Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Actions": {
+        "#ComposedNodesCollection.Allocate": {
+          "target": "/redfish/v1/Nodes/Actions/Allocate"
+        }
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetSwitches",
+      "@odata.id": "/redfish/v1/EthernetSwitches",
+      "@odata.type": "#EthernetSwitchCollection.EthernetSwitchCollection",
+      "Name": "Ethernet Switches Collection",
+      "Description": "Ethernet Switches Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems/Members/$entity",
+      "@odata.id": "/redfish/v1/Systems/1",
+      "@odata.type": "#ComputerSystem.1.0.0.ComputerSystem",
+      "Id": "1",
+      "Name": "My Computer System",
+      "SystemType": "Physical",
+      "AssetTag": "free form asset tag",
+      "Manufacturer": "Manufacturer Name",
+      "Model": "Model Name",
+      "SKU": "X-12345-12345",
+      "SerialNumber": "2M220100SL",
+      "PartNumber": "M2201",
+      "Description": "Computer system #1",
+      "UUID": "00000001-0001-0001-0001-000000000001",
+      "HostName": "web-srv344",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK",
+        "HealthRollup": "OK"
+      },
+      "IndicatorLED": "Off",
+      "PowerState": "On",
+      "Boot": {
+        "BootSourceOverrideEnabled": "Once",
+        "BootSourceOverrideTarget": "Pxe",
+        "BootSourceOverrideTarget@Redfish.AllowableValues": [
+          "None",
+          "Pxe",
+          "Floppy",
+          "Cd",
+          "Usb",
+          "Hdd",
+          "BiosSetup",
+          "Utilities",
+          "Diags",
+          "UefiTarget"
+        ]
+      },
+      "BiosVersion": "P79 v1.00 (09/20/2013)",
+      "ProcessorSummary": {
+        "Count": 1,
+        "Model": "Multi-Core Intel(R) Xeon(R) processor 7xxxx Series",
+        "Status": {
+          "State": "Enabled",
+          "Health": "OK",
+          "HealthRollup": "OK"
+        }
+      },
+      "MemorySummary": {
+        "TotalSystemMemoryGiB": 8,
+        "Status": {
+          "State": "Enabled",
+          "Health": "OK",
+          "HealthRollup": "OK"
+        }
+      },
+      "Processors": {
+        "@odata.id": "/redfish/v1/Systems/1/Processors"
+      },
+      "EthernetInterfaces": {
+        "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces"
+      },
+      "SimpleStorage": {
+        "@odata.id": "/redfish/v1/Systems/1/SimpleStorage"
+      },
+      "DimmConfig": {
+        "@odata.id": "/redfish/v1/Systems/1/DimmConfig"
+      },
+      "MemoryChunks": {
+        "@odata.id": "/redfish/v1/Systems/1/MemoryChunks"
+      },
+      "Links": {
+        "Chassis": [
+          {
+            "@odata.id": "/redfish/v1/Chassis/blade3"
+          }
+        ],
+        "ManagedBy": [
+          {
+            "@odata.id": "/redfish/v1/Managers/2"
+          }
+        ],
+        "Oem": {}
+      },
+      "Actions": {
+        "#ComputerSystem.Reset": {
+          "target": "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset",
+          "ResetType@Redfish.AllowableValues": [
+            "On",
+            "ForceOff",
+            "GracefulShutdown",
+            "ForceRestart",
+            "Nmi",
+            "GracefulRestart",
+            "ForceOn",
+            "PushPowerButton"
+          ]
+        },
+        "Oem": {
+          "Intel_RackScale": {
+            "#ComputerSystem.StartDeepDiscovery": {
+              "target": "/redfish/v1/Systems/1/Actions/ComputerSystem.StartDeepDiscovery"
+            }
+          }
+        }
+      },
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.ComputerSystem",
+          "Adapters": {
+            "@odata.id": "/redfish/v1/Systems/1/Adapters"
+          },
+          "PciDevices": [],
+          "DiscoveryState": "Basic",
+          "ProcessorSockets": 8,
+          "MemorySockets": 8
+        }
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Chassis/drawer1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Chassis/Members/$entity",
+      "@odata.id": "/redfish/v1/Chassis/drawer1",
+      "@odata.type": "#Chassis.1.0.0.Chassis",
+      "Id": "drawer1",
+      "ChassisType": "Drawer",
+      "Name": "name-as-string",
+      "Description": "description-as-string",
+      "Manufacturer": "",
+      "Model": "",
+      "SKU": "sku-as-string",
+      "SerialNumber": "",
+      "PartNumber": "part-number-as-string",
+      "AssetTag": null,
+      "IndicatorLED": "Unknown",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.Chassis",
+          "Location": {
+            "Id": "drawer1",
+            "ParentId": null
+          }
+        }
+      },
+      "Links": {
+        "Contains": [
+          {
+            "@odata.id": "/redfish/v1/Chassis/sled2"
+          },
+          {
+            "@odata.id": "/redfish/v1/Chassis/module4"
+          }
+        ],
+        "ContainedBy": null,
+        "ComputerSystems": [],
+        "Switches": [],
+        "ManagedBy": [
+          {
+            "@odata.id": "/redfish/v1/Managers/1"
+          }
+        ],
+        "ManagersInChassis": [
+          {
+            "@odata.id": "/redfish/v1/Managers/1"
+          }
+        ],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Chassis/sled2",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Chassis/Members/$entity",
+      "@odata.id": "/redfish/v1/Chassis/sled2",
+      "@odata.type": "#Chassis.1.0.0.Chassis",
+      "Id": "sled2",
+      "ChassisType": "Sled",
+      "Name": "name-as-string",
+      "Description": "description-as-string",
+      "Manufacturer": "",
+      "Model": "",
+      "SKU": "sku-as-string",
+      "SerialNumber": "",
+      "PartNumber": "part-number-as-string",
+      "AssetTag": null,
+      "IndicatorLED": "Unknown",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.Chassis",
+          "Location": {
+            "Id": "sled2",
+            "ParentId": "drawer1"
+          }
+        }
+      },
+      "Links": {
+        "Contains": [
+          {
+            "@odata.id": "/redfish/v1/Chassis/blade3"
+          }
+        ],
+        "ContainedBy": {
+          "@odata.id": "/redfish/v1/Chassis/drawer1"
+        },
+        "ComputerSystems": [],
+        "Switches": [],
+        "ManagedBy": [
+          {
+            "@odata.id": "/redfish/v1/Managers/2"
+          }
+        ],
+        "ManagersInChassis": [
+          {
+            "@odata.id": "/redfish/v1/Managers/2"
+          }
+        ],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Chassis/blade3",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Chassis/Members/$entity",
+      "@odata.id": "/redfish/v1/Chassis/blade3",
+      "@odata.type": "#Chassis.1.0.0.Chassis",
+      "Id": "blade3",
+      "ChassisType": "Blade",
+      "Name": "name-as-string",
+      "Description": "description-as-string",
+      "Manufacturer": "",
+      "Model": "",
+      "SKU": "sku-as-string",
+      "SerialNumber": "",
+      "PartNumber": "part-number-as-string",
+      "AssetTag": null,
+      "IndicatorLED": "Unknown",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.Chassis",
+          "Location": {
+            "Id": "blade3",
+            "ParentId": "sled2"
+          }
+        }
+      },
+      "Links": {
+        "Contains": [],
+        "ContainedBy": {
+          "@odata.id": "/redfish/v1/Chassis/sled2"
+        },
+        "ComputerSystems": [
+          {
+            "@odata.id": "/redfish/v1/Systems/1"
+          }
+        ],
+        "Switches": [],
+        "ManagedBy": [
+          {
+            "@odata.id": "/redfish/v1/Managers/3"
+          }
+        ],
+        "ManagersInChassis": [
+          {
+            "@odata.id": "/redfish/v1/Managers/3"
+          }
+        ],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Chassis/module4",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Chassis/Members/$entity",
+      "@odata.id": "/redfish/v1/Chassis/module4",
+      "@odata.type": "#Chassis.1.0.0.Chassis",
+      "Id": "module4",
+      "ChassisType": "Module",
+      "Name": "name-as-string",
+      "Description": "description-as-string",
+      "Manufacturer": "",
+      "Model": "",
+      "SKU": "sku-as-string",
+      "SerialNumber": "",
+      "PartNumber": "part-number-as-string",
+      "AssetTag": null,
+      "IndicatorLED": "Unknown",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.Chassis",
+          "Location": {
+            "Id": "module4",
+            "ParentId": "drawer1"
+          }
+        }
+      },
+      "Links": {
+        "Contains": [],
+        "ContainedBy": {
+          "@odata.id": "/redfish/v1/Chassis/drawer1"
+        },
+        "ComputerSystems": [],
+        "Switches": [
+          {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1"
+          }
+        ],
+        "ManagedBy": [
+          {
+            "@odata.id": "/redfish/v1/Managers/1"
+          }
+        ],
+        "ManagersInChassis": [],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/EventService/Subscriptions",
+    "body": {
+      "@odata.context": "/redfish/v1/EventService/$metadata#EventDestinationCollection.EventDestinationCollection",
+      "@odata.id": "/redfish/v1/EventService/Subscriptions",
+      "@odata.type": "#EventDestinationCollection.EventDestinationCollection",
+      "Name": "Event Subscriptions Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata$Manager.Manager",
+      "@odata.id": "/redfish/v1/Managers/1",
+      "@odata.type": "#Manager.1.0.0.Manager",
+      "Id": "1",
+      "Name": "PSME Manager",
+      "ManagerType": "ManagementController",
+      "Description": "description-as-string",
+      "ServiceEntryPointUUID": "f39d0de0-37c5-11e6-898f-49b20eae009e",
+      "UUID": "f3a2da40-37c5-11e6-898f-49b20eae009e",
+      "Model": "model-as-string",
+      "DateTime": "2015-03-13T04:14:33+06:00",
+      "DateTimeLocalOffset": "+06:00",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "GraphicalConsole": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 2,
+        "ConnectTypesSupported": [
+          "KVMIP"
+        ]
+      },
+      "SerialConsole": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 1,
+        "ConnectTypesSupported": [
+          "Telnet",
+          "SSH",
+          "IPMI"
+        ]
+      },
+      "CommandShell": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 4,
+        "ConnectTypesSupported": [
+          "Telnet",
+          "SSH"
+        ]
+      },
+      "FirmwareVersion": "1.00",
+      "NetworkProtocol": {
+        "@odata.id": "/redfish/v1/Managers/1/NetworkProtocol"
+      },
+      "EthernetInterfaces": {
+        "@odata.id": "/redfish/v1/Managers/1/EthernetInterfaces"
+      },
+      "Links": {
+        "ManagerForServers": [],
+        "ManagerForChassis": [
+          {
+            "@odata.id": "/redfish/v1/Chassis/module4"
+          },
+          {
+            "@odata.id": "/redfish/v1/Chassis/drawer1"
+          }
+        ],
+        "ManagerInChassis": {
+          "@odata.id": "/redfish/v1/Chassis/drawer1"
+        },
+        "ManagerForSwitches": [
+          {
+            "@odata.id": "/redfish/v1/EthernetSwitches/1"
+          }
+        ],
+        "Oem": {
+          "Intel_RackScale": {
+            "@odata.type": "#Intel.Oem.Manager",
+            "ManagerForServices": []
+          }
+        }
+      },
+      "Actions": {
+        "#Manager.Reset": {
+          "target": "/redfish/v1/Managers/1/Actions/Manager.Reset"
+        },
+        "Oem": {}
+      },
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/2",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata$Manager.Manager",
+      "@odata.id": "/redfish/v1/Managers/2",
+      "@odata.type": "#Manager.1.0.0.Manager",
+      "Id": "2",
+      "Name": "name-as-string",
+      "ManagerType": "BMC",
+      "Description": "description-as-string",
+      "ServiceEntryPointUUID": "f39d0de0-37c5-11e6-898f-49b20eae009e",
+      "UUID": "f3a3c4a0-37c5-11e6-898f-49b20eae009e",
+      "Model": "model-as-string",
+      "DateTime": "2015-03-13T04:14:33+06:00",
+      "DateTimeLocalOffset": "+06:00",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "GraphicalConsole": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 2,
+        "ConnectTypesSupported": [
+          "KVMIP"
+        ]
+      },
+      "SerialConsole": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 1,
+        "ConnectTypesSupported": [
+          "Telnet",
+          "SSH",
+          "IPMI"
+        ]
+      },
+      "CommandShell": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 4,
+        "ConnectTypesSupported": [
+          "Telnet",
+          "SSH"
+        ]
+      },
+      "FirmwareVersion": "1.00",
+      "NetworkProtocol": {
+        "@odata.id": "/redfish/v1/Managers/2/NetworkProtocol"
+      },
+      "EthernetInterfaces": {
+        "@odata.id": "/redfish/v1/Managers/2/EthernetInterfaces"
+      },
+      "Links": {
+        "ManagerForServers": [
+          {
+            "@odata.id": "/redfish/v1/Systems/1"
+          }
+        ],
+        "ManagerForChassis": [
+          {
+            "@odata.id": "/redfish/v1/Chassis/sled2"
+          }
+        ],
+        "ManagerInChassis": {
+          "@odata.id": "/redfish/v1/Chassis/sled2"
+        },
+        "ManagerForSwitches": [],
+        "Oem": {
+          "Intel_RackScale": {
+            "@odata.type": "#Intel.Oem.Manager",
+            "ManagerForServices": []
+          }
+        }
+      },
+      "Actions": {
+        "#Manager.Reset": {
+          "target": "/redfish/v1/Managers/2/Actions/Manager.Reset"
+        },
+        "Oem": {}
+      },
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/3",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata$Manager.Manager",
+      "@odata.id": "/redfish/v1/Managers/3",
+      "@odata.type": "#Manager.1.0.0.Manager",
+      "Id": "3",
+      "Name": "name-as-string",
+      "ManagerType": "BMC",
+      "Description": "description-as-string",
+      "ServiceEntryPointUUID": "f39d0de0-37c5-11e6-898f-49b20eae009e",
+      "UUID": "f3a412c0-37c5-11e6-898f-49b20eae009e",
+      "Model": "model-as-string",
+      "DateTime": "2015-03-13T04:14:33+06:00",
+      "DateTimeLocalOffset": "+06:00",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "GraphicalConsole": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 2,
+        "ConnectTypesSupported": [
+          "KVMIP"
+        ]
+      },
+      "SerialConsole": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 1,
+        "ConnectTypesSupported": [
+          "Telnet",
+          "SSH",
+          "IPMI"
+        ]
+      },
+      "CommandShell": {
+        "ServiceEnabled": true,
+        "MaxConcurrentSessions": 4,
+        "ConnectTypesSupported": [
+          "Telnet",
+          "SSH"
+        ]
+      },
+      "FirmwareVersion": "1.00",
+      "NetworkProtocol": {
+        "@odata.id": "/redfish/v1/Managers/3/NetworkProtocol"
+      },
+      "EthernetInterfaces": {
+        "@odata.id": "/redfish/v1/Managers/3/EthernetInterfaces"
+      },
+      "Links": {
+        "ManagerForServers": [],
+        "ManagerForChassis": [
+          {
+            "@odata.id": "/redfish/v1/Chassis/blade3"
+          }
+        ],
+        "ManagerInChassis": {
+          "@odata.id": "/redfish/v1/Chassis/blade3"
+        },
+        "ManagerForSwitches": [],
+        "Oem": {
+          "Intel_RackScale": {
+            "@odata.type": "#Intel.Oem.Manager",
+            "ManagerForServices": []
+          }
+        }
+      },
+      "Actions": {
+        "#Manager.Reset": {
+          "target": "/redfish/v1/Managers/3/Actions/Manager.Reset"
+        },
+        "Oem": {}
+      },
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetSwitch.EthernetSwitch",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1",
+      "@odata.type": "#EthernetSwitch.1.0.0.EthernetSwitch",
+      "Id": "1",
+      "SwitchId": "1",
+      "Name": "name-as-string",
+      "Manufacturer": "Quanta",
+      "Model": "ly8_rangley",
+      "ManufacturingDate": "02/21/2015 00:00:00",
+      "SerialNumber": "2M220100SL",
+      "PartNumber": "1LY8UZZ0007",
+      "FirmwareName": "ONIE",
+      "FirmwareVersion": "1.1",
+      "Role": "Drawer",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "Oem": {},
+      "Ports": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports"
+      },
+      "Links": {
+        "ContainedBy": {
+          "@odata.id": "/redfish/v1/Chassis/module4"
+        },
+        "ManagedBy": [
+          {
+            "@odata.id": "/redfish/v1/Managers/1"
+          }
+        ],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/Processors",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems/Members/1/Processors/#entity",
+      "@odata.id": "/redfish/v1/Systems/1/Processors",
+      "@odata.type": "#ProcessorCollection.ProcessorCollection",
+      "Name": "Processors Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1/Processors/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/EthernetInterfaces",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces",
+      "@odata.type": "#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "Name": "Ethernet Interfaces Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/SimpleStorage",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#SimpleStorageCollection.SimpleStorageCollection",
+      "@odata.id": "/redfish/v1/Systems/1/SimpleStorage",
+      "@odata.type": "#SimpleStorageCollection.SimpleStorageCollection",
+      "Name": "Simple Storage Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1/SimpleStorage/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/DimmConfig",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems/Members/1/Processors/#entity",
+      "@odata.id": "/redfish/v1/Systems/1/DimmConfig",
+      "@odata.type": "#DimmConfigCollection.DimmConfigCollection",
+      "Name": "DIMM Configuration Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1/DimmConfig/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/MemoryChunks",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems/Members/1/MemoryChunks/$entity",
+      "@odata.id": "/redfish/v1/Systems/1/MemoryChunks",
+      "@odata.type": "#MemoryChunkCollection.MemoryChunkCollection",
+      "Name": "Memory Chunks Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1/MemoryChunks/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/1/NetworkProtocol",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#ManagerNetworkProtocol.ManagerNetworkProtocol",
+      "@odata.id": "/redfish/v1/Managers/1/NetworkProtocol",
+      "@odata.type": "#ManagerNetworkProtocol.1.0.0.ManagerNetworkProtocol",
+      "Id": "NetworkProtocol",
+      "Name": "Manager Network Protocol",
+      "Description": "Manager Network Service Status",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "HostName": "",
+      "FQDN": "",
+      "HTTP": {
+        "ProtocolEnabled": true,
+        "Port": 8080
+      },
+      "HTTPS": {
+        "ProtocolEnabled": true,
+        "Port": 443
+      },
+      "IPMI": {
+        "ProtocolEnabled": false
+      },
+      "SSH": {
+        "ProtocolEnabled": false
+      },
+      "SNMP": {
+        "ProtocolEnabled": false
+      },
+      "VirtualMedia": {
+        "ProtocolEnabled": false
+      },
+      "SSDP": {
+        "ProtocolEnabled": true,
+        "Port": 1900,
+        "NotifyMulticastIntervalSeconds": 600,
+        "NotifyTTL": 5,
+        "NotifyIPv6Scope": "Site"
+      },
+      "Telnet": {
+        "ProtocolEnabled": false
+      },
+      "KVMIP": {
+        "ProtocolEnabled": false
+      },
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/1/EthernetInterfaces",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "@odata.id": "/redfish/v1/Managers/1/EthernetInterfaces",
+      "@odata.type": "#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "Name": "Ethernet Interfaces Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Managers/1/EthernetInterfaces/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/2/NetworkProtocol",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#ManagerNetworkProtocol.ManagerNetworkProtocol",
+      "@odata.id": "/redfish/v1/Managers/2/NetworkProtocol",
+      "@odata.type": "#ManagerNetworkProtocol.1.0.0.ManagerNetworkProtocol",
+      "Id": "NetworkProtocol",
+      "Name": "Manager Network Protocol",
+      "Description": "Manager Network Service Status",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "HostName": "",
+      "FQDN": "",
+      "HTTP": {
+        "ProtocolEnabled": true,
+        "Port": 8080
+      },
+      "HTTPS": {
+        "ProtocolEnabled": true,
+        "Port": 443
+      },
+      "IPMI": {
+        "ProtocolEnabled": false
+      },
+      "SSH": {
+        "ProtocolEnabled": false
+      },
+      "SNMP": {
+        "ProtocolEnabled": false
+      },
+      "VirtualMedia": {
+        "ProtocolEnabled": false
+      },
+      "SSDP": {
+        "ProtocolEnabled": true,
+        "Port": 1900,
+        "NotifyMulticastIntervalSeconds": 600,
+        "NotifyTTL": 5,
+        "NotifyIPv6Scope": "Site"
+      },
+      "Telnet": {
+        "ProtocolEnabled": false
+      },
+      "KVMIP": {
+        "ProtocolEnabled": false
+      },
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/2/EthernetInterfaces",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "@odata.id": "/redfish/v1/Managers/2/EthernetInterfaces",
+      "@odata.type": "#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "Name": "Ethernet Interfaces Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Managers/2/EthernetInterfaces/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/3/NetworkProtocol",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#ManagerNetworkProtocol.ManagerNetworkProtocol",
+      "@odata.id": "/redfish/v1/Managers/3/NetworkProtocol",
+      "@odata.type": "#ManagerNetworkProtocol.1.0.0.ManagerNetworkProtocol",
+      "Id": "NetworkProtocol",
+      "Name": "Manager Network Protocol",
+      "Description": "Manager Network Service Status",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "HostName": "",
+      "FQDN": "",
+      "HTTP": {
+        "ProtocolEnabled": true,
+        "Port": 8080
+      },
+      "HTTPS": {
+        "ProtocolEnabled": true,
+        "Port": 443
+      },
+      "IPMI": {
+        "ProtocolEnabled": false
+      },
+      "SSH": {
+        "ProtocolEnabled": false
+      },
+      "SNMP": {
+        "ProtocolEnabled": false
+      },
+      "VirtualMedia": {
+        "ProtocolEnabled": false
+      },
+      "SSDP": {
+        "ProtocolEnabled": true,
+        "Port": 1900,
+        "NotifyMulticastIntervalSeconds": 600,
+        "NotifyTTL": 5,
+        "NotifyIPv6Scope": "Site"
+      },
+      "Telnet": {
+        "ProtocolEnabled": false
+      },
+      "KVMIP": {
+        "ProtocolEnabled": false
+      },
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/3/EthernetInterfaces",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "@odata.id": "/redfish/v1/Managers/3/EthernetInterfaces",
+      "@odata.type": "#EthernetInterfaceCollection.EthernetInterfaceCollection",
+      "Name": "Ethernet Interfaces Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Managers/3/EthernetInterfaces/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetSwitches/Members/1/Ports",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports",
+      "@odata.type": "#EthernetSwitchPortCollection.EthernetSwitchPortCollection",
+      "Name": "Ethernet Switch Port Collection",
+      "Description": "Ethernet Switch Port Collection",
+      "Members@odata.count": 3,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1"
+        },
+        {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/2"
+        },
+        {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/3"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/Processors/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems/Members/1/Processors/Members/$entity",
+      "@odata.id": "/redfish/v1/Systems/1/Processors/1",
+      "@odata.type": "#Processor.1.0.0.Processor",
+      "Name": "Processor",
+      "Id": "1",
+      "Socket": "1",
+      "ProcessorType": "CPU",
+      "ProcessorArchitecture": "x86",
+      "InstructionSet": "x86-64",
+      "Manufacturer": "Intel(R) Corporation",
+      "Model": "Multi-Core Intel(R) Xeon(R) Processor 7xxx Series",
+      "ProcessorId": {
+        "VendorId": "GenuineIntel",
+        "IdentificationRegisters": "0x34AC34DC8901274A",
+        "EffectiveFamily": "0x42",
+        "EffectiveModel": "0x61",
+        "Step": "0x1",
+        "MicrocodeInfo": "0x429943"
+      },
+      "MaxSpeedMHz": 3700,
+      "TotalCores": 14,
+      "TotalThreads": 28,
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.Processor",
+          "Brand": null,
+          "Capabilities": [],
+          "ContainedBy": {
+            "@odata.id": "/redfish/v1/Systems/1"
+          }
+        }
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/EthernetInterfaces/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterface.EthernetInterface",
+      "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces/1",
+      "@odata.type": "#EthernetInterface.1.0.0.EthernetInterface",
+      "Id": "1",
+      "Name": "Ethernet Interface",
+      "Description": "System NIC 1",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "InterfaceEnabled": true,
+      "PermanentMACAddress": "E9:47:D3:60:64:66",
+      "MACAddress": "E9:47:D3:60:64:66",
+      "SpeedMbps": 0,
+      "AutoNeg": true,
+      "FullDuplex": false,
+      "MTUSize": 1500,
+      "HostName": "web483",
+      "FQDN": "web483.redfishspecification.org",
+      "VLAN": {
+        "VLANEnable": true,
+        "VLANId": 101
+      },
+      "VLANs": {
+        "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces/1/VLANs"
+      },
+      "IPv4Addresses": [
+        {
+          "Address": "192.168.0.10",
+          "SubnetMask": "255.255.252.0",
+          "AddressOrigin": "Static",
+          "Gateway": "192.168.0.1",
+          "Oem": {}
+        }
+      ],
+      "IPv6AddressPolicyTable": [
+        {
+          "Prefix": "::1/128",
+          "Precedence": 50,
+          "Label": 0
+        }
+      ],
+      "IPv6StaticAddresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 16,
+          "Oem": {}
+        }
+      ],
+      "MaxIPv6StaticAddresses": 1,
+      "IPv6DefaultGateway": "fe80::3ed9:2bff:fe34:600",
+      "IPv6Addresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 64,
+          "AddressOrigin": "Static",
+          "AddressState": "Preferred",
+          "Oem": {}
+        }
+      ],
+      "NameServers": [
+        "names.redfishspecification.org"
+      ],
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/SimpleStorage/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#SimpleStorage.SimpleStorage",
+      "@odata.id": "/redfish/v1/Systems/1/SimpleStorage/1",
+      "@odata.type": "#SimpleStorage.1.0.0.SimpleStorage",
+      "Id": "1",
+      "Name": "Simple Storage Controller",
+      "Description": "System SATA",
+      "UEFIDevicePath": "UEFI Device Path",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK",
+        "HealthRollup": "OK"
+      },
+      "Devices": [
+        {
+          "CapacityBytes": 1073741824,
+          "Name": "Drive 1",
+          "Manufacturer": "ACME",
+          "Model": "Drive Model string",
+          "Status": {
+            "State": "Enabled",
+            "Health": "OK"
+          }
+        },
+        {
+          "CapacityBytes": 1073741823,
+          "Name": "Drive 2",
+          "Manufacturer": "SuperDuperSSD",
+          "Model": "Drive Model string",
+          "Status": {
+            "State": "Enabled",
+            "Health": "OK"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/DimmConfig/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems/Members/1/DimmConfig/$entity",
+      "@odata.id": "/redfish/v1/Systems/1/DimmConfig/1",
+      "@odata.type": "#DimmConfig.1.0.0.DimmConfig",
+      "Name": "DIMM",
+      "Id": "1",
+      "Description": "description",
+      "DimmType": null,
+      "DimmDeviceType": null,
+      "BaseModuleType": null,
+      "DimmMedia": [],
+      "CapacityMiB": 8192,
+      "DataWidthBits": 0,
+      "BusWidthBits": 0,
+      "Manufacturer": null,
+      "SerialNumber": null,
+      "PartNumber": "",
+      "AllowedSpeedsMHz": [],
+      "FirmwareRevision": null,
+      "FirmwareApiVersion": null,
+      "FunctionClasses": [],
+      "VendorId": null,
+      "DeviceId": null,
+      "RankCount": 0,
+      "DeviceLocator": "A0",
+      "DimmLocation": null,
+      "ErrorCorrection": null,
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "OperatingSpeedMHz": 2400,
+      "Regions": [
+        {
+          "RegionId": "1",
+          "MemoryType": "Volatile",
+          "OffsetMiB": 0,
+          "SizeMiB": 8192
+        }
+      ],
+      "OperatingMemoryModes": [
+        "Volatile"
+      ],
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.DIMMConfig",
+          "VoltageVolt": null
+        }
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/MemoryChunks/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#Systems/Members/1/MemoryChunks/$entity",
+      "@odata.id": "/redfish/v1/Systems/1/MemoryChunks/1",
+      "@odata.type": "#MemoryChunk.1.0.0.MemoryChunk",
+      "Name": "Memory Chunk 1",
+      "Id": "1",
+      "MemoryChunkName": "1LM",
+      "MemoryChunkUID": 1,
+      "MemoryChunkSizeMiB": 8192,
+      "AddressRangeType": "Volatile",
+      "IsMirrorEnabled": false,
+      "IsSpare": false,
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "InterleaveSets": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1/DimmConfig/1",
+          "RegionId": "1"
+        }
+      ],
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/1/EthernetInterfaces/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterface.EthernetInterface",
+      "@odata.id": "/redfish/v1/Managers/1/EthernetInterfaces/1",
+      "@odata.type": "#EthernetInterface.1.0.0.EthernetInterface",
+      "Id": "1",
+      "Name": "Ethernet Interface",
+      "Description": "System NIC 1",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "InterfaceEnabled": true,
+      "PermanentMACAddress": "DA:04:0B:50:8E:7A",
+      "MACAddress": "DA:04:0B:50:8E:7A",
+      "SpeedMbps": 0,
+      "AutoNeg": true,
+      "FullDuplex": false,
+      "MTUSize": 1500,
+      "HostName": "web483",
+      "FQDN": "web483.redfishspecification.org",
+      "VLAN": {
+        "VLANEnable": true,
+        "VLANId": 101
+      },
+      "VLANs": {
+        "@odata.id": "/redfish/v1/Managers/1/EthernetInterfaces/1/VLANs"
+      },
+      "IPv4Addresses": [
+        {
+          "Address": "192.168.0.10",
+          "SubnetMask": "255.255.252.0",
+          "AddressOrigin": "Static",
+          "Gateway": "192.168.0.1",
+          "Oem": {}
+        }
+      ],
+      "IPv6AddressPolicyTable": [
+        {
+          "Prefix": "::1/128",
+          "Precedence": 50,
+          "Label": 0
+        }
+      ],
+      "IPv6StaticAddresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 16,
+          "Oem": {}
+        }
+      ],
+      "MaxIPv6StaticAddresses": 1,
+      "IPv6DefaultGateway": "fe80::3ed9:2bff:fe34:600",
+      "IPv6Addresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 64,
+          "AddressOrigin": "Static",
+          "AddressState": "Preferred",
+          "Oem": {}
+        }
+      ],
+      "NameServers": [
+        "names.redfishspecification.org"
+      ],
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/2/EthernetInterfaces/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterface.EthernetInterface",
+      "@odata.id": "/redfish/v1/Managers/2/EthernetInterfaces/1",
+      "@odata.type": "#EthernetInterface.1.0.0.EthernetInterface",
+      "Id": "1",
+      "Name": "Ethernet Interface",
+      "Description": "System NIC 1",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "InterfaceEnabled": true,
+      "PermanentMACAddress": "E3:F1:82:A0:1D:E4",
+      "MACAddress": "E3:F1:82:A0:1D:E4",
+      "SpeedMbps": 0,
+      "AutoNeg": true,
+      "FullDuplex": false,
+      "MTUSize": 1500,
+      "HostName": "web483",
+      "FQDN": "web483.redfishspecification.org",
+      "VLAN": {
+        "VLANEnable": true,
+        "VLANId": 101
+      },
+      "VLANs": {
+        "@odata.id": "/redfish/v1/Managers/2/EthernetInterfaces/1/VLANs"
+      },
+      "IPv4Addresses": [
+        {
+          "Address": "192.168.0.10",
+          "SubnetMask": "255.255.252.0",
+          "AddressOrigin": "Static",
+          "Gateway": "192.168.0.1",
+          "Oem": {}
+        }
+      ],
+      "IPv6AddressPolicyTable": [
+        {
+          "Prefix": "::1/128",
+          "Precedence": 50,
+          "Label": 0
+        }
+      ],
+      "IPv6StaticAddresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 16,
+          "Oem": {}
+        }
+      ],
+      "MaxIPv6StaticAddresses": 1,
+      "IPv6DefaultGateway": "fe80::3ed9:2bff:fe34:600",
+      "IPv6Addresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 64,
+          "AddressOrigin": "Static",
+          "AddressState": "Preferred",
+          "Oem": {}
+        }
+      ],
+      "NameServers": [
+        "names.redfishspecification.org"
+      ],
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/3/EthernetInterfaces/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetInterface.EthernetInterface",
+      "@odata.id": "/redfish/v1/Managers/3/EthernetInterfaces/1",
+      "@odata.type": "#EthernetInterface.1.0.0.EthernetInterface",
+      "Id": "1",
+      "Name": "Ethernet Interface",
+      "Description": "System NIC 1",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "InterfaceEnabled": true,
+      "PermanentMACAddress": "BA:E3:82:56:60:58",
+      "MACAddress": "BA:E3:82:56:60:58",
+      "SpeedMbps": 0,
+      "AutoNeg": true,
+      "FullDuplex": false,
+      "MTUSize": 1500,
+      "HostName": "web483",
+      "FQDN": "web483.redfishspecification.org",
+      "VLAN": {
+        "VLANEnable": true,
+        "VLANId": 101
+      },
+      "VLANs": {
+        "@odata.id": "/redfish/v1/Managers/3/EthernetInterfaces/1/VLANs"
+      },
+      "IPv4Addresses": [
+        {
+          "Address": "192.168.0.10",
+          "SubnetMask": "255.255.252.0",
+          "AddressOrigin": "Static",
+          "Gateway": "192.168.0.1",
+          "Oem": {}
+        }
+      ],
+      "IPv6AddressPolicyTable": [
+        {
+          "Prefix": "::1/128",
+          "Precedence": 50,
+          "Label": 0
+        }
+      ],
+      "IPv6StaticAddresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 16,
+          "Oem": {}
+        }
+      ],
+      "MaxIPv6StaticAddresses": 1,
+      "IPv6DefaultGateway": "fe80::3ed9:2bff:fe34:600",
+      "IPv6Addresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 64,
+          "AddressOrigin": "Static",
+          "AddressState": "Preferred",
+          "Oem": {}
+        }
+      ],
+      "NameServers": [
+        "names.redfishspecification.org"
+      ],
+      "Oem": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetSwitches/Members/1/Ports/Members/1/$entity",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1",
+      "@odata.type": "#EthernetSwitchPort.1.0.0.EthernetSwitchPort",
+      "Id": "1",
+      "Name": "Switch Port",
+      "PortId": "sw1p1",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "LinkType": "Ethernet",
+      "OperationalState": "Up",
+      "AdministrativeState": "Up",
+      "LinkSpeedMbps": 10000,
+      "NeighborInfo": {
+        "SwitchId": "switch-1",
+        "PortId": "port-1",
+        "CableId": "CustomerWritableThing"
+      },
+      "NeighborMAC": null,
+      "FrameSize": 1520,
+      "Autosense": true,
+      "FullDuplex": true,
+      "MACAddress": "11:22:33:44:55:66",
+      "IPv4Addresses": [
+        {
+          "Address": "192.168.0.1",
+          "SubnetMask": "255.255.252.0",
+          "AddressOrigin": "Static",
+          "Gateway": "192.168.0.1"
+        }
+      ],
+      "IPv6Addresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 64,
+          "AddressOrigin": "Static",
+          "AddressState": "Preferred"
+        }
+      ],
+      "PortClass": "Physical",
+      "PortMode": "Unknown",
+      "PortType": "Upstream",
+      "Oem": {},
+      "VLANs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs"
+      },
+      "Links": {
+        "PrimaryVLAN": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs/2",
+        "Switch": {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        },
+        "MemberOfPort": null,
+        "PortMembers": [],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/2",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetSwitches/Members/1/Ports/Members/2/$entity",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/2",
+      "@odata.type": "#EthernetSwitchPort.1.0.0.EthernetSwitchPort",
+      "Id": "2",
+      "Name": "Switch Port",
+      "PortId": "sw1p2",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "LinkType": "Ethernet",
+      "OperationalState": "Up",
+      "AdministrativeState": "Up",
+      "LinkSpeedMbps": 10000,
+      "NeighborInfo": {
+        "SwitchId": "switch-1",
+        "PortId": "port-2",
+        "CableId": "CustomerWritableThing"
+      },
+      "NeighborMAC": "E9:47:D3:60:64:66",
+      "FrameSize": 1520,
+      "Autosense": true,
+      "FullDuplex": true,
+      "MACAddress": "66:66:66:66:66:66",
+      "IPv4Addresses": [
+        {
+          "Address": "192.168.0.2",
+          "SubnetMask": "255.255.252.0",
+          "AddressOrigin": "Static",
+          "Gateway": "192.168.0.1"
+        }
+      ],
+      "IPv6Addresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 64,
+          "AddressOrigin": "Static",
+          "AddressState": "Preferred"
+        }
+      ],
+      "PortClass": "Physical",
+      "PortMode": "Unknown",
+      "PortType": "Downstream",
+      "Oem": {},
+      "VLANs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/2/VLANs"
+      },
+      "Links": {
+        "PrimaryVLAN": null,
+        "Switch": {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        },
+        "MemberOfPort": null,
+        "PortMembers": [],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/3",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#EthernetSwitches/Members/1/Ports/Members/3/$entity",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/3",
+      "@odata.type": "#EthernetSwitchPort.1.0.0.EthernetSwitchPort",
+      "Id": "3",
+      "Name": "Switch Port",
+      "PortId": "sw1p3",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "LinkType": "Ethernet",
+      "OperationalState": "Up",
+      "AdministrativeState": "Up",
+      "LinkSpeedMbps": 10000,
+      "NeighborInfo": {
+        "SwitchId": "switch-1",
+        "PortId": "port-3",
+        "CableId": "CustomerWritableThing"
+      },
+      "NeighborMAC": "E9:47:D3:60:64:77",
+      "FrameSize": 1520,
+      "Autosense": true,
+      "FullDuplex": true,
+      "MACAddress": "A7:47:B5:60:64:99",
+      "IPv4Addresses": [
+        {
+          "Address": "192.168.0.3",
+          "SubnetMask": "255.255.252.0",
+          "AddressOrigin": "Static",
+          "Gateway": "192.168.0.1"
+        }
+      ],
+      "IPv6Addresses": [
+        {
+          "Address": "fe80::1ec1:deff:fe6f:1e24",
+          "PrefixLength": 64,
+          "AddressOrigin": "Static",
+          "AddressState": "Preferred"
+        }
+      ],
+      "PortClass": "Physical",
+      "PortMode": "Unknown",
+      "PortType": "Downstream",
+      "Oem": {},
+      "VLANs": {
+        "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/3/VLANs"
+      },
+      "Links": {
+        "PrimaryVLAN": null,
+        "Switch": {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1"
+        },
+        "MemberOfPort": null,
+        "PortMembers": [],
+        "Oem": {}
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/EthernetInterfaces/1/VLANs",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces/1/VLANs",
+      "@odata.type": "#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "Name": "VLAN Network Interface Collection",
+      "Description": "VLAN Network Interface Collection",
+      "Members@odata.count": 1,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces/1/VLANs/1"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/1/EthernetInterfaces/1/VLANs",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "@odata.id": "/redfish/v1/Managers/1/EthernetInterfaces/1/VLANs",
+      "@odata.type": "#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "Name": "VLAN Network Interface Collection",
+      "Description": "VLAN Network Interface Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/2/EthernetInterfaces/1/VLANs",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "@odata.id": "/redfish/v1/Managers/2/EthernetInterfaces/1/VLANs",
+      "@odata.type": "#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "Name": "VLAN Network Interface Collection",
+      "Description": "VLAN Network Interface Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Managers/3/EthernetInterfaces/1/VLANs",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "@odata.id": "/redfish/v1/Managers/3/EthernetInterfaces/1/VLANs",
+      "@odata.type": "#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "Name": "VLAN Network Interface Collection",
+      "Description": "VLAN Network Interface Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs",
+      "@odata.type": "#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "Name": "VLAN Network Interface Collection",
+      "Description": "VLAN Network Interface Collection",
+      "Members@odata.count": 2,
+      "Members": [
+        {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs/1"
+        },
+        {
+          "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs/2"
+        }
+      ],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/2/VLANs",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/2/VLANs",
+      "@odata.type": "#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "Name": "VLAN Network Interface Collection",
+      "Description": "VLAN Network Interface Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/3/VLANs",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/3/VLANs",
+      "@odata.type": "#VLanNetworkInterfaceCollection.VLanNetworkInterfaceCollection",
+      "Name": "VLAN Network Interface Collection",
+      "Description": "VLAN Network Interface Collection",
+      "Members@odata.count": 0,
+      "Members": [],
+      "Oem:": {}
+    }
+  },
+  {
+    "url": "/redfish/v1/Systems/1/EthernetInterfaces/1/VLANs/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterface.VLanNetworkInterface",
+      "@odata.id": "/redfish/v1/Systems/1/EthernetInterfaces/1/VLANs/1",
+      "@odata.type": "#VLanNetworkInterface.1.0.0.VLanNetworkInterface",
+      "Id": "1",
+      "Name": "VLAN Network Interface",
+      "Description": "Ethernet Interface VLAN undefined",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "VLANEnable": true,
+      "VLANId": 99,
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.VLanNetworkInterface",
+          "Tagged": true
+        }
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs/1",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterface.VLanNetworkInterface",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs/1",
+      "@odata.type": "#VLanNetworkInterface.1.0.0.VLanNetworkInterface",
+      "Id": "1",
+      "Name": "VLAN Network Interface",
+      "Description": "Switch Port VLAN undefined",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "VLANEnable": true,
+      "VLANId": 666,
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.VLanNetworkInterface",
+          "Tagged": true
+        }
+      }
+    }
+  },
+  {
+    "url": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs/2",
+    "body": {
+      "@odata.context": "/redfish/v1/$metadata#VLanNetworkInterface.VLanNetworkInterface",
+      "@odata.id": "/redfish/v1/EthernetSwitches/1/Ports/1/VLANs/2",
+      "@odata.type": "#VLanNetworkInterface.1.0.0.VLanNetworkInterface",
+      "Id": "2",
+      "Name": "VLAN Network Interface",
+      "Description": "Switch Port VLAN undefined",
+      "Status": {
+        "State": "Enabled",
+        "Health": "OK"
+      },
+      "VLANEnable": true,
+      "VLANId": 10,
+      "Oem": {
+        "Intel_RackScale": {
+          "@odata.type": "#Intel.Oem.VLanNetworkInterface",
+          "Tagged": false
+        }
+      }
+    }
+  }
+]

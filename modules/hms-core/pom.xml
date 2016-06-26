@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.vmware.vrack</groupId>
         <artifactId>hms</artifactId>
@@ -37,8 +38,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.changeit.plugin</groupId>
-            <artifactId>hms-sample-server-plugin</artifactId>
+            <groupId>com.intel.plugin</groupId>
+            <artifactId>hms-redfish-server-plugin</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -95,12 +96,12 @@
             <!--scope>test</scope-->
             <type>jar</type>
         </dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
             <version>${mockito-all.version}</version>
-			<scope>test</scope>
-		</dependency>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
@@ -292,7 +293,7 @@
                         <phase>install</phase>
                         <configuration>
                             <target if="GOBUILD">
-                                <echo> About to publish files </echo>
+                                <echo>About to publish files</echo>
                                 <mkdir dir="${PUBLISH_DIR}"/>
                                 <copy todir="${PUBLISH_DIR}" flatten="false">
                                     <fileset dir="${project.build.directory}">

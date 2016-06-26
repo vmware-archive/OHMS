@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>zip-with-dependencies</id>
+    <formats>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+            <includes>
+                <include>metadata.txt</include>
+                <include>config/*.json</include>
+            </includes>
+        </fileSet>
+        <!-- Third-party Library jars for runtime dependencies -->
+        <!-- Uncomment the fileSet items below if there are libraries
+         the plugin needs at runtime
+        <fileSet>
+          <directory>${project.basedir}/lib</directory>
+          <outputDirectory>/plugin-jars</outputDirectory>
+          <fileMode>0644</fileMode>
+          <directoryMode>0755</directoryMode>
+          <includes>
+            <include>*.jar</include>
+          </includes>
+        </fileSet-->
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+            <unpack>false</unpack>
+            <scope>compile</scope>
+        </dependencySet>
+
+        <!-- Third-party API jars for runtime dependencies -->
+        <dependencySet>
+            <outputDirectory>plugin-jars</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+            <includes>
+                <include>com.intel.plugin:hms-redfish-server-plugin</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>
