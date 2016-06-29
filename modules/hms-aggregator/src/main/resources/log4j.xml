@@ -24,6 +24,7 @@
     <logger name="com.vmware.vrack" additivity="false">
         <level value="debug"/>
         <appender-ref ref="hms" />
+        <appender-ref ref="console"/>
     </logger>
     
     <!-- 3rdparty Loggers -->
