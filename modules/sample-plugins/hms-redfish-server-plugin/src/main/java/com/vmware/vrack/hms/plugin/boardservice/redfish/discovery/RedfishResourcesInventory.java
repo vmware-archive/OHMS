@@ -4,7 +4,8 @@ import com.vmware.vrack.hms.plugin.boardservice.redfish.client.IRedfishWebClient
 import com.vmware.vrack.hms.plugin.boardservice.redfish.client.RedfishClientException;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.client.RedfishWebClient;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.RedfishResource;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Collections;
@@ -14,12 +15,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.lang.String.format;
-import static org.apache.log4j.Logger.getLogger;
 
 public class RedfishResourcesInventory
     implements AutoCloseable
 {
-    private static final Logger LOGGER = getLogger( RedfishResourcesInventory.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( RedfishResourcesInventory.class );
 
     private IRedfishWebClient webClient = createRedfishClient();
 

@@ -1,10 +1,12 @@
 package com.vmware.vrack.hms.plugin.boardservice.redfish.discovery;
 
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.client.IRedfishWebClient;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.client.RedfishClientException;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.OdataId;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.RedfishResource;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -19,11 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.lang.String.format;
 import static java.util.Collections.newSetFromMap;
 import static java.util.Collections.unmodifiableMap;
-import static org.apache.log4j.Logger.getLogger;
 
 public final class ResourcesCrawler
 {
-    private static final Logger LOGGER = getLogger( ResourcesCrawler.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( ResourcesCrawler.class );
 
     private final URI serviceRootUri;
 
@@ -66,8 +67,17 @@ public final class ResourcesCrawler
                     }
                     catch ( RedfishClientException e )
                     {
-                        // TODO consider retrying when ProcessingException is this exception's root cause
-                        LOGGER.error( format( "Error while reading resource at URI %s", e.getTargetUri() ), e );
+                        Throwable cause = ClassUtil.getRootCause( e );
+                        if ( cause instanceof UnsupportedOperationException )
+                        {
+                            LOGGER.warn( "Problem while reading resource at URI {}: {}", e.getTargetUri(),
+                                         cause.getMessage() );
+                        }
+                        else
+                        {
+                            // TODO consider retrying when ProcessingException is this exception's root cause
+                            LOGGER.error( "Error while reading resource at URI {}", e.getTargetUri(), e );
+                        }
                     }
                     visited.add( resourceUri );
                 }

@@ -9,22 +9,23 @@ import java.util.Objects;
 public final class ManagerMapper
 {
 
-    public ManagerResource getBMC( List<ManagerResource> managers )
+    public ManagerResource getManagementController( List<ManagerResource> managers )
         throws MappingException
     {
-        List<ManagerResource> detectedBmcs = new ArrayList<>();
+        List<ManagerResource> detectedManagementControllers = new ArrayList<>();
         for ( ManagerResource manager : managers )
         {
-            if ( Objects.equals( manager.getManagerType(), ManagerResource.ManagerType.BMC ) )
+            if ( Objects.equals( manager.getManagerType(), ManagerResource.ManagerType.ManagementController ) )
             {
-                detectedBmcs.add( manager );
+                detectedManagementControllers.add( manager );
             }
         }
 
-        if ( detectedBmcs.size() != 1 )
+        if ( detectedManagementControllers.size() != 1 )
         {
-            throw new MappingException( "No BMC or multiple BMC detected, unable to determine single MAC Address" );
+            throw new MappingException(
+                "No Management Controller or multiple Management Controllers detected, unable to determine single MAC Address" );
         }
-        return detectedBmcs.get( 0 );
+        return detectedManagementControllers.get( 0 );
     }
 }
