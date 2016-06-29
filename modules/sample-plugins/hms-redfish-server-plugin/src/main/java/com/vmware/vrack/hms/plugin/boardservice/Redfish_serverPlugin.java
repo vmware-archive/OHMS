@@ -511,6 +511,7 @@ public class Redfish_serverPlugin
                 {
                     ServiceHmsNode node = new ServiceHmsNode();
                     node.setNodeID( getUniqueIdForResource( serviceEndpoint, systemResource.getOdataId() ) );
+                    node.setUuid( systemResource.getUuid() == null ? null : systemResource.getUuid().toString() );
                     systemsDiscovered.add( node );
                 }
                 catch ( RedfishResourcesInventoryException e )

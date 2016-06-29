@@ -4,7 +4,19 @@
   "services": [
 	{
 	  "serviceType": "redfish",
-	  "serviceEndpoint": "http://localhost:8888/redfish/v1"
+	  "serviceEndpoint": "http://localhost:8888/redfish/v1",
+	  "inBandAccess": [
+		{
+		  "uuid": "00000001-0001-0001-0001-000000000001",
+		  "port": 0,
+		  "protocol": "esxi",
+		  "ipAddress": "0.0.0.0",
+		  "username": "USER",
+		  "password": "PASSWORD",
+		  "hypervisorName": "ESXI",
+		  "hypervisorProvider": "VMWARE"
+		}
+	  ]
 	}
   ],
   "servers": [
