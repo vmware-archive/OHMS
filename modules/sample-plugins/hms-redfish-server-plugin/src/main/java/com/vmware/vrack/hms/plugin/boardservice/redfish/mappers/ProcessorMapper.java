@@ -38,7 +38,7 @@ public class ProcessorMapper
             cpuInfo.setMaxClockFrequency( processor.getMaxSpeedMhz().longValue() );
         }
 
-        cpuInfo.setTotalCpuCores( processor.getTotalCores() );
+        cpuInfo.setTotalCpuCores( processor.getTotalCores() == null ? 0 : processor.getTotalCores() );
 
         return cpuInfo;
     }
