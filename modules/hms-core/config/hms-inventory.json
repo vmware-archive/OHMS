@@ -4,7 +4,7 @@
   "services": [
 	{
 	  "serviceType": "redfish",
-	  "serviceEndpoint": "http://localhost:8888/redfish/v1",
+	  "serviceEndpoint": "https://localhost:7778/redfish/v1",
 	  "inBandAccess": [
 		{
 		  "uuid": "00000001-0001-0001-0001-000000000001",
