@@ -1,7 +1,6 @@
 package com.vmware.vrack.hms.task.oob.redfish;
 
 import com.vmware.vrack.hms.common.ExternalService;
-import com.vmware.vrack.hms.common.HmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IRedfishService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
@@ -24,9 +23,9 @@ public class RedfishDiscoverComputerSystemsTask
 {
     private static Logger logger = Logger.getLogger( RedfishDiscoverComputerSystemsTask.class );
 
-    private List<HmsNode> discoveredNodes = new ArrayList<>();
+    private List<ServerNode> discoveredNodes = new ArrayList<>();
 
-    public List<HmsNode> getDiscoveredNodes()
+    public List<ServerNode> getDiscoveredNodes()
     {
         return discoveredNodes;
     }
@@ -59,6 +58,7 @@ public class RedfishDiscoverComputerSystemsTask
                     {
                         ServerNode node = new ServerNode();
                         node.setNodeID( hmsServiceNode.getNodeID() );
+                        node.setUuid( hmsServiceNode.getUuid() );
                         node.setBoardVendor( externalService.getServiceType() );
                         node.setBoardProductName( externalService.getServiceType() );
                         discoveredNodes.add( node );

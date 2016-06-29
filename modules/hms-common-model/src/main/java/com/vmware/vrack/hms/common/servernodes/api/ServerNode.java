@@ -56,6 +56,8 @@ public class ServerNode
 
     private String oobMacAddress = "";
 
+    private String uuid = "";
+
     private List<BmcUser> bmcUserList = new ArrayList<BmcUser>();
 
     private SelfTestResults selfTestResults;
@@ -164,6 +166,17 @@ public class ServerNode
     public String getOobMacAddress()
     {
         return oobMacAddress;
+    }
+
+    @JsonIgnore
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid( String uuid )
+    {
+        this.uuid = uuid;
     }
 
     public void setOobMacAddress( String oobMacAddress )

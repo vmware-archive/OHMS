@@ -233,16 +233,55 @@ public class ServerNodeConnector
         Map<String, HmsNode> hmsNodeMap = new HashMap<>();
         for ( ServiceItem service : services )
         {
-            List<HmsNode> nodes = getNodesForService( service );
-            for ( HmsNode node : nodes )
+            List<ServerNode> nodes = getNodesForService( service );
+            for ( ServerNode node : nodes )
             {
-                hmsNodeMap.put( node.getNodeID(), node );
+                ServiceItem.InBandAccess ibInfo = getIbInfo( node, service );
+
+                if ( ibInfo != null )
+                {
+                    ServerNode serverNode = mergeHmsNodeDataWithInBandAccess( node, ibInfo );
+                    hmsNodeMap.put( node.getNodeID(), serverNode );
+                }
+                else
+                {
+                    hmsNodeMap.put( node.getNodeID(), node );
+                }
             }
         }
         return hmsNodeMap;
     }
 
-    private List<HmsNode> getNodesForService( ServiceItem service )
+    private ServerNode mergeHmsNodeDataWithInBandAccess( ServerNode node, ServiceItem.InBandAccess ibInfo )
+    {
+        ServerNode serverNode = new ServerNode();
+        serverNode.setNodeID( node.getNodeID() );
+        serverNode.setOsUserName( ibInfo.getUsername() );
+        serverNode.setOsPassword( ibInfo.getPassword() );
+        serverNode.setIbIpAddress( ibInfo.getIpAddress() );
+        serverNode.setHypervisorName( ibInfo.getHypervisorName() );
+        serverNode.setBoardProductName( node.getBoardProductName() );
+        serverNode.setBoardVendor( node.getBoardVendor() );
+
+        serverNode.setHypervisorProvider( ibInfo.getHypervisorProvider() );
+
+        return serverNode;
+    }
+
+    private ServiceItem.InBandAccess getIbInfo( ServerNode node, ServiceItem service )
+    {
+        for ( ServiceItem.InBandAccess inBandAccess : service.getInBandAccess() )
+        {
+            if ( node.getUuid().equals( inBandAccess.getUuid() ) )
+            {
+                return inBandAccess;
+            }
+        }
+
+        return null;
+    }
+
+    private List<ServerNode> getNodesForService( ServiceItem service )
         throws HmsException
     {
         try

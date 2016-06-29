@@ -3,6 +3,8 @@ package com.vmware.vrack.hms.common.configuration;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -12,6 +14,8 @@ public class ServiceItem
     private String serviceType;
 
     private String serviceEndpoint;
+
+    private List<InBandAccess> inBandAccess = new ArrayList<>();
 
     public String getServiceType()
     {
@@ -26,6 +30,11 @@ public class ServiceItem
     public String getServiceEndpoint()
     {
         return serviceEndpoint;
+    }
+
+    public List<InBandAccess> getInBandAccess()
+    {
+        return inBandAccess;
     }
 
     public void setServiceEndpoint( String serviceEndpoint )
@@ -49,5 +58,74 @@ public class ServiceItem
     public int hashCode()
     {
         return Objects.hash( serviceType, serviceEndpoint );
+    }
+
+    public static class InBandAccess
+    {
+        private String uuid;
+
+        private Integer port;
+
+        private String protocol;
+
+        private String ipAddress;
+
+        private String username;
+
+        private String password;
+
+        private String hypervisorName;
+
+        private String hypervisorProvider;
+
+        public String getUuid()
+        {
+            return uuid;
+        }
+
+        public Integer getPort()
+        {
+            return port;
+        }
+
+        public String getProtocol()
+        {
+            return protocol;
+        }
+
+        public String getIpAddress()
+        {
+            return ipAddress;
+        }
+
+        public String getUsername()
+        {
+            return username;
+        }
+
+        public String getPassword()
+        {
+            return password;
+        }
+
+        public String getHypervisorName()
+        {
+            return hypervisorName;
+        }
+
+        public void setHypervisorName( String hypervisorName )
+        {
+            this.hypervisorName = hypervisorName;
+        }
+
+        public String getHypervisorProvider()
+        {
+            return hypervisorProvider;
+        }
+
+        public void setHypervisorProvider( String hypervisorProvider )
+        {
+            this.hypervisorProvider = hypervisorProvider;
+        }
     }
 }
