@@ -1,21 +1,21 @@
 package com.vmware.vrack.hms.plugin.boardservice.redfish.mappers;
 
 import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.DimmConfigResource;
+import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.MemoryResource;
 
 import java.math.BigInteger;
 import java.util.List;
 
-public class DimmConfigMapper
+public class MemoryMapper
 {
     private static final BigInteger MIB_TO_B_RATIO = BigInteger.valueOf( 1048576 );
 
-    public PhysicalMemory map( DimmConfigResource dimmConfig )
+    public PhysicalMemory map( MemoryResource memory )
     {
         PhysicalMemory physicalMemory = new PhysicalMemory();
-        physicalMemory.setMemoryType( dimmConfig.getDimmDeviceType() );
-        physicalMemory.setCapacityInBytes( mapCapacity( dimmConfig.getCapacityMiB() ) );
-        physicalMemory.setMaxMemorySpeedInHertz( mapMaxMemorySpeed( dimmConfig.getAllowedSpeedsMHz() ) );
+        physicalMemory.setMemoryType( memory.getMemoryDeviceType() );
+        physicalMemory.setCapacityInBytes( mapCapacity( memory.getCapacityMiB() ) );
+        physicalMemory.setMaxMemorySpeedInHertz( mapMaxMemorySpeed( memory.getAllowedSpeedsMHz() ) );
         return physicalMemory;
     }
 

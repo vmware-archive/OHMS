@@ -31,7 +31,7 @@ import com.vmware.vrack.hms.plugin.boardservice.redfish.discovery.RedfishResourc
 import com.vmware.vrack.hms.plugin.boardservice.redfish.discovery.RedfishResourcesInventoryException;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.BootOptionsMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.ComputerSystemMapper;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.DimmConfigMapper;
+import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.MemoryMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.EthernetInterfaceMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.ManagerMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.MappingException;
@@ -42,7 +42,7 @@ import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.StorageDeviceMap
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ComputerSystemResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ComputerSystemResource.Actions.ResetType;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ComputerSystemResource.Boot;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.DimmConfigResource;
+import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.MemoryResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.EthernetInterfaceResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ManagerResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.OdataId;
@@ -452,14 +452,14 @@ public class Redfish_serverPlugin
 
             InventoryTraverser traverser = new InventoryTraverser( inventory );
             ComputerSystemResource computerSystem = getComputerSystem( serviceHmsNode );
-            DimmConfigMapper dimmConfigMapper = new DimmConfigMapper();
+            MemoryMapper memoryMapper = new MemoryMapper();
             try
             {
-                List<DimmConfigResource> dimmConfigs = traverser.getDimmConfig( computerSystem );
-                List<PhysicalMemory> physicalMemoryList = new ArrayList<>( dimmConfigs.size() );
-                for ( DimmConfigResource dimmConfig : dimmConfigs )
+                List<MemoryResource> memoryList = traverser.getMemory( computerSystem );
+                List<PhysicalMemory> physicalMemoryList = new ArrayList<>( memoryList.size() );
+                for ( MemoryResource memory : memoryList )
                 {
-                    physicalMemoryList.add( dimmConfigMapper.map( dimmConfig ) );
+                    physicalMemoryList.add( memoryMapper.map( memory ) );
                 }
                 return physicalMemoryList;
             }

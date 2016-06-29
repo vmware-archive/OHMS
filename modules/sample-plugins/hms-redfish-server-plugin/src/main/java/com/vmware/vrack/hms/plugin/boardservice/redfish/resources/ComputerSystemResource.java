@@ -78,8 +78,8 @@ public final class ComputerSystemResource
     @JsonProperty( "SimpleStorage" )
     private OdataId simpleStorages;
 
-    @JsonProperty( "DimmConfig" )
-    private OdataId dimmConfig;
+    @JsonProperty( "Memory" )
+    private OdataId memory;
 
     @JsonProperty( "LogServices" )
     private OdataId logServices;
@@ -195,9 +195,9 @@ public final class ComputerSystemResource
         return simpleStorages;
     }
 
-    public OdataId getDimmConfig()
+    public OdataId getMemory()
     {
-        return dimmConfig;
+        return memory;
     }
 
     public OdataId getLogServices()
