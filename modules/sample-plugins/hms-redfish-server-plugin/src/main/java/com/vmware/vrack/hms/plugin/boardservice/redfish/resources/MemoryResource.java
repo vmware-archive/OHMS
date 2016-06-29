@@ -9,7 +9,7 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 
 @JsonIgnoreProperties( ignoreUnknown = true )
-public final class DimmConfigResource
+public final class MemoryResource
     extends RedfishResource
 {
     @JsonProperty( "CapacityMiB" )
@@ -18,8 +18,8 @@ public final class DimmConfigResource
     @JsonProperty( "OperatingSpeedMHz" )
     private Integer operatingSpeedMHz;
 
-    @JsonProperty( "DimmDeviceType" )
-    private String dimmDeviceType;
+    @JsonProperty( "MemoryDeviceType" )
+    private String memoryDeviceType;
 
     @JsonProperty( "AllowedSpeedsMHz" )
     private List<Long> allowedSpeedsMHz;
@@ -34,9 +34,9 @@ public final class DimmConfigResource
         return operatingSpeedMHz;
     }
 
-    public String getDimmDeviceType()
+    public String getMemoryDeviceType()
     {
-        return dimmDeviceType;
+        return memoryDeviceType;
     }
 
     public List<Long> getAllowedSpeedsMHz()

@@ -1,7 +1,7 @@
 package com.vmware.vrack.hms.plugin.boardservice.redfish.discovery;
 
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ComputerSystemResource;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.DimmConfigResource;
+import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.MemoryResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.EthernetInterfaceResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ManagerResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.OdataId;
@@ -31,10 +31,10 @@ public class InventoryTraverser
         return getCollection( computerSystem.getOrigin(), computerSystem.getProcessors() );
     }
 
-    public List<DimmConfigResource> getDimmConfig( ComputerSystemResource computerSystem )
+    public List<MemoryResource> getMemory( ComputerSystemResource computerSystem )
         throws RedfishResourcesInventoryException
     {
-        return getCollection( computerSystem.getOrigin(), computerSystem.getDimmConfig() );
+        return getCollection( computerSystem.getOrigin(), computerSystem.getMemory() );
     }
 
     public List<SimpleStorageResource> getSimpleStorages( ComputerSystemResource computerSystem )
