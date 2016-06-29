@@ -161,8 +161,9 @@ public class Redfish_serverPlugin
             InventoryTraverser traverser = new InventoryTraverser( inventory );
             ManagerMapper managerMapper = new ManagerMapper();
 
-            ManagerResource bmc = managerMapper.getBMC( traverser.getManagers( system ) );
-            List<EthernetInterfaceResource> nics = traverser.getEthernetInterfaces( bmc );
+            ManagerResource managementController =
+                managerMapper.getManagementController( traverser.getManagers( system ) );
+            List<EthernetInterfaceResource> nics = traverser.getEthernetInterfaces( managementController );
 
             EthernetInterfaceMapper nicMapper = new EthernetInterfaceMapper();
 

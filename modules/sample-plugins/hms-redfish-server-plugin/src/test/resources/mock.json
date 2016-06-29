@@ -613,7 +613,7 @@
       "@odata.type": "#Manager.1.0.0.Manager",
       "Id": "2",
       "Name": "name-as-string",
-      "ManagerType": "BMC",
+      "ManagerType": "ManagementController",
       "Description": "description-as-string",
       "ServiceEntryPointUUID": "f39d0de0-37c5-11e6-898f-49b20eae009e",
       "UUID": "f3a3c4a0-37c5-11e6-898f-49b20eae009e",

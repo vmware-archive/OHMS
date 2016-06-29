@@ -12,11 +12,10 @@ import com.vmware.vrack.hms.common.resource.chassis.ChassisIdentifyOptions;
 import com.vmware.vrack.hms.common.resource.fru.BoardInfo;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNodeInfo;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.client.IRedfishWebClient;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.client.RedfishActionInvoker;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.discovery.RedfishResourcesInventory;
-import org.junit.Before;
+import com.vmware.vrack.hms.plugin.testlib.IntegrationTest;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,51 +26,34 @@ import java.util.List;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class Redfish_serverPlugin_UnitTest
+@Category( IntegrationTest.class )
+public class Redfish_serverPlugin_IntegrationTest
 {
-    private static final URI SERVICE_ENDPOINT = URI.create( "/redfish/v1" );
+    private static URI serviceEndpoint;
 
-    private static Logger logger = LoggerFactory.getLogger( Redfish_serverPlugin_UnitTest.class );
+    private static Logger logger = LoggerFactory.getLogger( Redfish_serverPlugin_IntegrationTest.class );
 
-    Redfish_serverPlugin plugin = new Redfish_serverPlugin()
-    {
-        @Override
-        protected RedfishActionInvoker createRedfishActionInvoker()
-        {
-            return new RedfishActionInvoker()
-            {
-                @Override
-                protected IRedfishWebClient createRedfishClient()
-                {
-                    return new MockRedfishClient( this.getClass().getResourceAsStream( "/mock.json" ) );
-                }
-            };
-        }
+    static Redfish_serverPlugin plugin = new Redfish_serverPlugin();
 
-        @Override
-        protected RedfishResourcesInventory createRedfishResourcesInventory()
-        {
-            return new RedfishResourcesInventory()
-            {
-                @Override
-                protected IRedfishWebClient createRedfishClient()
-                {
-                    return new MockRedfishClient( this.getClass().getResourceAsStream( "/mock.json" ) );
-                }
-            };
-        }
-    };
-
-    ServiceServerNode node;
+    static ServiceServerNode node;
 
     /**
-     * Function to be executed before start of each test method
+     * Function to be executed before start
      */
-    @Before
-    public void init()
+    @BeforeClass
+    public static void init()
         throws IOException, HmsException
     {
-        List<ServiceHmsNode> nodes = plugin.getNodesForComputerSystems( SERVICE_ENDPOINT );
+        if ( System.getProperty( "testServiceEndpoint" ) != null )
+        {
+            serviceEndpoint = URI.create( System.getProperty( "testServiceEndpoint" ) );
+        }
+        else
+        {
+            serviceEndpoint = URI.create( "http://localhost:8888/redfish/v1" );
+        }
+
+        List<ServiceHmsNode> nodes = plugin.getNodesForComputerSystems( serviceEndpoint );
 
         ServiceHmsNode hmsNode = nodes.iterator().next();
         node = new ServiceServerNode();
@@ -291,7 +273,7 @@ public class Redfish_serverPlugin_UnitTest
         throws HmsException
     {
         logger.info( "Test Redfish Service getNodesForComputerSystems" );
-        List<ServiceHmsNode> computerSystems = plugin.getNodesForComputerSystems( SERVICE_ENDPOINT );
+        List<ServiceHmsNode> computerSystems = plugin.getNodesForComputerSystems( serviceEndpoint );
 
         return;
     }
