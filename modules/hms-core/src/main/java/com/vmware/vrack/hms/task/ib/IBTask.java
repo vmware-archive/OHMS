@@ -9,8 +9,8 @@
 
  * Unless required by applicable law or agreed to in writing, software distributed
  * under the License is distributed on an "AS IS" BASIS, without warranties or
- * conditions of any kind, EITHER EXPRESS OR IMPLIED. see the License for the
- * specific language governing permissions and limitations under the License
+ * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
+ * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
 package com.vmware.vrack.hms.task.ib;
