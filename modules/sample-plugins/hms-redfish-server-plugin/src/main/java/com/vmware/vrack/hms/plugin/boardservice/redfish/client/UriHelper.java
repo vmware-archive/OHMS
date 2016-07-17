@@ -31,6 +31,12 @@ public class UriHelper
     public static URI toAbsoluteUri( URI origin, OdataId odataId )
     {
         URI targetUri = odataId.toUri();
+
+        if ( targetUri == null )
+        {
+            throw new IllegalArgumentException( "Provided odataId is not valid" );
+        }
+
         if ( targetUri.isAbsolute() )
         {
             return targetUri;
