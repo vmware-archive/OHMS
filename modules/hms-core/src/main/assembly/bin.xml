@@ -92,14 +92,10 @@
       <scope>runtime</scope>
       <includes>
       	<include>com.vmware.vrack:hms-oob-ipmi-plugin</include>
-      	<include>com.vmware.vrack:quanta-rmm</include>
-      	<include>com.vmware.vrack:quanta-d51b</include>
-      	<include>com.vmware.vrack:quanta-ocp-api</include>
-      	<include>com.vmware.vrack:intel-rmm</include>
      	<include>com.changeit.plugin:hms-sample-server-plugin</include>
      	<include>com.changeit.plugin:hms-sample-switch-plugin</include>
+     	<include>com.vmware.vrack:quanta-plugin</include>
       	<include>com.vmware.vrack:cumulus-switch</include>
-      	<include>com.vmware.vrack:quanta-switch</include>
       </includes>
     </dependencySet>
   </dependencySets>
