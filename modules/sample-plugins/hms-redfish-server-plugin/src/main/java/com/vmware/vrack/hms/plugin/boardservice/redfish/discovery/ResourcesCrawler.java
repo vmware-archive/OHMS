@@ -114,6 +114,11 @@ public final class ResourcesCrawler
         for ( OdataId relatedResourceOdataId : relatedResources )
         {
             URI relatedResource = relatedResourceOdataId.toUri();
+            if ( relatedResource == null )
+            {
+                continue;
+            }
+
             if ( relatedResource.isAbsolute() )
             {
                 links.add( relatedResource );
