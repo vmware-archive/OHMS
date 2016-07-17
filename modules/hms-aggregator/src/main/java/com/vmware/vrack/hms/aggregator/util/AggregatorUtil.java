@@ -1,14 +1,19 @@
 /* ********************************************************************************
  * AggregatorUtil.java
  *
- * Copyright (C) 2014-2016 VMware, Inc. - All rights reserved.
+ * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
+
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, without warranties or
+ * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
+ * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
 package com.vmware.vrack.hms.aggregator.util;
-
-import java.util.List;
-
-import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.common.boardvendorservice.api.ib.IInbandService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
@@ -24,6 +29,9 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 import com.vmware.vrack.hms.common.util.Constants;
 import com.vmware.vrack.hms.inventory.InventoryLoader;
 import com.vmware.vrack.hms.service.provider.InBandServiceProvider;
+import org.apache.log4j.Logger;
+
+import java.util.List;
 
 /**
  * @author sgakhar Provides utility functions to be used while aggregating OOB and IB data
@@ -42,7 +50,7 @@ public class AggregatorUtil
     public static boolean isComponentAvilableOOB( ServerNode node, ServerComponent component )
     {
         if ( component.getComponentInfoAPI() != null )
-            InventoryLoader.getInstance().isServerComponentAvailableOOB( node.getNodeID(),
+            return InventoryLoader.getInstance().isServerComponentAvailableOOB( node.getNodeID(),
                                                                          component.getComponentInfoAPI() );
         return false;
     }
@@ -155,31 +163,31 @@ public class AggregatorUtil
             case CPU:
                 List<CPUInfo> cpuInfo = null;
                 path = Constants.HMS_OOB_CPU_INFO_ENDPOINT.replace( "{host_id}", node.getNodeID() );
-                cpuInfo = MonitoringUtil.<CPUInfo>getServerComponentOOB( path );
+                cpuInfo = MonitoringUtil.getServerComponentOOB( path, CPUInfo.class );
                 node.setCpuInfo( cpuInfo );
                 break;
             case STORAGE:
                 List<HddInfo> hddInfo = null;
                 path = Constants.HMS_OOB_HDD_INFO_ENDPOINT.replace( "{host_id}", node.getNodeID() );
-                hddInfo = MonitoringUtil.<HddInfo>getServerComponentOOB( path );
+                hddInfo = MonitoringUtil.getServerComponentOOB( path, HddInfo.class );
                 node.setHddInfo( hddInfo );
                 break;
             case MEMORY:
                 List<PhysicalMemory> memoryInfo = null;
                 path = Constants.HMS_OOB_MEMORY_INFO_ENDPOINT.replace( "{host_id}", node.getNodeID() );
-                memoryInfo = MonitoringUtil.<PhysicalMemory>getServerComponentOOB( path );
+                memoryInfo = MonitoringUtil.getServerComponentOOB( path, PhysicalMemory.class );
                 node.setPhysicalMemoryInfo( memoryInfo );
                 break;
             case NIC:
                 List<EthernetController> nicInfo = null;
                 path = Constants.HMS_OOB_NIC_INFO_ENDPOINT.replace( "{host_id}", node.getNodeID() );
-                nicInfo = MonitoringUtil.<EthernetController>getServerComponentOOB( path );
+                nicInfo = MonitoringUtil.getServerComponentOOB( path, EthernetController.class );
                 node.setEthernetControllerList( nicInfo );
                 break;
             case STORAGE_CONTROLLER:
                 List<StorageControllerInfo> storageControllerInfo = null;
                 path = Constants.HMS_OOB_STORAGE_CONTROLLER_INFO_ENDPOINT.replace( "{host_id}", node.getNodeID() );
-                storageControllerInfo = MonitoringUtil.<StorageControllerInfo>getServerComponentOOB( path );
+                storageControllerInfo = MonitoringUtil.getServerComponentOOB( path, StorageControllerInfo.class );
                 node.setStorageControllerInfo( storageControllerInfo );
                 break;
         }
