@@ -55,8 +55,6 @@ public class IpmiTaskConnector
 
     private int UDP_PORT = 0;
 
-    private boolean encryptData = true;
-
     public IpmiTaskConnector( String ipAddress, String user, String password )
     {
         this.ipAddress = ipAddress;
@@ -70,12 +68,11 @@ public class IpmiTaskConnector
         this.UDP_PORT = UDP_PORT;
     }
 
-    public IpmiTaskConnector( String ipAddress, String user, String password, CipherSuite cipherSuite,
-                              boolean encryptData )
+    public IpmiTaskConnector( String ipAddress, String user, String password, CipherSuite cipherSuite )
     {
         this( ipAddress, user, password );
         this.cipherSuite = cipherSuite;
-        this.encryptData = encryptData;
+        // this.encryptData = encryptData;
         // this.customSessionMessage = customSessionMessage;
     }
 
@@ -102,9 +99,9 @@ public class IpmiTaskConnector
         {
             connector = new IpmiConnector( UDP_PORT );
             handle = connector.createConnection( InetAddress.getByName( ipAddress ) );
-            connector.setConnectionEncryption( handle, encryptData );
+            connector.setConnectionEncryption( handle );
             handle.setPrivilegeLevel( PrivilegeLevel.Administrator );
-            if ( encryptData )
+            // if ( encryptData )
                 cipherSuite = connector.getAvailableCipherSuites( handle ).get( cipherSuiteIndex );
             connector.getChannelAuthenticationCapabilities( handle, cipherSuite, PrivilegeLevel.Administrator );
             connector.openSession( handle, user, password, null );

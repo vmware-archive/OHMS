@@ -269,10 +269,10 @@ public class IpmiAsyncConnector
         return;
     }
 
-    public void setConnectionEncryption( ConnectionHandle connectionHandle, boolean isMessageEncrypted )
+    public void setConnectionEncryption( ConnectionHandle connectionHandle )
                                              throws Exception
     {
-        connectionManager.getConnection( connectionHandle.getHandle() ).setEncryptMessage( isMessageEncrypted );
+        // connectionManager.getConnection( connectionHandle.getHandle() ).setEncryptMessage( isMessageEncrypted );
         // connectionManager.getConnection( connectionHandle.getHandle() ).setCustomSessionMessage( customSessionMessage
         // );
     }

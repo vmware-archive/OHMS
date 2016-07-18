@@ -25,8 +25,6 @@ public class IpmiConnectionSettings
 
     private int cipherSuiteIndex;
 
-    private boolean encryptData;
-
     private CipherSuite cipherSuite;
 
     public ServiceServerNode getNode()
@@ -47,16 +45,6 @@ public class IpmiConnectionSettings
     public void setCipherSuiteIndex( int cipherSuiteIndex )
     {
         this.cipherSuiteIndex = cipherSuiteIndex;
-    }
-
-    public boolean isEncryptData()
-    {
-        return encryptData;
-    }
-
-    public void setEncryptData( boolean encryptData )
-    {
-        this.encryptData = encryptData;
     }
 
     public CipherSuite getCipherSuite()

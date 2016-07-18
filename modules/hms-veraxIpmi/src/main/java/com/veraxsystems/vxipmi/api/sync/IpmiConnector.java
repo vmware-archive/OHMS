@@ -191,10 +191,10 @@ public class IpmiConnector
         asyncConnector.closeSession( connectionHandle );
     }
 
-    public void setConnectionEncryption( ConnectionHandle connectionHandle, boolean isMessageEncrypted )
+    public void setConnectionEncryption( ConnectionHandle connectionHandle )
                                              throws Exception
     {
-        asyncConnector.setConnectionEncryption( connectionHandle, isMessageEncrypted );
+        asyncConnector.setConnectionEncryption( connectionHandle );
     }
 
     public boolean isSessionValid( ConnectionHandle connectionHandle )

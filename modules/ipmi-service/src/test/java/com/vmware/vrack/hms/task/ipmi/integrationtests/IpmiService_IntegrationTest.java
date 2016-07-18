@@ -149,7 +149,7 @@ public class IpmiService_IntegrationTest
                 settings = connectionSettings.get( node.getNodeID() );
             else
             {
-                settings = createConnectionSettings( node, 0, false, cs );
+                settings = createConnectionSettings( node, 0, cs );
                 connectionSettings.put( node.getNodeID(), settings );
             }
         }
@@ -168,13 +168,13 @@ public class IpmiService_IntegrationTest
     }
 
     private IpmiConnectionSettings createConnectionSettings( ServiceServerNode node, int cipherSuiteIndex,
-                                                             boolean encryptData, CipherSuite cipherSuite )
+                                                             CipherSuite cipherSuite )
     {
         IpmiConnectionSettings settings = new IpmiConnectionSettings();
         settings.setNode( node );
         settings.setCipherSuite( cipherSuite );
         settings.setCipherSuiteIndex( cipherSuiteIndex );
-        settings.setEncryptData( encryptData );
+        // settings.setEncryptData( encryptData );
         // settings.setSessionOpenPayload( customSessionPayload );
         return settings;
     }

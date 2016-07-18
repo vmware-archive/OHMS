@@ -75,8 +75,6 @@ public class IpmiServiceExecutor
 
     private int cipherSuiteIndex = 3;
 
-    private boolean encryptData = true;
-
     private CipherSuite cipherSuite;
 
     private Map<String, IpmiConnectionSettings> connectionSettings = new HashMap<String, IpmiConnectionSettings>();
@@ -91,10 +89,10 @@ public class IpmiServiceExecutor
         this.cipherSuiteIndex = cipherSuiteIndex;
     }
 
-    public IpmiServiceExecutor( CipherSuite cipherSuite, boolean encryptData )
+    public IpmiServiceExecutor( CipherSuite cipherSuite )
     {
         this.cipherSuite = cipherSuite;
-        this.encryptData = encryptData;
+        // this.encryptData = encryptData;
         // this.customSessionPayload = customSessionPayload;
     }
 
@@ -179,7 +177,7 @@ public class IpmiServiceExecutor
             else
             {
                 settings =
-                    createConnectionSettings( node, cipherSuiteIndex, encryptData, cipherSuite );
+                    createConnectionSettings( node, cipherSuiteIndex, cipherSuite );
                 connectionSettings.put( node.getNodeID(), settings );
             }
         }
@@ -204,13 +202,13 @@ public class IpmiServiceExecutor
      * Return IpmiConnectionSettings for a given server node, to be used as a key in pool.
      */
     private IpmiConnectionSettings createConnectionSettings( ServiceServerNode node, int cipherSuiteIndex,
-                                                             boolean encryptData, CipherSuite cipherSuite )
+                                                             CipherSuite cipherSuite )
     {
         IpmiConnectionSettings settings = new IpmiConnectionSettings();
         settings.setNode( node );
         settings.setCipherSuite( cipherSuite );
         settings.setCipherSuiteIndex( cipherSuiteIndex );
-        settings.setEncryptData( encryptData );
+        // settings.setEncryptData( encryptData );
         // settings.setSessionOpenPayload( customSessionPayload );
         return settings;
     }
