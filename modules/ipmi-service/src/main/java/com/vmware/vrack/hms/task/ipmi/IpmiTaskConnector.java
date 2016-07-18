@@ -26,9 +26,6 @@ import com.veraxsystems.vxipmi.coding.commands.IpmiVersion;
 import com.veraxsystems.vxipmi.coding.commands.PrivilegeLevel;
 import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatus;
 import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatusResponseData;
-import com.veraxsystems.vxipmi.coding.commands.session.GetChannelAuthenticationCapabilities;
-import com.veraxsystems.vxipmi.coding.commands.session.GetChannelAuthenticationCapabilitiesResponseData;
-import com.veraxsystems.vxipmi.coding.commands.session.SessionCustomPayload;
 import com.veraxsystems.vxipmi.coding.commands.session.SetSessionPrivilegeLevel;
 import com.veraxsystems.vxipmi.coding.protocol.AuthenticationType;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
@@ -60,8 +57,6 @@ public class IpmiTaskConnector
 
     private boolean encryptData = true;
 
-    private SessionCustomPayload customSessionMessage = null;
-
     public IpmiTaskConnector( String ipAddress, String user, String password )
     {
         this.ipAddress = ipAddress;
@@ -76,12 +71,12 @@ public class IpmiTaskConnector
     }
 
     public IpmiTaskConnector( String ipAddress, String user, String password, CipherSuite cipherSuite,
-                              boolean encryptData, SessionCustomPayload customSessionMessage )
+                              boolean encryptData )
     {
         this( ipAddress, user, password );
         this.cipherSuite = cipherSuite;
         this.encryptData = encryptData;
-        this.customSessionMessage = customSessionMessage;
+        // this.customSessionMessage = customSessionMessage;
     }
 
     public IpmiConnector getConnector()
@@ -107,7 +102,7 @@ public class IpmiTaskConnector
         {
             connector = new IpmiConnector( UDP_PORT );
             handle = connector.createConnection( InetAddress.getByName( ipAddress ) );
-            connector.setConnectionEncryption( handle, encryptData, customSessionMessage );
+            connector.setConnectionEncryption( handle, encryptData );
             handle.setPrivilegeLevel( PrivilegeLevel.Administrator );
             if ( encryptData )
                 cipherSuite = connector.getAvailableCipherSuites( handle ).get( cipherSuiteIndex );

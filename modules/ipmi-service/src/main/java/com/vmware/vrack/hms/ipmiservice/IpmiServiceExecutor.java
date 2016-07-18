@@ -22,7 +22,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.veraxsystems.vxipmi.coding.commands.session.SessionCustomPayload;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
@@ -80,8 +79,6 @@ public class IpmiServiceExecutor
 
     private CipherSuite cipherSuite;
 
-    private SessionCustomPayload customSessionPayload;
-
     private Map<String, IpmiConnectionSettings> connectionSettings = new HashMap<String, IpmiConnectionSettings>();
 
     public IpmiServiceExecutor()
@@ -94,12 +91,11 @@ public class IpmiServiceExecutor
         this.cipherSuiteIndex = cipherSuiteIndex;
     }
 
-    public IpmiServiceExecutor( CipherSuite cipherSuite, boolean encryptData,
-                                SessionCustomPayload customSessionPayload )
+    public IpmiServiceExecutor( CipherSuite cipherSuite, boolean encryptData )
     {
         this.cipherSuite = cipherSuite;
         this.encryptData = encryptData;
-        this.customSessionPayload = customSessionPayload;
+        // this.customSessionPayload = customSessionPayload;
     }
 
     /**
@@ -183,7 +179,7 @@ public class IpmiServiceExecutor
             else
             {
                 settings =
-                    createConnectionSettings( node, cipherSuiteIndex, encryptData, cipherSuite, customSessionPayload );
+                    createConnectionSettings( node, cipherSuiteIndex, encryptData, cipherSuite );
                 connectionSettings.put( node.getNodeID(), settings );
             }
         }
@@ -208,15 +204,14 @@ public class IpmiServiceExecutor
      * Return IpmiConnectionSettings for a given server node, to be used as a key in pool.
      */
     private IpmiConnectionSettings createConnectionSettings( ServiceServerNode node, int cipherSuiteIndex,
-                                                             boolean encryptData, CipherSuite cipherSuite,
-                                                             SessionCustomPayload customSessionPayload )
+                                                             boolean encryptData, CipherSuite cipherSuite )
     {
         IpmiConnectionSettings settings = new IpmiConnectionSettings();
         settings.setNode( node );
         settings.setCipherSuite( cipherSuite );
         settings.setCipherSuiteIndex( cipherSuiteIndex );
         settings.setEncryptData( encryptData );
-        settings.setSessionOpenPayload( customSessionPayload );
+        // settings.setSessionOpenPayload( customSessionPayload );
         return settings;
     }
 
@@ -1617,7 +1612,7 @@ public class IpmiServiceExecutor
             logger.debug( "Is the node/host available or reachable for Node: " + node.getNodeID() );
             try
             {
-                serviceServerNode = (ServiceServerNode) node;
+                serviceServerNode = node;
                 connector = getIpmiTaskConnector( serviceServerNode );
                 status = isHostAvailable( node, connector );
                 logger.info( String.format( "Is the host available: [ %s ]", ( status ? "ON" : "OFF" ) ) );
@@ -1626,7 +1621,7 @@ public class IpmiServiceExecutor
             finally
             {
                 logger.debug( "Destroy the Ipmi task connector" );
-                returnIpmiTaskConnector( (ServiceServerNode) node, connector );
+                returnIpmiTaskConnector( node, connector );
             }
         }
         else

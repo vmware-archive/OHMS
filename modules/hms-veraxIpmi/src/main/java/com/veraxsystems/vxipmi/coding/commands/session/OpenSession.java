@@ -174,11 +174,11 @@ public class OpenSession
         payload[9] = 0; // reserved
         payload[10] = 0; // reserved
         payload[11] = 0x08; // payload length
-        if ( connection.isEncryptMessage() )
+        // if ( connection.isEncryptMessage() )
             payload[12] = getCipherSuite().getAuthenticationAlgorithm().getCode(); // authentication algorithm specific
                                                                                    // code
-        else
-            payload[12] = connection.getCustomSessionMessage().getAuthCode();
+        // else
+        // payload[12] = connection.getCustomSessionMessage().getAuthCode();
         payload[13] = 0; // reserved
         payload[14] = 0; // reserved
         payload[15] = 0; // reserved
@@ -187,10 +187,10 @@ public class OpenSession
         payload[17] = 0; // reserved
         payload[18] = 0; // reserved
         payload[19] = 0x08; // payload length
-        if ( connection.isEncryptMessage() )
+        // if ( connection.isEncryptMessage() )
             payload[20] = getCipherSuite().getIntegrityAlgorithm().getCode(); // integrity algorithm specific code
-        else
-            payload[20] = connection.getCustomSessionMessage().getIntegrityCode();
+        // else
+        // payload[20] = connection.getCustomSessionMessage().getIntegrityCode();
         payload[21] = 0; // reserved
         payload[22] = 0; // reserved
         payload[23] = 0; // reserved
@@ -199,11 +199,11 @@ public class OpenSession
         payload[25] = 0; // reserved
         payload[26] = 0; // reserved
         payload[27] = 0x08; // payload length
-        if ( connection.isEncryptMessage() )
+        // if ( connection.isEncryptMessage() )
             payload[28] = getCipherSuite().getConfidentialityAlgorithm().getCode(); // confidentiality algorithm
                                                                                     // specific code
-        else
-            payload[28] = connection.getCustomSessionMessage().getConfidentialityCode();
+        // else
+        // payload[28] = connection.getCustomSessionMessage().getConfidentialityCode();
         payload[29] = 0; // reserved
         payload[30] = 0; // reserved
         payload[31] = 0; // reserved

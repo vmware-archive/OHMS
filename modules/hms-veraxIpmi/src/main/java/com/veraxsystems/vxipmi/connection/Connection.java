@@ -31,7 +31,6 @@ import com.veraxsystems.vxipmi.coding.commands.session.GetChannelCipherSuitesRes
 import com.veraxsystems.vxipmi.coding.commands.session.OpenSessionResponseData;
 import com.veraxsystems.vxipmi.coding.commands.session.Rakp1ResponseData;
 import com.veraxsystems.vxipmi.coding.commands.session.Rakp3ResponseData;
-import com.veraxsystems.vxipmi.coding.commands.session.SessionCustomPayload;
 import com.veraxsystems.vxipmi.coding.payload.lan.IpmiLanResponse;
 import com.veraxsystems.vxipmi.coding.protocol.Ipmiv20Message;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
@@ -92,8 +91,6 @@ public class Connection
     private int lastReceivedSequenceNumber = 0;
 
     private boolean encryptMessage = true;
-
-    private SessionCustomPayload customSessionMessage;
 
     private long lastMessageRecieveTimeStamp = 0;
 
@@ -602,16 +599,6 @@ public class Connection
     public void setEncryptMessage( boolean encryptMessage )
     {
         this.encryptMessage = encryptMessage;
-    }
-
-    public SessionCustomPayload getCustomSessionMessage()
-    {
-        return customSessionMessage;
-    }
-
-    public void setCustomSessionMessage( SessionCustomPayload customSessionMessage )
-    {
-        this.customSessionMessage = customSessionMessage;
     }
 
     /**

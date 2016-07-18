@@ -53,7 +53,7 @@ public class IpmiTaskConnectorFactory
         IpmiTaskConnector ipmiTaskConnector =
             new IpmiTaskConnector( node.getManagementIp(), node.getManagementUserName(),
                                    node.getManagementUserPassword(), connectionData.getCipherSuite(),
-                                   connectionData.isEncryptData(), connectionData.getSessionOpenPayload() );
+                                   connectionData.isEncryptData() );
         ipmiTaskConnector.createConnection( connectionData.getCipherSuiteIndex() );
         ipmiTaskConnector.getConnector().sendMessage( ipmiTaskConnector.getHandle(),
                                                       new SetSessionPrivilegeLevel( IpmiVersion.V20,

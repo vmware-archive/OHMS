@@ -26,7 +26,6 @@ import com.veraxsystems.vxipmi.coding.commands.IpmiCommandCoder;
 import com.veraxsystems.vxipmi.coding.commands.PrivilegeLevel;
 import com.veraxsystems.vxipmi.coding.commands.ResponseData;
 import com.veraxsystems.vxipmi.coding.commands.session.GetChannelAuthenticationCapabilitiesResponseData;
-import com.veraxsystems.vxipmi.coding.commands.session.SessionCustomPayload;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 import com.veraxsystems.vxipmi.common.PropertiesManager;
 import com.veraxsystems.vxipmi.connection.Connection;
@@ -270,12 +269,12 @@ public class IpmiAsyncConnector
         return;
     }
 
-    public void setConnectionEncryption( ConnectionHandle connectionHandle, boolean isMessageEncrypted,
-                                         SessionCustomPayload customSessionMessage )
+    public void setConnectionEncryption( ConnectionHandle connectionHandle, boolean isMessageEncrypted )
                                              throws Exception
     {
         connectionManager.getConnection( connectionHandle.getHandle() ).setEncryptMessage( isMessageEncrypted );
-        connectionManager.getConnection( connectionHandle.getHandle() ).setCustomSessionMessage( customSessionMessage );
+        // connectionManager.getConnection( connectionHandle.getHandle() ).setCustomSessionMessage( customSessionMessage
+        // );
     }
 
     public boolean isSessionValid( ConnectionHandle connectionHandle )

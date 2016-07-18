@@ -12,7 +12,6 @@
 package com.veraxsystems.vxipmi.api.async;
 
 import com.veraxsystems.vxipmi.coding.commands.PrivilegeLevel;
-import com.veraxsystems.vxipmi.coding.commands.session.SessionCustomPayload;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 import com.veraxsystems.vxipmi.connection.Connection;
 

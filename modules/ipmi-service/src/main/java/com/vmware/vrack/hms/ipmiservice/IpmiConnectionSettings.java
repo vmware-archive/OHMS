@@ -15,7 +15,7 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.ipmiservice;
 
-import com.veraxsystems.vxipmi.coding.commands.session.SessionCustomPayload;
+
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 
@@ -28,8 +28,6 @@ public class IpmiConnectionSettings
     private boolean encryptData;
 
     private CipherSuite cipherSuite;
-
-    private SessionCustomPayload sessionOpenPayload;
 
     public ServiceServerNode getNode()
     {
@@ -69,16 +67,6 @@ public class IpmiConnectionSettings
     public void setCipherSuite( CipherSuite cipherSuite )
     {
         this.cipherSuite = cipherSuite;
-    }
-
-    public SessionCustomPayload getSessionOpenPayload()
-    {
-        return sessionOpenPayload;
-    }
-
-    public void setSessionOpenPayload( SessionCustomPayload sessionOpenPayload )
-    {
-        this.sessionOpenPayload = sessionOpenPayload;
     }
 
     @Override
