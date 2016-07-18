@@ -24,8 +24,6 @@ import com.veraxsystems.vxipmi.api.async.ConnectionHandle;
 import com.veraxsystems.vxipmi.api.sync.IpmiConnector;
 import com.veraxsystems.vxipmi.coding.commands.IpmiVersion;
 import com.veraxsystems.vxipmi.coding.commands.PrivilegeLevel;
-import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatus;
-import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatusResponseData;
 import com.veraxsystems.vxipmi.coding.commands.session.SetSessionPrivilegeLevel;
 import com.veraxsystems.vxipmi.coding.protocol.AuthenticationType;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
@@ -121,11 +119,11 @@ public class IpmiTaskConnector
      * @return true if session state is valid No heart-beat request is sent to BMC on this call, only Current CLient
      *         state is checked.
      */
-    public boolean isSessionValid()
-        throws Exception
-    {
-        return connector.isSessionValid( handle );
-    }
+    // public boolean isSessionValid()
+    // throws Exception
+    // {
+    // return connector.isSessionValid( handle );
+    // }
 
     /**
      * Check if session is Responsive.
@@ -136,32 +134,32 @@ public class IpmiTaskConnector
     public boolean isConnectionResponsive()
         throws Exception
     {
-        if ( connector.isSessionValid( handle ) )
-        {
-            GetChassisStatusResponseData response =
-                (GetChassisStatusResponseData) connector.sendMessage( handle,
-                                                                      new GetChassisStatus( IpmiVersion.V20,
-                                                                                            this.cipherSuite,
-                                                                                            AuthenticationType.RMCPPlus ) );
-            logger.debug( "response for isConnectionResponsive chassis PowerState is "
-                + response.getCurrentPowerState() );
-            return true;
-        }
-        else
+        // if ( connector.isSessionValid( handle ) )
+        // {
+        // GetChassisStatusResponseData response =
+        // (GetChassisStatusResponseData) connector.sendMessage( handle,
+        // new GetChassisStatus( IpmiVersion.V20,
+        // this.cipherSuite,
+        // AuthenticationType.RMCPPlus ) );
+        // logger.debug( "response for isConnectionResponsive chassis PowerState is "
+        // + response.getCurrentPowerState() );
+        // return true;
+        // }
+        // else
             return false;
     }
 
-    public void createSession()
-        throws Exception
-    {
-        logger.debug( "Session valid [ " + connector.isSessionValid( handle ) + " ] for IP [ " + ipAddress
-            + " ]. Thread [ " + Thread.currentThread().getName() + " ]" );
-        if ( !connector.isSessionValid( handle ) )
-        {
-            connector.openSession( handle, user, password, null );
-        }
-        setSessionPrivilege();
-    }
+    // public void createSession()
+    // throws Exception
+    // {
+    // logger.debug( "Session valid [ " + connector.isSessionValid( handle ) + " ] for IP [ " + ipAddress
+    // + " ]. Thread [ " + Thread.currentThread().getName() + " ]" );
+    // if ( !connector.isSessionValid( handle ) )
+    // {
+    // connector.openSession( handle, user, password, null );
+    // }
+    // setSessionPrivilege();
+    // }
 
     /**
      * Set session Privilege level to Administrator.
