@@ -1,4 +1,4 @@
-package com.vmware.vrack.hms.coding.commands.application;
+/*package com.vmware.vrack.hms.coding.commands.application;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,11 +29,11 @@ import com.vmware.vrack.coding.commands.application.SetUserPasswordCommand;
 import com.vmware.vrack.coding.commands.application.SetUserPasswordCommandResponseData;
 import com.vmware.vrack.coding.commands.application.UserPasswordOperation;
 
-/**
+*//**
  * Test class for Set User Password Command
  * 
  * @author Yagnesh Chawda
- */
+ *//*
 public class SetUserPasswordCommandTest
 {
     private CipherSuite cs;
@@ -75,14 +75,14 @@ public class SetUserPasswordCommandTest
         }
     }
 
-    /**
+    *//**
      * Test for GetResponseData function
      * 
      * @throws InvalidKeyException
      * @throws IllegalArgumentException
      * @throws NoSuchAlgorithmException
      * @throws IPMIException
-     */
+     *//*
     @Test
     public void testGetResponseData()
         throws InvalidKeyException, IllegalArgumentException, NoSuchAlgorithmException, IPMIException
@@ -127,3 +127,4 @@ public class SetUserPasswordCommandTest
     {
     }
 }
+*/

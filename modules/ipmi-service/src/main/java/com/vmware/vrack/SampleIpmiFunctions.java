@@ -1,4 +1,4 @@
-package com.vmware.vrack;
+/*package com.vmware.vrack;
 
 import java.net.InetAddress;
 
@@ -28,11 +28,11 @@ import com.vmware.vrack.coding.commands.application.GetAcpiPowerStateResponseDat
 import com.vmware.vrack.coding.commands.application.GetSelfTestResults;
 import com.vmware.vrack.coding.commands.application.GetSelfTestResultsResponseData;
 
-/**
+*//**
  * Sample Class to perform Basic Ipmi Functions
  * 
  * @author Yagnesh Chawda
- */
+ *//*
 public class SampleIpmiFunctions
 {
     IpmiConnector connector = null;
@@ -49,10 +49,10 @@ public class SampleIpmiFunctions
         throws Exception
     {
         SampleIpmiFunctions ipmiFunctions = new SampleIpmiFunctions();
-        /*
+        
          * Will try to parse command line arguments. If all the essential details are provided, then only it will
          * continue.
-         */
+         
         if ( ipmiFunctions.parseCmdLnArguments( args ) == false )
         {
             System.out.println( "Cannot continue. Check again, if you have provided essential details." );
@@ -307,13 +307,13 @@ public class SampleIpmiFunctions
         }
     }
 
-    /*
+    
      * @Deprecated public void getProperties() { final Path path = Paths.get(configFile); try { if (Files.exists(path,
      * LinkOption.NOFOLLOW_LINKS)) { System.out.println("Loading properties from File Path"); properties.load(new
      * FileInputStream(configFile)); } else { System.out.println("Loading properties from ClassPath");
      * properties.load(this.getClass().getClassLoader().getResourceAsStream(configFile)); } } catch (Exception e) {
      * System.out.println("Received exception while loading Properties file " + e); } }
-     */
+     
     public void setupConnection()
     {
         try
@@ -417,3 +417,4 @@ public class SampleIpmiFunctions
         return false;
     }
 }
+*/

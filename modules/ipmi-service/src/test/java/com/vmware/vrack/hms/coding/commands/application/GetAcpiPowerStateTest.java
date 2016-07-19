@@ -1,4 +1,4 @@
-package com.vmware.vrack.hms.coding.commands.application;
+/*package com.vmware.vrack.hms.coding.commands.application;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,11 +34,11 @@ import com.vmware.vrack.coding.commands.application.GetAcpiPowerState;
 import com.vmware.vrack.coding.commands.application.GetAcpiPowerStateResponseData;
 import com.vmware.vrack.coding.commands.application.SystemPowerState;
 
-/**
+*//**
  * Test Class for GetAcpiPowerState
  * 
  * @author Yagnesh Chawda
- */
+ *//*
 public class GetAcpiPowerStateTest
 {
     private CipherSuite cs;
@@ -80,9 +80,9 @@ public class GetAcpiPowerStateTest
         }
     }
 
-    /**
+    *//**
      * Test for GetCommandCode,returns Command Code for Get ACPI Power State
-     */
+     *//*
     @Test
     public void testGetCommandCode()
     {
@@ -91,9 +91,9 @@ public class GetAcpiPowerStateTest
         assertEquals( IpmiCommandCodes.GET_ACPI_POWER_STATE, getAcpiPowerState.getCommandCode() );
     }
 
-    /**
+    *//**
      * Test for GetNetworkFunction, returns Network Function for Get ACPI Power State
-     */
+     *//*
     @Test
     public void testGetNetworkFunction()
     {
@@ -102,9 +102,9 @@ public class GetAcpiPowerStateTest
         assertEquals( NetworkFunction.ApplicationRequest, getAcpiPowerState.getNetworkFunction() );
     }
 
-    /**
+    *//**
      * Test GetResponseData for Nodes which are Powered Up, They Should return System Acpi Power State as S0_G0
-     */
+     *//*
     @Test
     public void testGetResponseData_NodeOn()
         throws InvalidKeyException, IllegalArgumentException, NoSuchAlgorithmException, IPMIException
@@ -138,9 +138,9 @@ public class GetAcpiPowerStateTest
         assertEquals( SystemPowerState.S0_G0, responseData.getSystemAcpiPowerState() );
     }
 
-    /**
+    *//**
      * Test GetResponseData for Nodes which are Powered Down, They Should return System Acpi Power State as Legacy_Off
-     */
+     *//*
     @Test
     public void testGetResponseData_NodeOff()
         throws Exception
@@ -179,9 +179,9 @@ public class GetAcpiPowerStateTest
         assertEquals( SystemPowerState.Legacy_Off, responseData.getSystemAcpiPowerState() );
     }
 
-    /**
+    *//**
      * Test GetResponseData for Nodes which are Powered Up,
-     */
+     *//*
     @Test( expected = IllegalArgumentException.class )
     public void testGetResponseData_NodeOn_CorruptedData()
         throws InvalidKeyException, IllegalArgumentException, NoSuchAlgorithmException, IPMIException
@@ -216,9 +216,9 @@ public class GetAcpiPowerStateTest
         assertEquals( SystemPowerState.S0_G0, responseData.getSystemAcpiPowerState() );
     }
 
-    /**
+    *//**
      * Test GetResponseData for Nodes which are Powered Up, Gives IPMIException if the completion code was not OK
-     */
+     *//*
     @Test( expected = IPMIException.class )
     public void testGetResponseData_NodeOn_NoCompletionCode()
         throws InvalidKeyException, IllegalArgumentException, NoSuchAlgorithmException, IPMIException
@@ -253,3 +253,4 @@ public class GetAcpiPowerStateTest
         assertEquals( SystemPowerState.S0_G0, responseData.getSystemAcpiPowerState() );
     }
 }
+*/
