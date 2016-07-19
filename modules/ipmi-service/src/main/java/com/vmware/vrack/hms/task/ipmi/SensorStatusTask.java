@@ -292,13 +292,13 @@ public class SensorStatusTask
                                 data2.getStatesAsserted( rec.getSensorType(), rec.getEventReadingType() );
                             sensorUnit = rec.getSensorBaseUnit().toString();
                             discreteSensorState = "";
-                            List<Integer> bytecodes =
-                                data2.getByteCodeAsserted( rec.getSensorType(), rec.getEventReadingType() );
+                            // List<Integer> bytecodes =
+                            // data2.getByteCodeAsserted( rec.getSensorType(), rec.getEventReadingType() );
                             discreteSensorStateByteCode = "";
                             for ( int i = 0; i < events.size(); ++i )
                             {
                                 discreteSensorState += events.get( i ) + " ";
-                                discreteSensorStateByteCode += bytecodes.get( i ) + " ";
+                                // discreteSensorStateByteCode += bytecodes.get( i ) + " ";
                             }
                         }
                         sensorResult.put( "sensorNumber", String.valueOf( recordReadingId ) );
@@ -515,13 +515,13 @@ public class SensorStatusTask
                                     data2.getStatesAsserted( rec.getSensorType(), rec.getEventReadingType() );
                                 sensorUnit = rec.getSensorBaseUnit().toString();
                                 discreteSensorState = "";
-                                List<Integer> bytecodes =
-                                    data2.getByteCodeAsserted( rec.getSensorType(), rec.getEventReadingType() );
+                                // List<Integer> bytecodes =
+                                // data2.getByteCodeAsserted( rec.getSensorType(), rec.getEventReadingType() );
                                 discreteSensorStateByteCode = "";
                                 for ( int i = 0; i < events.size(); ++i )
                                 {
                                     discreteSensorState += events.get( i ) + " ";
-                                    discreteSensorStateByteCode += bytecodes.get( i ) + " ";
+                                    // discreteSensorStateByteCode += bytecodes.get( i ) + " ";
                                 }
                             }
                             break;

@@ -16,6 +16,7 @@
 package com.vmware.vrack.hms.common.boardvendorservice.api.helper.parsers;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -95,7 +96,8 @@ public class HmsEventMapper
             Path path = Paths.get( OEM_PROP_FILE_NAME );
             if ( Files.exists( path, LinkOption.NOFOLLOW_LINKS ) )
             {
-                prop.load( HmsEventMapper.class.getClassLoader().getResourceAsStream( OEM_PROP_FILE_NAME ) );
+                prop.load( new FileInputStream( OEM_PROP_FILE_NAME ) );
+                // prop.load( HmsEventMapper.class.getClassLoader().getResourceAsStream( OEM_PROP_FILE_NAME ) );
                 processOemData = true;
             }
         }
@@ -165,7 +167,7 @@ public class HmsEventMapper
         try
         {
             String curLine;
-            InputStream is = HmsEventMapper.class.getClassLoader().getResourceAsStream( filePath );
+            InputStream is = new FileInputStream( filePath );
             BufferedReader configReader = new BufferedReader( new InputStreamReader( is ) );
             while ( ( curLine = configReader.readLine() ) != null )
             {
