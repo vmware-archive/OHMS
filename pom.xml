@@ -151,7 +151,7 @@
                 <module>modules/hms-plugin-common-lib</module>
                 <module>modules/hms-switch-plugin</module>
                 <module>modules/hms-util</module>
-                <module>modules/hms-veraxIpmi</module>
+                <!-- <module>modules/hms-veraxIpmi</module> -->
                 <module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
@@ -202,7 +202,7 @@
                 <module>modules/hms-plugin-common-lib</module>
                 <module>modules/hms-switch-plugin</module>
                 <module>modules/hms-util</module>
-                <module>modules/hms-veraxIpmi</module>
+                <!-- <module>modules/hms-veraxIpmi</module> -->
                 <module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
