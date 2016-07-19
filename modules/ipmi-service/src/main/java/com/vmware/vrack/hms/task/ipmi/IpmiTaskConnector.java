@@ -97,7 +97,7 @@ public class IpmiTaskConnector
         {
             connector = new IpmiConnector( UDP_PORT );
             handle = connector.createConnection( InetAddress.getByName( ipAddress ) );
-            connector.setConnectionEncryption( handle );
+            // connector.setConnectionEncryption( handle );
             handle.setPrivilegeLevel( PrivilegeLevel.Administrator );
             // if ( encryptData )
                 cipherSuite = connector.getAvailableCipherSuites( handle ).get( cipherSuiteIndex );
