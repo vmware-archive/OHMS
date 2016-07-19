@@ -22,8 +22,8 @@ public enum NetworkFunction
     StorageResponse( NetworkFunction.STORAGERESPONSE ),
     BridgeRequest( NetworkFunction.BRIDGEREQUEST ),
     BridgeResponse( NetworkFunction.BRIDGERESPONSE ),
-    TransportRequest( NetworkFunction.TRANSPORTREQUEST ),
-    TransportResponse( NetworkFunction.TRANSPORTRESPONSE ),
+    // TransportRequest( NetworkFunction.TRANSPORTREQUEST ),
+    // TransportResponse( NetworkFunction.TRANSPORTRESPONSE ),
     /**
      * Sensor/Event Request
      */
@@ -104,8 +104,8 @@ public enum NetworkFunction
                 return FirmwareResponse;
             case TRANSPORTREQUEST:
                 return TransportRequest;
-            case TRANSPORTRESPONSE:
-                return TransportResponse;
+            // case TRANSPORTRESPONSE:
+            // return TransportResponse;
             default:
                 throw new IllegalArgumentException( "Invalid value: " + value );
         }

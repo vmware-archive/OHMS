@@ -39,7 +39,9 @@ public enum PowerCommand
      * system management software first check the system power state before issuing a power cycle, and only issue the
      * command if system power is ON or in a lower sleep state than S4/S5
      */
-    PowerCycle( PowerCommand.POWERCYCLE ),;
+    /*
+     * PowerCycle( PowerCommand.POWERCYCLE ),
+     */;
     private static final int POWERDOWN = 0;
 
     private static final int POWERUP = 1;
@@ -70,8 +72,8 @@ public enum PowerCommand
                 return PowerUp;
             case HARDRESET:
                 return HardReset;
-            case POWERCYCLE:
-                return PowerCycle;
+            // case POWERCYCLE:
+            // return PowerCycle;
             default:
                 throw new IllegalArgumentException( "Invalid value: " + value );
         }

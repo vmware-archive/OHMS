@@ -72,7 +72,8 @@ public class GetMacAddressCommand
     @Override
     public NetworkFunction getNetworkFunction()
     {
-        return NetworkFunction.TransportRequest;
+        // return NetworkFunction.TransportRequest;
+        return null;
     }
 
     @Override

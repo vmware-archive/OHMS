@@ -72,7 +72,8 @@ public class GetSubnetMaskCommand
     @Override
     public NetworkFunction getNetworkFunction()
     {
-        return NetworkFunction.TransportRequest;
+        // return NetworkFunction.TransportRequest;
+        return null;
     }
 
     @Override

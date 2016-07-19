@@ -17,12 +17,6 @@ package com.vmware.vrack.hms.task.ipmi;
 
 import org.apache.log4j.Logger;
 
-import com.veraxsystems.vxipmi.coding.commands.IpmiVersion;
-import com.veraxsystems.vxipmi.coding.commands.chassis.ChassisControl;
-import com.veraxsystems.vxipmi.coding.commands.chassis.ChassisControlResponseData;
-import com.veraxsystems.vxipmi.coding.commands.chassis.PowerCommand;
-import com.veraxsystems.vxipmi.coding.payload.lan.IPMIException;
-import com.veraxsystems.vxipmi.coding.protocol.AuthenticationType;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.ipmiservice.exception.IpmiServiceResponseException;
@@ -60,24 +54,25 @@ public class PowerCycleServerTask
         if ( node instanceof ServiceServerNode && connector != null )
         {
             logger.debug( "Received request to execute ipmi PowerCycleServer task for Node " + node.getNodeID() );
-            try
-            {
-                ChassisControl chassisControl =
-                    new ChassisControl( IpmiVersion.V20, connector.getCipherSuite(), AuthenticationType.RMCPPlus,
-                                        PowerCommand.PowerCycle );
-                ChassisControlResponseData data =
-                    (ChassisControlResponseData) connector.getConnector().sendMessage( connector.getHandle(),
-                                                                                       chassisControl );
-                logger.info( "Power Cycled Node [ " + node.getNodeID() + " ]" );
-                return true;
-            }
-            catch ( IPMIException e )
-            {
-                logger.error( "Exception while executing the task PowerCycleServer: " + e.getCompletionCode() + ":"
-                    + e.getMessage() );
-                logger.debug( e.getCompletionCode() + ":" + e.getMessage() );
-                throw new IpmiServiceResponseException( e.getCompletionCode() );
-            }
+            throw new Exception( "PowerCycle Operation isn't supported" );
+            // try
+            // {
+            // ChassisControl chassisControl =
+            // new ChassisControl( IpmiVersion.V20, connector.getCipherSuite(), AuthenticationType.RMCPPlus,
+            // PowerCommand.PowerCycle );
+            // ChassisControlResponseData data =
+            // (ChassisControlResponseData) connector.getConnector().sendMessage( connector.getHandle(),
+            // chassisControl );
+            // logger.info( "Power Cycled Node [ " + node.getNodeID() + " ]" );
+            // return true;
+            // }
+            // catch ( IPMIException e )
+            // {
+            // logger.error( "Exception while executing the task PowerCycleServer: " + e.getCompletionCode() + ":"
+            // + e.getMessage() );
+            // logger.debug( e.getCompletionCode() + ":" + e.getMessage() );
+            // throw new IpmiServiceResponseException( e.getCompletionCode() );
+            // }
         }
         else
         {
