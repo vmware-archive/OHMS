@@ -1,18 +1,7 @@
-/* ********************************************************************************
- * SwitchSensorInfo.java
- * 
- * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2014 VMware, Inc. All rights reserved.
+ ******************************************************************************/
 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at http://www.apache.org/licenses/LICENSE-2.0
-
- * Unless required by applicable law or agreed to in writing, software distributed
- * under the License is distributed on an "AS IS" BASIS, without warranties or
- * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * *******************************************************************************/
 package com.vmware.vrack.hms.common.switches.api;
 
 import java.util.List;
@@ -21,249 +10,170 @@ import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
 import com.vmware.vrack.hms.common.servernodes.api.event.HmsSensorState;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 
-public class SwitchSensorInfo
-{
+public class SwitchSensorInfo {
     private long timestamp;
-
     private List<FanSpeed> fanSpeeds;
-
     private List<ChassisTemp> chassisTemps;
-
     private List<PsuStatus> psuStatus;
 
-    public long getTimestamp()
-    {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp( long timestamp )
-    {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
-    public List<FanSpeed> getFanSpeeds()
-    {
+    public List<FanSpeed> getFanSpeeds() {
         return fanSpeeds;
     }
 
-    public void setFanSpeeds( List<FanSpeed> fanSpeeds )
-    {
+    public void setFanSpeeds(List<FanSpeed> fanSpeeds) {
         this.fanSpeeds = fanSpeeds;
     }
 
-    public List<ChassisTemp> getChassisTemps()
-    {
+    public List<ChassisTemp> getChassisTemps() {
         return chassisTemps;
     }
 
-    public void setChassisTemps( List<ChassisTemp> chassisTemps )
-    {
+    public void setChassisTemps(List<ChassisTemp> chassisTemps) {
         this.chassisTemps = chassisTemps;
     }
 
-    public List<PsuStatus> getPsuStatus()
-    {
+    public List<PsuStatus> getPsuStatus() {
         return psuStatus;
     }
 
-    public void setPsuStatus( List<PsuStatus> psuStatus )
-    {
+    public void setPsuStatus(List<PsuStatus> psuStatus) {
         this.psuStatus = psuStatus;
     }
 
-    public static class FanSpeed
-    {
+    public static class FanSpeed {
         private String fanName;
-
         private int fanId;
-
         private float value;
-
         private EventUnitType unit;
-
         private HmsSensorState status;
 
-        public String getFanName()
-        {
+        public String getFanName() {
             return fanName;
         }
-
-        public void setFanName( String fanName )
-        {
+        public void setFanName(String fanName) {
             this.fanName = fanName;
         }
-
-        public int getFanId()
-        {
+        public int getFanId() {
             return fanId;
         }
-
-        public void setFanId( int fanId )
-        {
+        public void setFanId(int fanId) {
             this.fanId = fanId;
         }
-
-        public float getValue()
-        {
+        public float getValue() {
             return value;
         }
-
-        public void setValue( float value )
-        {
+        public void setValue(float value) {
             this.value = value;
         }
-
-        public EventUnitType getUnit()
-        {
+        public EventUnitType getUnit() {
             return unit;
         }
-
-        public void setUnit( EventUnitType unit )
-        {
+        public void setUnit(EventUnitType unit) {
             this.unit = unit;
         }
-
-        public HmsSensorState getStatus()
-        {
+        public HmsSensorState getStatus() {
             return status;
         }
-
-        public void setStatus( HmsSensorState status )
-        {
+        public void setStatus(HmsSensorState status) {
             this.status = status;
         }
 
-        public ServerComponentEvent toServerComponentSensor()
-        {
+        public ServerComponentEvent toServerComponentSensor() {
             ServerComponentEvent sensor = new ServerComponentEvent();
-            sensor.setComponentId( getFanName() );
-            sensor.setEventId( getFanName() );
+            sensor.setComponentId(getFanName());
+            sensor.setEventId(getFanName());
             // sensor.setEventName(NodeEvent.SWITCH_FAN_SPEED);
-            sensor.setUnit( getUnit() );
-            sensor.setValue( getValue() );
+            sensor.setUnit(getUnit());
+            sensor.setValue(getValue());
             return sensor;
         }
     }
 
-    public static class ChassisTemp
-    {
+    public static class ChassisTemp {
         private String tempName;
-
         private int tempId;
-
         private float value;
-
         private EventUnitType unit;
-
         private HmsSensorState status;
 
-        public String getTempName()
-        {
+        public String getTempName() {
             return tempName;
         }
-
-        public void setTempName( String tempName )
-        {
+        public void setTempName(String tempName) {
             this.tempName = tempName;
         }
-
-        public int getTempId()
-        {
+        public int getTempId() {
             return tempId;
         }
-
-        public void setTempId( int tempId )
-        {
+        public void setTempId(int tempId) {
             this.tempId = tempId;
         }
-
-        public float getValue()
-        {
+        public float getValue() {
             return value;
         }
-
-        public void setValue( float value )
-        {
+        public void setValue(float value) {
             this.value = value;
         }
-
-        public EventUnitType getUnit()
-        {
+        public EventUnitType getUnit() {
             return unit;
         }
-
-        public void setUnit( EventUnitType unit )
-        {
+        public void setUnit(EventUnitType unit) {
             this.unit = unit;
         }
-
-        public HmsSensorState getStatus()
-        {
+        public HmsSensorState getStatus() {
             return status;
         }
-
-        public void setStatus( HmsSensorState status )
-        {
+        public void setStatus(HmsSensorState status) {
             this.status = status;
         }
-
-        public ServerComponentEvent toServerComponentSensor()
-        {
+        public ServerComponentEvent toServerComponentSensor() {
             ServerComponentEvent sensor = new ServerComponentEvent();
-            sensor.setComponentId( getTempName() );
-            sensor.setEventId( getTempName() );
+            sensor.setComponentId(getTempName());
+            sensor.setEventId(getTempName());
             // sensor.setEventName(NodeEvent.SWITCH_CHASSIS_TEMPERATURE);
-            sensor.setUnit( getUnit() );
-            sensor.setValue( getValue() );
+            sensor.setUnit(getUnit());
+            sensor.setValue(getValue());
             return sensor;
         }
     }
 
-    public static class PsuStatus
-    {
+    public static class PsuStatus {
         private String psuName;
-
         private int psuId;
-
         private HmsSensorState status;
 
-        public String getPsuName()
-        {
+        public String getPsuName() {
             return psuName;
         }
-
-        public void setPsuName( String psuName )
-        {
+        public void setPsuName(String psuName) {
             this.psuName = psuName;
         }
-
-        public int getPsuId()
-        {
+        public int getPsuId() {
             return psuId;
         }
-
-        public void setPsuId( int psuId )
-        {
+        public void setPsuId(int psuId) {
             this.psuId = psuId;
         }
-
-        public HmsSensorState getStatus()
-        {
+        public HmsSensorState getStatus() {
             return status;
         }
-
-        public void setStatus( HmsSensorState status )
-        {
+        public void setStatus(HmsSensorState status) {
             this.status = status;
         }
-
-        public ServerComponentEvent toServerComponentSensor()
-        {
+        public ServerComponentEvent toServerComponentSensor() {
             ServerComponentEvent sensor = new ServerComponentEvent();
-            sensor.setComponentId( getPsuName() );
-            sensor.setEventId( getPsuName() );
+            sensor.setComponentId(getPsuName());
+            sensor.setEventId(getPsuName());
             // sensor.setEventName(NodeEvent.SWITCH_POWERUNIT_STATUS);
-            sensor.setDiscreteValue( getStatus().toString() );
+            sensor.setDiscreteValue(getStatus().toString());
             return sensor;
         }
     }
