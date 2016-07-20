@@ -1,0 +1,102 @@
+{
+	"name": "HMS inventory configuration file",
+	"version": "1.0.0",
+	"servers": [
+		{
+			"id": "N1",
+			"oobProtocol": "ipmi",
+			"oobIpAddress": "your.management/bmc.ip.address",
+			"oobPort": 6500,
+			"oobUsername": "USER",
+			"oobPassword": "PASSWORD",
+			"ibProtocol": "esxi",
+			"ibIpAddress": "your.esxi.ip.address",
+			"ibPort": 0,
+			"ibUsername": "USER",
+			"ibPassword": "PASSWORD",
+			"location": "1U",
+			"boardInfo": {
+						   "manufacturer": "Vendor",
+						   "model": "Model2"
+           				 },
+           	"hypervisorInfo": {
+						   "name": "ESXI",
+						   "provider": "VMWARE"
+           				 }
+		},
+		{
+			"id": "N2",
+			"oobProtocol": "ipmi",
+			"oobIpAddress": "your.management/bmc.ip.address",
+			"oobPort": 6500,
+			"oobUsername": "USER",
+			"oobPassword": "PASSWORD",
+			"ibProtocol": "esxi",
+			"ibIpAddress": "your.esxi.ip.address",
+			"ibPort": 0,
+			"ibUsername": "USER",
+			"ibPassword": "PASSWORD",
+			"location": "2U",
+			"boardInfo": {
+						   "manufacturer": "Vendor",
+						   "model": "Model2"
+           				 },
+           	"hypervisorInfo": {
+						   "name": "ESXI",
+						   "provider": "VMWARE"
+           				 }
+		},
+		{
+			"id": "N3",
+			"oobProtocol": "ipmi",
+			"oobIpAddress": "your.management/bmc.ip.address",
+			"oobPort": 6500,
+			"oobUsername": "USER",
+			"oobPassword": "PASSWORD",
+			"ibProtocol": "esxi",
+			"ibIpAddress": "your.esxi.ip.address",
+			"ibPort": 0,
+			"ibUsername": "USER",
+			"ibPassword": "PASSWORD",
+			"location": "3U",
+			"boardInfo": {
+						   "manufacturer": "Vendor",
+						   "model": "Model2"
+           				 },
+           	"hypervisorInfo": {
+						   "name": "ESXI",
+						   "provider": "VMWARE"
+           				 }
+		}
+	],
+	"switches": [
+		{
+			"id": "S1",
+			"protocol": "ssh",
+			"ipAddress": "your.switch.ip",
+			"port": 22,
+			"username": "USERNAME",
+			"password": "PASSWORD",
+			"location": "4U",
+			"role": "management",
+			"switchInfo": {
+				"manufacturer": "Quanta",
+				"model": "LB6"
+			}
+		},
+		{
+			"id": "S2",
+			"protocol": "ssh",
+			"ipAddress": "your.switch.ip",
+			"port": 22,
+			"username": "USERNAME",
+			"password": "PASSWORD",
+			"location": "5U",
+			"role": "TOR",
+			"switchInfo": {
+				"manufacturer": "Quanta",
+				"model": "LB9"
+			}
+		}
+	]
+}

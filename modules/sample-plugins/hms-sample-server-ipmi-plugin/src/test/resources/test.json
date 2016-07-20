@@ -1,0 +1,18 @@
+
+{
+	"countTestServers" : 2,
+	"servers" : [
+					{
+						"ipAddress"	:	"10.65.4.220",
+						"username"	:	"root",
+						"password"	:	"calvin" 
+					},
+
+					{
+						"ipAddress"	:	"10.28.197.191",
+						"username"	:	"admin",
+						"password"	:	"admin"
+					}
+				]
+
+}
