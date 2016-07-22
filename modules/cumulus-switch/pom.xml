@@ -60,11 +60,6 @@
             <artifactId>hms-switch-plugin</artifactId>
             <version>${hms.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.vmware.vrack</groupId>
-            <artifactId>hms-common-switch-plugin</artifactId>
-            <version>${hms.version}</version>
-        </dependency>
         <!-- External Dependencies -->
         <dependency>
             <groupId>com.jcraft</groupId>
