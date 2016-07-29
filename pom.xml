@@ -151,12 +151,11 @@
                 <module>modules/hms-plugin-common-lib</module>
                 <module>modules/hms-switch-plugin</module>
                 <module>modules/hms-util</module>
-                <module>modules/hms-veraxIpmi</module>
-                <module>modules/ipmi-service</module>
-                <module>modules/quanta-plugin</module>
-                <module>modules/cumulus-switch</module>
+				<module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+				<module>modules/quanta-plugin</module>
+				<module>modules/cumulus-switch</module>
             </modules>
         </profile>
         <profile>
@@ -203,12 +202,11 @@
                 <module>modules/hms-plugin-common-lib</module>
                 <module>modules/hms-switch-plugin</module>
                 <module>modules/hms-util</module>
-                <module>modules/hms-veraxIpmi</module>
-                <module>modules/ipmi-service</module>
-                <module>modules/quanta-plugin</module>
-                <module>modules/cumulus-switch</module>
+				<module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+				<module>modules/quanta-plugin</module>
+				<module>modules/cumulus-switch</module>
             </modules>
         </profile>
     </profiles>
