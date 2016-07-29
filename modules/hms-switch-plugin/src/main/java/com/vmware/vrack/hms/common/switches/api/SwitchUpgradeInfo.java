@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SwitchUpgradeInfo.java
- * 
+ *
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,19 +13,17 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.switches.api;
 
-public class SwitchUpgradeInfo
-{
-    public String getPackageUrl()
-    {
-        return packageUrl;
-    }
+public class SwitchUpgradeInfo {
+	public String getPackageUrl() {
+		return packageUrl;
+	}
 
-    public void setPackageUrl( String packageUrl )
-    {
-        this.packageUrl = packageUrl;
-    }
+	public void setPackageUrl(String packageUrl) {
+		this.packageUrl = packageUrl;
+	}
 
-    private String packageUrl;
+	private String packageUrl;
 }

@@ -154,6 +154,7 @@
                 <module>modules/hms-veraxIpmi</module>
                 <module>modules/ipmi-service</module>
                 <module>modules/quanta-plugin</module>
+                <module>modules/cumulus-switch</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
             </modules>
@@ -205,6 +206,7 @@
                 <module>modules/hms-veraxIpmi</module>
                 <module>modules/ipmi-service</module>
                 <module>modules/quanta-plugin</module>
+                <module>modules/cumulus-switch</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
             </modules>
