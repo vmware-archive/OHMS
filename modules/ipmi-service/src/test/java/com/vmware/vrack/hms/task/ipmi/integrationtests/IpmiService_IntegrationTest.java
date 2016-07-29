@@ -15,7 +15,9 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.task.ipmi.integrationtests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.veraxsystems.vxipmi.coding.commands.session.SessionCustomPayload;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
@@ -52,9 +53,9 @@ import com.vmware.vrack.hms.common.resource.sel.SelInfo;
 import com.vmware.vrack.hms.common.resource.sel.SelRecord;
 import com.vmware.vrack.hms.common.resource.sel.SelTask;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNodeInfo;
-import com.vmware.vrack.hms.plugin.testlib.IntegrationTest;
 import com.vmware.vrack.hms.ipmiservice.IpmiConnectionPool;
 import com.vmware.vrack.hms.ipmiservice.IpmiConnectionSettings;
+import com.vmware.vrack.hms.plugin.testlib.IntegrationTest;
 import com.vmware.vrack.hms.task.ipmi.AcpiPowerStateTask;
 import com.vmware.vrack.hms.task.ipmi.ChassisIdentifyTask;
 import com.vmware.vrack.hms.task.ipmi.FindMacAddressTask;
@@ -139,8 +140,8 @@ public class IpmiService_IntegrationTest
         throws Exception
     {
         IpmiConnectionSettings settings = null;
-        SessionCustomPayload customOpenSessionPayload =
-            new SessionCustomPayload( (byte) 0x01, (byte) 0x01, (byte) 0x01 );
+        // SessionCustomPayload customOpenSessionPayload =
+        // new SessionCustomPayload( (byte) 0x01, (byte) 0x01, (byte) 0x01 );
         CipherSuite cs = new CipherSuite( (byte) 0, (byte) 1, (byte) 0, (byte) 0 );
         synchronized ( this )
         {
@@ -148,7 +149,7 @@ public class IpmiService_IntegrationTest
                 settings = connectionSettings.get( node.getNodeID() );
             else
             {
-                settings = createConnectionSettings( node, 0, false, cs, customOpenSessionPayload );
+                settings = createConnectionSettings( node, 0, cs );
                 connectionSettings.put( node.getNodeID(), settings );
             }
         }
@@ -167,15 +168,14 @@ public class IpmiService_IntegrationTest
     }
 
     private IpmiConnectionSettings createConnectionSettings( ServiceServerNode node, int cipherSuiteIndex,
-                                                             boolean encryptData, CipherSuite cipherSuite,
-                                                             SessionCustomPayload customSessionPayload )
+                                                             CipherSuite cipherSuite )
     {
         IpmiConnectionSettings settings = new IpmiConnectionSettings();
         settings.setNode( node );
         settings.setCipherSuite( cipherSuite );
         settings.setCipherSuiteIndex( cipherSuiteIndex );
-        settings.setEncryptData( encryptData );
-        settings.setSessionOpenPayload( customSessionPayload );
+        // settings.setEncryptData( encryptData );
+        // settings.setSessionOpenPayload( customSessionPayload );
         return settings;
     }
 

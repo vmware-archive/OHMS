@@ -52,8 +52,7 @@ public class IpmiTaskConnectorFactory
         ServiceHmsNode node = connectionData.getNode();
         IpmiTaskConnector ipmiTaskConnector =
             new IpmiTaskConnector( node.getManagementIp(), node.getManagementUserName(),
-                                   node.getManagementUserPassword(), connectionData.getCipherSuite(),
-                                   connectionData.isEncryptData(), connectionData.getSessionOpenPayload() );
+                                   node.getManagementUserPassword(), connectionData.getCipherSuite() );
         ipmiTaskConnector.createConnection( connectionData.getCipherSuiteIndex() );
         ipmiTaskConnector.getConnector().sendMessage( ipmiTaskConnector.getHandle(),
                                                       new SetSessionPrivilegeLevel( IpmiVersion.V20,
