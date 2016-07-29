@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * PluginSwitchBulkConfigEnum.java
- * 
+ *
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -15,7 +15,6 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.common.switches.model.bulk;
 
-public enum PluginSwitchBulkConfigEnum
-{
+public enum PluginSwitchBulkConfigEnum {
     PHYSICAL_SWITCH_PORT_MTU, BOND_MTU
 }
