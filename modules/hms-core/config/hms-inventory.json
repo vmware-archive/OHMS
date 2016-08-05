@@ -1,102 +1,128 @@
 {
-	"name": "HMS inventory configuration file",
-	"version": "1.0.0",
-	"servers": [
+  "name": "HMS inventory configuration file",
+  "version": "1.0.0",
+  "services": [
+	{
+	  "serviceType": "redfish",
+	  "serviceEndpoint": "https://localhost:7778/redfish/v1",
+	  "inBandAccess": [
 		{
-			"id": "N1",
-			"oobProtocol": "ipmi",
-			"oobIpAddress": "your.management/bmc.ip.address",
-			"oobPort": 6500,
-			"oobUsername": "USER",
-			"oobPassword": "PASSWORD",
-			"ibProtocol": "esxi",
-			"ibIpAddress": "your.esxi.ip.address",
-			"ibPort": 0,
-			"ibUsername": "USER",
-			"ibPassword": "PASSWORD",
-			"location": "1U",
-			"boardInfo": {
-						   "manufacturer": "Vendor",
-						   "model": "Model2"
-           				 },
-           	"hypervisorInfo": {
-						   "name": "ESXI",
-						   "provider": "VMWARE"
-           				 }
-		},
-		{
-			"id": "N2",
-			"oobProtocol": "ipmi",
-			"oobIpAddress": "your.management/bmc.ip.address",
-			"oobPort": 6500,
-			"oobUsername": "USER",
-			"oobPassword": "PASSWORD",
-			"ibProtocol": "esxi",
-			"ibIpAddress": "your.esxi.ip.address",
-			"ibPort": 0,
-			"ibUsername": "USER",
-			"ibPassword": "PASSWORD",
-			"location": "2U",
-			"boardInfo": {
-						   "manufacturer": "Vendor",
-						   "model": "Model2"
-           				 },
-           	"hypervisorInfo": {
-						   "name": "ESXI",
-						   "provider": "VMWARE"
-           				 }
-		},
-		{
-			"id": "N3",
-			"oobProtocol": "ipmi",
-			"oobIpAddress": "your.management/bmc.ip.address",
-			"oobPort": 6500,
-			"oobUsername": "USER",
-			"oobPassword": "PASSWORD",
-			"ibProtocol": "esxi",
-			"ibIpAddress": "your.esxi.ip.address",
-			"ibPort": 0,
-			"ibUsername": "USER",
-			"ibPassword": "PASSWORD",
-			"location": "3U",
-			"boardInfo": {
-						   "manufacturer": "Vendor",
-						   "model": "Model2"
-           				 },
-           	"hypervisorInfo": {
-						   "name": "ESXI",
-						   "provider": "VMWARE"
-           				 }
+		  "uuid": "00000001-0001-0001-0001-000000000001",
+		  "port": 0,
+		  "protocol": "esxi",
+		  "ipAddress": "0.0.0.0",
+		  "username": "USER",
+		  "password": "PASSWORD",
+		  "hypervisorName": "ESXI",
+		  "hypervisorProvider": "VMWARE"
 		}
-	],
-	"switches": [
-		{
-			"id": "S1",
-			"protocol": "ssh",
-			"ipAddress": "your.switch.ip",
-			"port": 22,
-			"username": "USERNAME",
-			"password": "PASSWORD",
-			"location": "4U",
-			"role": "management",
-			"switchInfo": {
-				"manufacturer": "Quanta",
-				"model": "LB6"
-			}
-		},
-		{
-			"id": "S2",
-			"protocol": "ssh",
-			"ipAddress": "your.switch.ip",
-			"port": 22,
-			"username": "USERNAME",
-			"password": "PASSWORD",
-			"location": "5U",
-			"role": "TOR",
-			"switchInfo": {
-				"manufacturer": "Quanta",
-				"model": "LB9"
-			}
-		}
-	]
+	  ]
+	}
+  ],
+  "servers": [
+	{
+	  "id": "N1",
+	  "oobProtocol": "ipmi",
+	  "oobIpAddress": "your.management/bmc.ip.address",
+	  "oobPort": 6500,
+	  "oobUsername": "USER",
+	  "oobPassword": "PASSWORD",
+	  "ibProtocol": "esxi",
+	  "ibIpAddress": "your.esxi.ip.address",
+	  "ibPort": 0,
+	  "ibUsername": "USER",
+	  "ibPassword": "PASSWORD",
+	  "boardInfo": {
+		"manufacturer": "Vendor",
+		"model": "Model2"
+	  },
+	  "hypervisorInfo": {
+		"name": "ESXI",
+		"provider": "VMWARE"
+	  }
+	},
+	{
+	  "id": "SampleNode1",
+	  "oobProtocol": "ipmi",
+	  "oobIpAddress": "10.28.197.191",
+	  "oobPort": 6700,
+	  "oobUsername": "USERNAME1_1",
+	  "oobPassword": "PASSWORD1_1",
+	  "ibProtocol": "esxi",
+	  "ibIpAddress": "10.28.197.178",
+	  "ibPort": 0,
+	  "ibUsername": "USERNAME1_2",
+	  "ibPassword": "PASSWORD1_2",
+	  "boardInfo": {
+		"manufacturer": "hms-sample",
+		"model": "server-plugin"
+	  },
+	  "hypervisorInfo": {
+		"name": "ESXI",
+		"provider": "VMWARE"
+	  }
+	},
+	{
+	  "id": "SampleNode2",
+	  "oobProtocol": "ipmi",
+	  "oobIpAddress": "10.28.197.191",
+	  "oobPort": 6700,
+	  "oobUsername": "USERNAME2_1",
+	  "oobPassword": "PASSWORD2_1",
+	  "ibProtocol": "esxi",
+	  "ibIpAddress": "10.28.197.178",
+	  "ibPort": 0,
+	  "ibUsername": "USERNAME2_2",
+	  "ibPassword": "PASSWORD2_2",
+	  "boardInfo": {
+		"manufacturer": "hms-sample",
+		"model": "server-plugin"
+	  },
+	  "hypervisorInfo": {
+		"name": "ESXI",
+		"provider": "VMWARE"
+	  }
+	}
+  ],
+  "switches": [
+	{
+	  "id": "S1",
+	  "protocol": "ssh",
+	  "ipAddress": "10.28.197.242",
+	  "port": 22,
+	  "username": "USERNAME1",
+	  "password": "PASSWORD1",
+	  "role": "management",
+	  "switchInfo": {
+		"manufacturer": "Quanta",
+		"model": "LB9"
+	  }
+	},
+	{
+	  "id": "S2",
+	  "protocol": "ssh",
+	  "ipAddress": "10.28.197.242",
+	  "port": 22,
+	  "username": "USERNAME2",
+	  "password": "PASSWORD2",
+	  "role": "tor",
+	  "switchInfo": {
+		"manufacturer": "Quanta",
+		"model": "LB9"
+	  }
+	},
+	{
+	  "id": "S3",
+	  "protocol": "ssh",
+	  "ipAddress": "10.28.197.242",
+	  "port": 22,
+	  "username": "USERNAME3",
+	  "password": "PASSWORD3",
+	  "role": "spine",
+	  "switchInfo": {
+		"manufacturer": "Quanta",
+		"model": "LB9"
+	  }
+	}
+  ]
 }

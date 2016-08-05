@@ -2,11 +2,12 @@
  * HmsInventoryConfiguration.java
  * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
-
+ * Copyright (c) 2016 Intel Corporation
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0
-
+ *
  * Unless required by applicable law or agreed to in writing, software distributed
  * under the License is distributed on an "AS IS" BASIS, without warranties or
  * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
@@ -15,14 +16,6 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.common.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -30,22 +23,49 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vmware.vrack.hms.common.exception.HmsException;
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
 @JsonPropertyOrder( { "name", "version", "servers", "switches" } )
 public class HmsInventoryConfiguration
 {
+    private static Logger logger = Logger.getLogger( HmsInventoryConfiguration.class );
+
     private String name;
 
     private String version;
 
     private String filename;
 
+    private List<ServiceItem> services;
+
     private List<ServerItem> servers;
 
     private List<SwitchItem> switches;
 
-    private static Logger logger = Logger.getLogger( HmsInventoryConfiguration.class );
+    public static HmsInventoryConfiguration load( String filename )
+        throws HmsException
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        HmsInventoryConfiguration hic = new HmsInventoryConfiguration();
+        try
+        {
+            hic = objectMapper.readValue( new File( filename ), HmsInventoryConfiguration.class );
+            hic.setFilename( filename );
+        }
+        catch ( IOException e )
+        {
+            logger.error( "Error loading HMS inventory configuration file " + filename, e );
+            throw new HmsException( "Error loading HMS inventory configuration file " + filename, e );
+        }
+        return hic;
+    }
 
     public String getName()
     {
@@ -78,6 +98,16 @@ public class HmsInventoryConfiguration
         this.filename = filename;
     }
 
+    public List<ServiceItem> getServices()
+    {
+        return services;
+    }
+
+    public void setServices( List<ServiceItem> services )
+    {
+        this.services = services;
+    }
+
     public List<ServerItem> getServers()
     {
         return servers;
@@ -96,24 +126,6 @@ public class HmsInventoryConfiguration
     public void setSwitches( List<SwitchItem> switches )
     {
         this.switches = switches;
-    }
-
-    public static HmsInventoryConfiguration load( String filename )
-        throws HmsException
-    {
-        ObjectMapper objectMapper = new ObjectMapper();
-        HmsInventoryConfiguration hic = new HmsInventoryConfiguration();
-        try
-        {
-            hic = objectMapper.readValue( new File( filename ), HmsInventoryConfiguration.class );
-            hic.setFilename( filename );
-        }
-        catch ( IOException e )
-        {
-            logger.error( "Error loading HMS inventory configuration file " + filename, e );
-            throw new HmsException( "Error loading HMS inventory configuration file " + filename, e );
-        }
-        return hic;
     }
 
     public void reload()
@@ -148,8 +160,8 @@ public class HmsInventoryConfiguration
         {
             try
             {
-                String backupfile = file.getName() + ".bak." + file.lastModified();
-                File b = new File( file.getParent(), backupfile );
+                String backupFile = file.getName() + ".bak." + file.lastModified();
+                File b = new File( file.getParent(), backupFile );
                 logger.debug( "Saving backup of HMS inventory file to " + b.getAbsolutePath() );
                 Files.copy( file.toPath(), b.toPath(), StandardCopyOption.REPLACE_EXISTING,
                             StandardCopyOption.COPY_ATTRIBUTES );

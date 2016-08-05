@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- /* ********************************************************************************
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
+ * Copyright (c) 2016 Intel Corporation
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -50,8 +52,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.changeit.plugin</groupId>
-            <artifactId>hms-sample-server-plugin</artifactId>
+            <groupId>com.intel.plugin</groupId>
+            <artifactId>hms-redfish-server-plugin</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -120,12 +122,12 @@
             <!--scope>test</scope-->
             <type>jar</type>
         </dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
             <version>${mockito-all.version}</version>
-			<scope>test</scope>
-		</dependency>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
@@ -317,7 +319,7 @@
                         <phase>install</phase>
                         <configuration>
                             <target if="GOBUILD">
-                                <echo> About to publish files </echo>
+                                <echo>About to publish files</echo>
                                 <mkdir dir="${PUBLISH_DIR}"/>
                                 <copy todir="${PUBLISH_DIR}" flatten="false">
                                     <fileset dir="${project.build.directory}">
