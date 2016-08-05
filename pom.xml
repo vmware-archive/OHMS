@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- /* ********************************************************************************
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
+ * Copyright (c) 2016 Intel Corporation
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -167,8 +169,12 @@
 				<module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+<<<<<<< HEAD
+                <module>modules/sample-plugins/hms-redfish-server-plugin</module>
+=======
 				<module>modules/quanta-plugin</module>
 				<module>modules/cumulus-switch</module>
+>>>>>>> origin/development
             </modules>
         </profile>
         <profile>
@@ -218,8 +224,12 @@
 				<module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+<<<<<<< HEAD
+                <module>modules/sample-plugins/hms-redfish-server-plugin</module>
+=======
 				<module>modules/quanta-plugin</module>
 				<module>modules/cumulus-switch</module>
+>>>>>>> origin/development
             </modules>
         </profile>
     </profiles>

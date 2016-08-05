@@ -2,11 +2,12 @@
  * BoardServiceProvider.java
  * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
-
+ * Copyright (c) 2016 Intel Corporation
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0
-
+ *
  * Unless required by applicable law or agreed to in writing, software distributed
  * under the License is distributed on an "AS IS" BASIS, without warranties or
  * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
@@ -15,13 +16,7 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.boardservice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.log4j.Logger;
-
+import com.vmware.vrack.hms.common.ExternalService;
 import com.vmware.vrack.hms.common.HmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceFactory;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
@@ -31,6 +26,15 @@ import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.resource.fru.BoardInfo;
 import com.vmware.vrack.hms.common.servernodes.api.HmsApi;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper.addNodeRateLimitModelForNode;
+import static com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceFactory.getBoardServiceFactory;
 
 /**
  * Factory class to provide Board Service Instance for Service Server Node. Board Service instance can also be cached
@@ -43,12 +47,14 @@ public class BoardServiceProvider
     private static Logger logger = Logger.getLogger( BoardServiceProvider.class );
 
     // Key = Node Id, Value = IBoardService
-    private static Map<String, Class> cachedBoardServiceClasses = new ConcurrentHashMap<String, Class>();
+    private static Map<String, Class> cachedBoardServiceClasses = new ConcurrentHashMap<>();
 
-    private static Map<String, List<HmsApi>> operationSupported = new ConcurrentHashMap<String, List<HmsApi>>();
+    private static Map<String, Class> cachedBoardServiceClassesForServices = new ConcurrentHashMap<>();
+
+    private static Map<String, List<HmsApi>> operationSupported = new ConcurrentHashMap<>();
 
     private static Map<String, IComponentLifecycleManager> componentLifecycleManagerInstanceMap =
-        new ConcurrentHashMap<String, IComponentLifecycleManager>();
+        new ConcurrentHashMap<>();
 
     private static Class<?> componentLifecycleManagerClass = IComponentLifecycleManager.class;
 
@@ -56,7 +62,6 @@ public class BoardServiceProvider
      * Method to get cached Board Service from Board Service Factory
      *
      * @param serviceHmsNode
-     * @param cached
      * @return
      * @throws Exception
      */
@@ -127,6 +132,27 @@ public class BoardServiceProvider
     }
 
     /**
+     * Add a BoardService Object into cache for later user use against key = serviceId.
+     *
+     * @param serviceId
+     * @param boardServiceClass
+     * @throws HmsException
+     */
+    public static void addBoardServiceClassForService( String serviceId, Class boardServiceClass )
+        throws HmsException
+    {
+        if ( serviceId == null )
+        {
+            throw new HmsException( "ServiceId cannot be null" );
+        }
+        if ( boardServiceClass == null )
+        {
+            throw new HmsException( "IBoardService class cannot be null" );
+        }
+        cachedBoardServiceClassesForServices.put( serviceId, boardServiceClass );
+    }
+
+    /**
      * Add a BoardService Object into the cache for later user use against key = NodeId. If overwrite = false, it will
      * not replace existing IBoardService if it is already present in cachedBoardServices
      *
@@ -137,7 +163,7 @@ public class BoardServiceProvider
      */
     public static boolean addBoardServiceClass( ServiceHmsNode serviceHmsNode, Class<?> boardServiceClass,
                                                 boolean overwrite )
-                                                    throws Exception
+        throws Exception
     {
         if ( serviceHmsNode == null )
         {
@@ -164,6 +190,41 @@ public class BoardServiceProvider
     }
 
     /**
+     * Prepares mapping of Service to Board Service Implementation and caches it for future use.
+     * TODO extract to newly created, dedicated provider following provider convention (e.g. ExternalServiceProvider)
+     *
+     * @param services
+     */
+    public static void prepareBoardServiceClassesForServices( List<ExternalService> services )
+    {
+        BoardServiceFactory boardServiceFactory = getBoardServiceFactory();
+        for ( ExternalService service : services )
+        {
+            String boardServiceKey = getServiceKey( service );
+            Class<?> boardServiceClass = boardServiceFactory.getBoardServiceClass( boardServiceKey );
+
+            try
+            {
+                addBoardServiceClassForService( boardServiceKey, boardServiceClass );
+                addNodeRateLimitModelForNode( service.getServiceEndpoint() );
+            }
+            catch ( HmsException e )
+            {
+                logger.error( "Exception while adding Board Service into BoardServiceProvider:"
+                                  + boardServiceClass, e );
+            }
+        }
+    }
+
+    private static String getServiceKey( ExternalService service )
+    {
+        BoardInfo boardInfo = new BoardInfo();
+        boardInfo.setBoardManufacturer( service.getServiceType() );
+        boardInfo.setBoardProductName( service.getServiceType() );
+        return BoardServiceFactory.getBoardServiceKey( boardInfo );
+    }
+
+    /**
      * Prepare mapping of Node to Board Service Implementation in the cache, for only given list of BoardService
      * Implementations
      *
@@ -174,7 +235,7 @@ public class BoardServiceProvider
     public static boolean prepareBoardServiceClassesForNodes( List<HmsNode> hmsNodes )
         throws Exception
     {
-        BoardServiceFactory boardServiceFactory = BoardServiceFactory.getBoardServiceFactory();
+        BoardServiceFactory boardServiceFactory = getBoardServiceFactory();
         if ( hmsNodes != null )
         {
             for ( HmsNode hmsNode : hmsNodes )
@@ -196,9 +257,10 @@ public class BoardServiceProvider
                             if ( componentLifecycleManagerClass.isAssignableFrom( boardServiceClass ) )
                             {
                                 componentLifecycleManagerInstanceMap.put( serverNode.getServiceObject().getNodeID(),
-                                                                          (IComponentLifecycleManager) getBoardService( serverNode.getServiceObject() ) );
+                                                                          (IComponentLifecycleManager) getBoardService(
+                                                                              serverNode.getServiceObject() ) );
                             }
-                            HmsPluginServiceCallWrapper.addNodeRateLimitModelForNode( serverNode.getNodeID() );
+                            addNodeRateLimitModelForNode( serverNode.getNodeID() );
                         }
                         catch ( InstantiationException e )
                         {
@@ -211,7 +273,7 @@ public class BoardServiceProvider
                         catch ( HmsException e )
                         {
                             logger.error( "Exception while adding Board Service into BoardServiceProvider:"
-                                + boardServiceClass, e );
+                                              + boardServiceClass, e );
                         }
                     }
                 }
@@ -224,7 +286,6 @@ public class BoardServiceProvider
      * Method to get operations supported by board service
      *
      * @param serviceHmsNode
-     * @param cached
      * @return
      * @throws Exception
      */
@@ -239,7 +300,7 @@ public class BoardServiceProvider
                 if ( boardService == null )
                 {
                     throw new HmsException( "Unable to get Board Service instance for Node "
-                        + serviceHmsNode.getNodeID() );
+                                                + serviceHmsNode.getNodeID() );
                 }
                 return boardService.getSupportedHmsApi( serviceHmsNode );
             }
@@ -283,6 +344,54 @@ public class BoardServiceProvider
         {
             logger.error( "Cannot remove null node. Provide right node." );
             return false;
+        }
+    }
+
+    /**
+     * Gets IBoardService implementation for ExternalService - either cached instance or
+     * TODO extract to newly created, dedicated provider following provider convention (e.g. ExternalServiceProvider)
+     *
+     * @param externalService
+     * @return
+     * @throws HmsException
+     */
+    public static IBoardService getServiceForExternalService( ExternalService externalService )
+        throws HmsException
+    {
+        if ( externalService != null )
+        {
+            String serviceKey = getServiceKey( externalService );
+            try
+            {
+                IBoardService boardService;
+                Class<?> boardServiceClass = cachedBoardServiceClassesForServices.get( serviceKey );
+                if ( boardServiceClass == null )
+                {
+                    throw new HmsException( "No Board service found for Service:" + serviceKey );
+                }
+                else
+                {
+                    try
+                    {
+                        boardService = (IBoardService) boardServiceClass.newInstance();
+                    }
+                    catch ( Exception e )
+                    {
+                        logger.error( "Error while getting IBoardService for Service:" + serviceKey, e );
+                        throw new HmsException( e );
+                    }
+                }
+                return boardService;
+            }
+            catch ( HmsException e )
+            {
+                logger.error( "Error while getting Board Service for Service:" + serviceKey, e );
+                throw e;
+            }
+        }
+        else
+        {
+            throw new HmsException( "External Service is NULL" );
         }
     }
 }

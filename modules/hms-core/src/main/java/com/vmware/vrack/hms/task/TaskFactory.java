@@ -2,11 +2,12 @@
  * TaskFactory.java
  *
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
-
+ * Copyright (c) 2016 Intel Corporation
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0
-
+ *
  * Unless required by applicable law or agreed to in writing, software distributed
  * under the License is distributed on an "AS IS" BASIS, without warranties or
  * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
@@ -34,6 +35,7 @@ import com.vmware.vrack.hms.task.oob.ipmi.SelInfoTask;
 import com.vmware.vrack.hms.task.oob.ipmi.SelfTestTask;
 import com.vmware.vrack.hms.task.oob.ipmi.ServerInfoServerTask;
 import com.vmware.vrack.hms.task.oob.ipmi.SetSystemBootOptionsTask;
+import com.vmware.vrack.hms.task.oob.redfish.RedfishDiscoverComputerSystemsTask;
 import com.vmware.vrack.hms.task.oob.rmm.CpuInformationTask;
 import com.vmware.vrack.hms.task.oob.rmm.HddInformationTask;
 import com.vmware.vrack.hms.task.oob.rmm.MemoryInformationTask;
@@ -117,6 +119,9 @@ public class TaskFactory
                 break;
             case GetSupportedAPI:
                 task = new GetSupportedAPI( response );
+                break;
+            case RedfishDiscoverComputerSystems:
+                task = new RedfishDiscoverComputerSystemsTask();
                 break;
             default:
                 return task;
