@@ -1,0 +1,68 @@
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+        address 192.168.100.21
+        netmask 255.255.255.0
+        gateway 192.168.100.1
+
+auto swp1
+iface swp1
+    mtu 1600
+
+auto swp3
+iface swp3
+    mtu 1600
+
+auto swp4
+iface swp4
+    mtu 1600
+
+auto swp5
+iface swp5
+    mtu 1600
+
+auto swp6
+iface swp6
+    mtu 1600
+
+auto swp41
+iface swp41
+    mtu 1600
+
+auto swp42
+iface swp42
+    mtu 1600
+
+auto swp47
+iface swp47
+    link-speed 1000
+    link-duplex full
+    link-autoneg off
+
+auto swp48
+iface swp48
+    mtu 1600
+
+auto bond2
+iface bond2
+    mtu 1600
+    bond-slaves swp2
+    bridge-access 1
+    bond-mode 802.3ad
+    bond-miimon 100
+    bond-use-carrier 1
+    bond-lacp-rate 1
+    bond-min-links 1
+    bond-xmit-hash-policy layer3+4
+
+auto brvlans
+iface brvlans
+    bridge-vlan-aware yes
+    bridge-ports peerlink swp1 bond2 swp3 swp4 swp5 swp6 swp48
+    bridge-pvid 1
+    bridge-stp on
+
+# Source all HMS-related artifacts
+source /etc/network/interfaces.d/hms-*

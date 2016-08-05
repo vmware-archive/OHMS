@@ -29,6 +29,7 @@ import com.vmware.vrack.hms.common.switches.api.SwitchBgpConfig;
 import com.vmware.vrack.hms.common.switches.api.SwitchHardwareInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchLacpGroup;
 import com.vmware.vrack.hms.common.switches.api.SwitchMclagInfo;
+import com.vmware.vrack.hms.common.switches.api.SwitchNetworkConfiguration;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode;
 import com.vmware.vrack.hms.common.switches.api.SwitchOsInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchOspfConfig;
@@ -396,4 +397,11 @@ public class SwitchServiceTest
         // TODO Auto-generated method stub
         return null;
     }
+
+	@Override
+	public boolean applyNetworkConfiguration(SwitchNode switchNode, SwitchNetworkConfiguration networkConfiguration)
+			throws HmsException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
