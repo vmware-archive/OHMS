@@ -169,12 +169,9 @@
 				<module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
-<<<<<<< HEAD
                 <module>modules/sample-plugins/hms-redfish-server-plugin</module>
-=======
 				<module>modules/quanta-plugin</module>
 				<module>modules/cumulus-switch</module>
->>>>>>> origin/development
             </modules>
         </profile>
         <profile>
@@ -224,12 +221,9 @@
 				<module>modules/ipmi-service</module>
                 <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
-<<<<<<< HEAD
                 <module>modules/sample-plugins/hms-redfish-server-plugin</module>
-=======
 				<module>modules/quanta-plugin</module>
 				<module>modules/cumulus-switch</module>
->>>>>>> origin/development
             </modules>
         </profile>
     </profiles>

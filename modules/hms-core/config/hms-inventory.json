@@ -86,7 +86,7 @@
   ],
   "switches": [
 	{
-	  "id": "S1",
+	  "id": "S0",
 	  "protocol": "ssh",
 	  "ipAddress": "10.28.197.242",
 	  "port": 22,
@@ -99,7 +99,7 @@
 	  }
 	},
 	{
-	  "id": "S2",
+	  "id": "S1",
 	  "protocol": "ssh",
 	  "ipAddress": "10.28.197.242",
 	  "port": 22,
@@ -112,7 +112,7 @@
 	  }
 	},
 	{
-	  "id": "S3",
+	  "id": "S2",
 	  "protocol": "ssh",
 	  "ipAddress": "10.28.197.242",
 	  "port": 22,

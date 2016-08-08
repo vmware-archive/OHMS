@@ -25,7 +25,10 @@ import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.exception.HmsOperationNotSupportedException;
 import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
+import com.vmware.vrack.hms.common.switches.api.SwitchNode.SwitchRoleType;
 import com.vmware.vrack.hms.common.util.EventsUtil;
+import com.vmware.vrack.hms.common.util.SwitchPortUpDownEventsHelper;
+import com.vmware.vrack.hms.common.util.SwitchUpDownEventsHelper;
 
 /**
  * Monitor Switch Task
@@ -42,6 +45,11 @@ public class MonitorSwitchTask
      * @MonitoringTaskResponse response contains sensorProvide and references to nodes and components
      */
     public MonitoringTaskResponse response;
+
+    /**
+     * Role of the switch
+     */
+    public SwitchRoleType switchRole;
 
     /**
      * SwitchComponentEnum component for node HMSNode to be monitored
@@ -69,6 +77,14 @@ public class MonitorSwitchTask
         component = response.getSwitchComponentList().get( 0 );
     }
 
+    public MonitorSwitchTask( MonitoringTaskResponse response, SwitchRoleType switchrole )
+    {
+        this.response = response;
+        node = response.node;
+        component = response.getSwitchComponentList().get( 0 );
+        this.switchRole = switchrole;
+    }
+
     @Override
     public MonitoringTaskResponse call()
         throws Exception
@@ -92,6 +108,14 @@ public class MonitorSwitchTask
                     List<ServerComponentEvent> events =
                         response.getSwitchEventInfoProvider().getComponentSwitchEventList( node.getServiceSwitchObject(),
                                                                                            component );
+                    if ( component == SwitchComponentEnum.SWITCH )
+                    {
+                        SwitchUpDownEventsHelper.getSwitchUpDownEvents( events, switchRole );
+                    }
+                    else if ( component == SwitchComponentEnum.SWITCH_PORT )
+                    {
+                        SwitchPortUpDownEventsHelper.getSwitchPortUpDownEvents( events, switchRole );
+                    }
                     node.addSwitchComponentSensorData( component, events );
                 }
                 else
@@ -105,8 +129,7 @@ public class MonitorSwitchTask
         }
         catch ( Exception e )
         {
-            logger.error( "Error while getting Sensor information for Switch Node:" + node.getNodeID(), e );
-            throw new HmsException( "Error while getting Sensor information for Switch Node:" + node.getNodeID(), e );
+            throw new HmsException( "Error while getting Sensor information for Switch Node: " + node.getNodeID(), e );
         }
         return response;
     }

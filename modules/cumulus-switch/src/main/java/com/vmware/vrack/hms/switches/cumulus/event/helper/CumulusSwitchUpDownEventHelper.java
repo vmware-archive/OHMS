@@ -23,11 +23,8 @@ import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
-import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode;
-import com.vmware.vrack.hms.common.switches.api.SwitchSession;
-import com.vmware.vrack.hms.switches.cumulus.CumulusUtil;
 
 /**
  * Cumulus switch up or down server component event event helper
@@ -36,6 +33,10 @@ import com.vmware.vrack.hms.switches.cumulus.CumulusUtil;
 public class CumulusSwitchUpDownEventHelper {
 
     private static Logger logger = Logger.getLogger(CumulusSwitchUpDownEventHelper.class);
+
+    private static final String SWITCH_UP = "Switch is up";
+
+    private static final String SWITCH_DOWN = "Switch is Down";
 
     /**
      * method to get Switch up or down event helper
@@ -49,55 +50,21 @@ public class CumulusSwitchUpDownEventHelper {
 
         if (switchNode != null) {
             List<ServerComponentEvent> serverComponentSensorlist = new ArrayList<>();
-            SwitchSession switchSession = CumulusUtil.getSession(switchNode);
 
             try {
                 ServerComponentEvent serverComponentEvent = new ServerComponentEvent();
 
-                boolean switchRoleFound = false;
-                if (switchPowerStatus && switchSession.getSwitchNode().getRole() != null) {
-                    switch (switchSession.getSwitchNode().getRole()) {
-                    case TOR:
-                        serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_UP);
-                        switchRoleFound = true;
-                        break;
-                    case SPINE:
-                        serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_UP);
-                        switchRoleFound = true;
-                        break;
-                    default:
-                        break;
-                    }
-                    if (switchRoleFound) {
-                        serverComponentEvent.setDiscreteValue("Switch is up");
-                        serverComponentEvent.setEventId(switchSession.getSwitchNode().getRole().name());
-                        serverComponentEvent.setUnit(EventUnitType.DISCRETE);
-                        serverComponentEvent.setComponentId(switchSession.getSwitchNode().getSwitchId());
-
-                        serverComponentSensorlist.add(serverComponentEvent);
-                    }
-                } else if (!switchPowerStatus && switchSession.getSwitchNode().getRole() != null) {
-                    switch (switchSession.getSwitchNode().getRole()) {
-                    case TOR:
-                        serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_DOWN);
-                        switchRoleFound = true;
-                        break;
-                    case SPINE:
-                        serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_DOWN);
-                        switchRoleFound = true;
-                        break;
-                    default:
-                        break;
-                    }
-                    if (switchRoleFound) {
-                        serverComponentEvent.setDiscreteValue("Switch is Down");
-                        serverComponentEvent.setEventId(switchSession.getSwitchNode().getRole().name());
-                        serverComponentEvent.setUnit(EventUnitType.DISCRETE);
-                        serverComponentEvent.setComponentId(switchSession.getSwitchNode().getSwitchId());
-
-                        serverComponentSensorlist.add(serverComponentEvent);
-                    }
+                if ( switchPowerStatus )
+                {
+                    serverComponentEvent.setDiscreteValue( SWITCH_UP );
                 }
+                else
+                {
+                    serverComponentEvent.setDiscreteValue( SWITCH_DOWN );
+                }
+                serverComponentEvent.setUnit( EventUnitType.DISCRETE );
+                serverComponentEvent.setComponentId( switchNode.getSwitchId() );
+                serverComponentSensorlist.add( serverComponentEvent );
 
                 return serverComponentSensorlist;
 
