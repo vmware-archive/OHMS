@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
-import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode;
 import com.vmware.vrack.hms.common.switches.api.SwitchSession;
@@ -38,6 +37,10 @@ public class CumulusPortEventHelper {
 
     private static Logger logger = Logger.getLogger(CumulusPortEventHelper.class);
 
+    private static final String SWITCH_PORT_UP = "Switch Port up";
+
+    private static final String SWITCH_PORT_DOWN = "Switch Port Down";
+
     /**
      * method to get Switch Port server component event
      *
@@ -50,71 +53,39 @@ public class CumulusPortEventHelper {
 
         if (switchNode != null) {
             List<ServerComponentEvent> serverComponentSensorlist = new ArrayList<>();
-            SwitchSession switchSession = CumulusUtil.getSession(switchNode);
 
             try {
+                SwitchSession switchSession = CumulusUtil.getSession( switchNode );
 
-                for (int i = 0; i < portList.size(); i++) {
-                    String command = CumulusConstants.GET_SWITCH_PORT_STATE.replaceAll("\\{portName\\}", portList.get(i));
+                for ( String port : portList )
+                {
+                    String command = CumulusConstants.GET_SWITCH_PORT_STATE.replaceAll( "\\{portName\\}", port );
                     String portStatus = switchSession.execute(command);
 
-                    if (portList.get(i).equals("lo"))
+                    if ( port.equals( "lo" ) )
                         continue;
 
                     ServerComponentEvent serverComponentEvent = new ServerComponentEvent();
 
-                    boolean switchRoleFound = false;
-                    if (portStatus.equals("UP") && switchSession.getSwitchNode().getRole() != null) {
-                        switch (switchSession.getSwitchNode().getRole()) {
-                        case MANAGEMENT:
-                            serverComponentEvent.setEventName(NodeEvent.MANAGEMENT_SWITCH_PORT_UP);
-                            switchRoleFound = true;
-                            break;
-                        case TOR:
-                            serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_PORT_UP);
-                            switchRoleFound = true;
-                            break;
-                        case SPINE:
-                            serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_PORT_UP);
-                            switchRoleFound = true;
-                            break;
-                        default:
-                            break;
-                        }
-                        if (switchRoleFound) {
-                            serverComponentEvent.setDiscreteValue("Switch Port up");
-                            serverComponentEvent.setEventId(switchSession.getSwitchNode().getRole().name());
-                            serverComponentEvent.setUnit(EventUnitType.DISCRETE);
-                            serverComponentEvent.setComponentId(portList.get(i));
-
-                            serverComponentSensorlist.add(serverComponentEvent);
-                        }
-                    } else if (portStatus.equals("DOWN") && switchSession.getSwitchNode().getRole() != null) {
-                        switch (switchSession.getSwitchNode().getRole()) {
-                        case MANAGEMENT:
-                            serverComponentEvent.setEventName(NodeEvent.MANAGEMENT_SWITCH_PORT_DOWN);
-                            switchRoleFound = true;
-                            break;
-                        case TOR:
-                            serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_PORT_DOWN);
-                            switchRoleFound = true;
-                            break;
-                        case SPINE:
-                            serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_PORT_DOWN);
-                            switchRoleFound = true;
-                            break;
-                        default:
-                            break;
-                        }
-                        if (switchRoleFound) {
-                            serverComponentEvent.setDiscreteValue("Switch Port Down");
-                            serverComponentEvent.setEventId(switchSession.getSwitchNode().getRole().name());
-                            serverComponentEvent.setUnit(EventUnitType.DISCRETE);
-                            serverComponentEvent.setComponentId(portList.get(i));
-
-                            serverComponentSensorlist.add(serverComponentEvent);
-                        }
+                    if ( portStatus.equals( "UP" ) )
+                    {
+                        serverComponentEvent.setDiscreteValue( SWITCH_PORT_UP );
                     }
+                    else if ( portStatus.equals( "DOWN" ) )
+                    {
+                        serverComponentEvent.setDiscreteValue( SWITCH_PORT_DOWN );
+                    }
+                    else
+                    {
+                        // unknown, do nothing, just log the error
+                        logger.error( String.format( "Unable to understand port status %s for port %s", portStatus,
+                                                     port ) );
+                    }
+
+                    serverComponentEvent.setUnit( EventUnitType.DISCRETE );
+                    serverComponentEvent.setComponentId( port );
+
+                    serverComponentSensorlist.add( serverComponentEvent );
                 }
 
                 return serverComponentSensorlist;

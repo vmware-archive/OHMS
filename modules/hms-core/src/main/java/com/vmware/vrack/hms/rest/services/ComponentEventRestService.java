@@ -45,6 +45,7 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 import com.vmware.vrack.hms.common.switches.api.ISwitchService;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode;
+import com.vmware.vrack.hms.common.switches.api.SwitchNode.SwitchRoleType;
 import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
 import com.vmware.vrack.hms.node.server.ServerNodeConnector;
 import com.vmware.vrack.hms.node.switches.SwitchNodeConnector;
@@ -200,7 +201,7 @@ public class ComponentEventRestService
             {
                 SwitchComponentEnum component =
                     EventMonitoringSubscriptionHolder.getMappedSwitchComponents( eventSource );
-                executeSwitchMonitorTask( node, component );
+                executeSwitchMonitorTask( node, component, switchNode.getRole() );
                 return EventMonitoringSubscriptionHolder.getSwitchEventList( node, component );
             }
             catch ( Exception e )
@@ -231,7 +232,7 @@ public class ComponentEventRestService
             {
                 try
                 {
-                    executeSwitchMonitorTask( node, component );
+                    executeSwitchMonitorTask( node, component, switchNode.getRole() );
                     events.addAll( EventMonitoringSubscriptionHolder.getSwitchEventList( node, component, true ) );
                 }
                 catch ( Exception e )
@@ -283,14 +284,14 @@ public class ComponentEventRestService
      * @return
      * @throws HMSRestException
      */
-    private void executeSwitchMonitorTask( HmsNode node, SwitchComponentEnum component )
+    private void executeSwitchMonitorTask( HmsNode node, SwitchComponentEnum component, SwitchRoleType switchrole )
         throws HMSRestException
     {
         try
         {
             ISwitchService service = switchConnector.getSwitchService( node.getNodeID() );
             MonitoringTaskResponse response = new MonitoringTaskResponse( node, component, service );
-            MonitorSwitchTask task = new MonitorSwitchTask( response );
+            MonitorSwitchTask task = new MonitorSwitchTask( response, switchrole );
             task.executeTask();
         }
         catch ( Exception e )
