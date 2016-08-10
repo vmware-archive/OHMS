@@ -34,21 +34,6 @@
                 <artifactId>maven-install-plugin</artifactId>
                 <version>${maven-install-plugin.version}</version>
                 <executions>
-                <execution>
-                        <id>com.veraxsystems:vxIPMI</id>
-                        <phase>${maven-install-plugin.execution.phase}</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <groupId>com.veraxsystems</groupId>
-                            <artifactId>vxIPMI</artifactId>
-                            <version>${vxipmi.version}</version>
-                            <packaging>jar</packaging>
-                            <file>${lib.dir}/vxIPMI.jar</file>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>com.vmware.vrack:event-catalogue</id>
                         <phase>${maven-install-plugin.execution.phase}</phase>
