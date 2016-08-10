@@ -57,12 +57,12 @@
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
-<!--         <dependency>
+        <dependency>
             <groupId>com.vmware.vrack</groupId>
-            <artifactId>quanta-plugin</artifactId>
+            <artifactId>quanta-dummy-plugin</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>com.vmware.vrack</groupId>
             <artifactId>cumulus-switch</artifactId>

@@ -168,6 +168,7 @@
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
                 <module>modules/sample-plugins/hms-redfish-server-plugin</module>
 				<module>modules/cumulus-switch</module>
+				<module>modules/quanta-dummy-plugin</module>
             </modules>
         </profile>
         <profile>
@@ -216,6 +217,7 @@
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
                 <module>modules/sample-plugins/hms-redfish-server-plugin</module>
 				<module>modules/cumulus-switch</module>
+				<module>modules/quanta-dummy-plugin</module>
             </modules>
         </profile>
     </profiles>
