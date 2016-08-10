@@ -55,6 +55,11 @@ import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 import com.vmware.vrack.hms.plugin.ServerPluginConstants;
 
+/*
+ * This is a sample code which services the OOB agent requests with dummy data.
+ * Actual implementation will utilize IPMI protocol to talk to and get the information from BMC.
+ */
+
 @BoardServiceImplementation( name = ServerPluginConstants.BOARD_NAME )
 public class BoardService_Dummy
     implements IBoardService
