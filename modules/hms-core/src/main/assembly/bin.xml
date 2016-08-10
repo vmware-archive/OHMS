@@ -46,7 +46,7 @@
       </includes>
     </fileSet>
     <!-- Add entries for each partner plugin here -->
-    <fileSet>
+    <!-- <fileSet>
       <directory>${project.basedir}/../partner-plugins/hms-dell-server-plugin</directory>
       <outputDirectory>/</outputDirectory>
       <fileMode>0644</fileMode>
@@ -54,7 +54,7 @@
       <includes>
           <include>plugin-jars/*</include>
       </includes>
-    </fileSet>
+    </fileSet> -->
 
 
   </fileSets>
@@ -76,9 +76,7 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
-        <include>com.veraxsystems:vxIPMI</include>
         <include>org.apache.commons:commons-pool2</include>
-        <include>com.vmware.vrack:ipmi-service</include>
       </includes>
     </dependencySet>
 
@@ -91,10 +89,8 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
-      	<include>com.vmware.vrack:hms-oob-ipmi-plugin</include>
-     	<include>com.changeit.plugin:hms-sample-server-plugin</include>
      	<include>com.changeit.plugin:hms-sample-switch-plugin</include>
-     	<include>com.vmware.vrack:quanta-plugin</include>
+     	<include>com.vmware.vrack:quanta-dummy-plugin</include>
       	<include>com.vmware.vrack:cumulus-switch</include>
       </includes>
     </dependencySet>
