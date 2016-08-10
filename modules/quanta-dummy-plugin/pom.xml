@@ -20,15 +20,14 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>quanta-plugin</artifactId>
+  <artifactId>quanta-dummy-plugin</artifactId>
   <packaging>jar</packaging>
-  <name>quanta-plugin</name>
+  <name>quanta-dummy-plugin</name>
   <properties>
         <httpclient.version>4.5.1</httpclient.version>
         <resteasy-jackson-provider.version>3.0.8.Final</resteasy-jackson-provider.version>
         <junit.version>4.12</junit.version>
         <log4j.version>1.2.17</log4j.version>
-        <vxipmi.version>1.0.17-vmware-0.0.1</vxipmi.version>
         <hms.version>1.0.0</hms.version>
         <event-catalogue.version>1.0.0</event-catalogue.version>
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
@@ -52,23 +51,8 @@
             <version>${hms.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.veraxsystems</groupId>
-            <artifactId>vxIPMI</artifactId>
-            <version>${vxipmi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vmware.vrack</groupId>
-            <artifactId>ipmi-service</artifactId>
-            <version>${hms.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.vmware.vrack</groupId>
             <artifactId>hms-oob-plugin</artifactId>
-            <version>${hms.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vmware.vrack</groupId>
-            <artifactId>hms-oob-ipmi-plugin</artifactId>
             <version>${hms.version}</version>
         </dependency>
         <dependency>

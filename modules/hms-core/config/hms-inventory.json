@@ -54,8 +54,8 @@
 	  "ibUsername": "USERNAME1_2",
 	  "ibPassword": "PASSWORD1_2",
 	  "boardInfo": {
-		"manufacturer": "hms-sample",
-		"model": "server-plugin"
+		"manufacturer": "Quanta",
+		"model": "Dummy"
 	  },
 	  "hypervisorInfo": {
 		"name": "ESXI",
