@@ -161,16 +161,12 @@
                 <module>modules/hms-ib-plugin</module>
                 <module>modules/hms-inband</module>
                 <module>modules/hms-aggregator</module>
-                <module>modules/hms-oob-ipmi-plugin</module>
                 <module>modules/hms-oob-plugin</module>
                 <module>modules/hms-plugin-common-lib</module>
                 <module>modules/hms-switch-plugin</module>
                 <module>modules/hms-util</module>
-				<module>modules/ipmi-service</module>
-                <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
                 <module>modules/sample-plugins/hms-redfish-server-plugin</module>
-				<module>modules/quanta-plugin</module>
 				<module>modules/cumulus-switch</module>
             </modules>
         </profile>
@@ -213,16 +209,12 @@
                 <module>modules/hms-ib-plugin</module>
                 <module>modules/hms-inband</module>
                 <module>modules/hms-aggregator</module>
-                <module>modules/hms-oob-ipmi-plugin</module>
                 <module>modules/hms-oob-plugin</module>
                 <module>modules/hms-plugin-common-lib</module>
                 <module>modules/hms-switch-plugin</module>
                 <module>modules/hms-util</module>
-				<module>modules/ipmi-service</module>
-                <module>modules/sample-plugins/hms-sample-server-ipmi-plugin</module>
                 <module>modules/sample-plugins/hms-sample-switch-plugin</module>
                 <module>modules/sample-plugins/hms-redfish-server-plugin</module>
-				<module>modules/quanta-plugin</module>
 				<module>modules/cumulus-switch</module>
             </modules>
         </profile>
