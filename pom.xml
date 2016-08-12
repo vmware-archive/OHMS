@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- /* ********************************************************************************
+ * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
+ * Copyright (c) 2016 Intel Corporation
+
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, without warranties or
+ * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * *******************************************************************************/ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.vmware.vrack</groupId>
+    <artifactId>hms</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <BUILD_NUMBER>000000</BUILD_NUMBER>
+        <vimvmodl.version>1.0.0</vimvmodl.version>
+        <vxipmi.version>1.0.17-vmware-0.0.1</vxipmi.version>
+        <hms-sdk.version>1.0.0</hms-sdk.version>
+        <event-catalogue.version>1.0.0</event-catalogue.version>
+        <vxipmi.hms.version>0.0.1-SNAPSHOT</vxipmi.hms.version>
+        <vrack-vrm.version>1.0.0</vrack-vrm.version>
+        <vim25.version>5.5</vim25.version>
+        <vlsi.version>5.5.0</vlsi.version>
+        <!-- JAVA -->
+        <java.version>1.7</java.version>
+        <java.source.version>${java.version}</java.source.version>
+        <java.target.version>${java.version}</java.target.version>
+        <!-- JAVAX -->
+        <validation-api.version>1.1.0.Final</validation-api.version>
+        <javax.el-api.version>3.0.0</javax.el-api.version>
+        <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+        <!-- HIBERNATE -->
+        <hibernate-validator-annotation-processor.version>5.2.1.Final</hibernate-validator-annotation-processor.version>
+        <!-- RESTEASY -->
+        <resteasy-jackson-provider.version>3.0.8.Final</resteasy-jackson-provider.version>
+        <resteasy-jaxrs.version>3.0.8.Final</resteasy-jaxrs.version>
+        <resteasy-multipart-provider.version>3.0.8.Final</resteasy-multipart-provider.version>
+        <!-- JETTY -->
+        <jetty-spring.version>9.1.3.v20140225</jetty-spring.version>
+        <jetty-server.version>9.1.3.v20140225</jetty-server.version>
+        <jetty-servlet.version>9.1.3.v20140225</jetty-servlet.version>
+        <!-- SPRINGFRAMEWORK -->
+        <spring-context.version>4.0.1.RELEASE</spring-context.version>
+        <spring-core.version>4.0.1.RELEASE</spring-core.version>
+        <spring-web.version>4.0.1.RELEASE</spring-web.version>
+        <spring-webmvc.version>4.0.1.RELEASE</spring-webmvc.version>
+        <spring-beans.version>4.0.1.RELEASE</spring-beans.version>
+        <spring-test.version>4.0.1.RELEASE</spring-test.version>
+        <!-- JUNIT -->
+        <junit.version>4.12</junit.version>
+        <!-- MOCKITO -->
+        <mockito-all.version>1.10.8</mockito-all.version>
+        <!-- JSCH -->
+        <jsch.version>0.1.53</jsch.version>
+        <powermock-module-junit4.version>1.6.2</powermock-module-junit4.version>
+        <powermock-api-mockito.version>1.6.2</powermock-api-mockito.version>
+        <powermock-core.version>1.6.2</powermock-core.version>
+        <xstream.version>1.4.8</xstream.version>
+        <stax2-api.version>4.0.0</stax2-api.version>
+        <woodstox-core.version>5.0.2</woodstox-core.version>
+        <sblim-cim-client2.version>2.2.5</sblim-cim-client2.version>
+        <opencsv.version>2.3</opencsv.version>
+        <!-- LOGGING -->
+        <log4j.version>1.2.17</log4j.version>
+        <log4j-core.version>2.4</log4j-core.version>
+        <slf4j-api.version>1.7.12</slf4j-api.version>
+        <jcl-over-slf4j.version>1.7.12</jcl-over-slf4j.version>
+        <slf4j-log4j12.version>1.7.12</slf4j-log4j12.version>
+        <!-- APACHE -->
+        <httpclient.version>4.5.1</httpclient.version>
+        <httpcore.version>4.4.3</httpcore.version>
+        <commons-pool2.version>2.4.2</commons-pool2.version>
+        <commons-lang3.version>3.4</commons-lang3.version>
+        <commons-cli.version>1.2</commons-cli.version>
+        <commons-compress.version>1.8</commons-compress.version>
+        <commons-io.version>2.4</commons-io.version>
+        <tomcat7-maven-plugin.version>2.2</tomcat7-maven-plugin.version>
+        <!-- CODEHAUS -->
+        <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
+        <jackson-mapper-asl.version>1.9.13</jackson-mapper-asl.version>
+        <jackson-core-asl.version>1.9.13</jackson-core-asl.version>
+        <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
+        <sonar-maven3-plugin.version>2.13</sonar-maven3-plugin.version>
+        <!-- FASTERXML JACKSON -->
+        <fasterxml.jackson.version>2.6.4</fasterxml.jackson.version>
+        <jackson-annotations.version>${fasterxml.jackson.version}</jackson-annotations.version>
+        <jackson-core.version>${fasterxml.jackson.version}</jackson-core.version>
+        <jackson-databind.version>${fasterxml.jackson.version}</jackson-databind.version>
+        <!-- MAVEN VERSIONS -->
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+        <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
+        <maven-failsafe-plugin.version>2.18.1</maven-failsafe-plugin.version>
+        <surefire-junit47.version>2.18.1</surefire-junit47.version>
+        <maven-dependency-plugin.version>2.2</maven-dependency-plugin.version>
+        <maven-source-plugin.version>2.4</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+        <maven-war-plugin.version>2.6</maven-war-plugin.version>
+        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
+        <maven-surefire-report-plugin.version>2.6</maven-surefire-report-plugin.version>
+        <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+    </properties>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.source.version}</source>
+                        <target>${java.target.version}</target>
+                        <fork>true</fork>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <workingDirectory>${project.build.directory}</workingDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <profiles>
+        <profile>
+            <!-- Profile to run both Integration and Unit Tests -->
+            <id>all</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+            </build>
+            <modules>
+                <!--
+                     The repository module must be first in order to ensure that the
+                     local repository is populated.
+                -->
+                <module>modules/repository</module>
+                <module>modules/hms-common-model</module>
+                <!--module>modules/hms-common-switch-plugin</module-->
+                <module>modules/hms-oob-plugin-testlib</module>
+                <module>modules/hms-core</module>
+                <module>modules/hms-ib-plugin</module>
+                <module>modules/hms-inband</module>
+                <module>modules/hms-aggregator</module>
+                <module>modules/hms-oob-plugin</module>
+                <module>modules/hms-plugin-common-lib</module>
+                <module>modules/hms-switch-plugin</module>
+                <module>modules/hms-util</module>
+                <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+                <module>modules/sample-plugins/hms-redfish-server-plugin</module>
+				<module>modules/cumulus-switch</module>
+				<module>modules/quanta-dummy-plugin</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>integration</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven-failsafe-plugin.version}</version>
+                        <dependencies>
+                        </dependencies>
+                        <configuration>
+                            <groups>com.vmware.vrack.hms.plugin.testlib.IntegrationTest</groups>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>**/*.class</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <modules>
+                <module>modules/repository</module>
+                <module>modules/hms-common-model</module>
+                <!--module>modules/hms-common-switch-plugin</module-->
+                <module>modules/hms-oob-plugin-testlib</module>
+                <module>modules/hms-core</module>
+                <module>modules/hms-ib-plugin</module>
+                <module>modules/hms-inband</module>
+                <module>modules/hms-aggregator</module>
+                <module>modules/hms-oob-plugin</module>
+                <module>modules/hms-plugin-common-lib</module>
+                <module>modules/hms-switch-plugin</module>
+                <module>modules/hms-util</module>
+                <module>modules/sample-plugins/hms-sample-switch-plugin</module>
+                <module>modules/sample-plugins/hms-redfish-server-plugin</module>
+				<module>modules/cumulus-switch</module>
+				<module>modules/quanta-dummy-plugin</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>

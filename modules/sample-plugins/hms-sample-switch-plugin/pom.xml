@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /* ********************************************************************************
+ * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
+
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, without warranties or
+ * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * *******************************************************************************/ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.changeit.plugin</groupId>
+    <artifactId>hms-sample-switch-plugin</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0</version>
+    <url>http://maven.apache.org</url>
+    <properties>
+        <junit.version>4.12</junit.version>
+        <log4j.version>1.2.17</log4j.version>
+        <jsch.version>0.1.53</jsch.version>
+        <hms.version>1.0.0</hms.version>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+        <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
+    </properties>
+    <dependencies>
+        <!-- Internal Dependencies -->
+        <dependency>
+            <groupId>com.vmware.vrack</groupId>
+            <artifactId>hms-plugin-common-lib</artifactId>
+            <version>${hms.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vmware.vrack</groupId>
+            <artifactId>hms-oob-plugin-testlib</artifactId>
+            <version>${hms.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vmware.vrack</groupId>
+            <artifactId>hms-switch-plugin</artifactId>
+            <version>${hms.version}</version>
+        </dependency>
+        <!-- External Dependencies -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${jsch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.source.version}</source>
+                    <target>${java.target.version}</target>
+                    <fork>true</fork>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <workingDirectory>${project.build.directory}</workingDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}</directory>
+                                    <includes>
+                                        <include>config/*.json</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>${basedir}/config</directory>
+                                    <includes>
+                                        <include>metadata.txt</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>calculate-checksum</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <checksum algorithm="MD5" pattern="plugin-jars/{1} {0}" fileext=".MD5">
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="*.jar"/>
+                                    </fileset>
+                                </checksum>
+                                <!-- Uncomment the following if including an event Mapper .json file -->
+                                <!--checksum algorithm="MD5" pattern="config/{1} {0}" fileext=".MD5">
+                                        <fileset dir="${project.build.directory}/config">
+                                            <include name="*.json"/>
+                                        </fileset>
+                                </checksum-->
+                                <echo file="${project.build.directory}/metadata.txt" append="true">package-version=${project.version}${line.separator}</echo>
+                                <concat destfile="${project.build.directory}/metadata.txt" append="true">
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="*.MD5"/>
+                                    </fileset>
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="config/*.MD5"/>
+                                    </fileset>
+                                </concat>
+                                <delete>
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="*.MD5"/>
+                                    </fileset>
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="config/*.MD5"/>
+                                    </fileset>
+                                </delete>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Generate hms-${version}.zip artifacts -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>zip-with-dependencies</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptor>src/main/assembly/assembly.xml</descriptor>
+                            <finalName>changeit-switch-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

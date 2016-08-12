@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/util
+            http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean
+        id="initProps"
+        class="com.vmware.vrack.hms.common.HmsConfigHolder"
+        init-method="initializeHmsAppProperties"
+        scope="singleton">
+    </bean>
+
+
+    <bean
+        id="server"
+        class="org.eclipse.jetty.server.Server"
+        init-method="start"
+        destroy-method="stop"
+        depends-on="initProps,boardServiceFactory">
+        <constructor-arg>
+            <bean
+                id="threadPool"
+                class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+                <property
+                    name="minThreads"
+                    value="10">
+                </property>
+                <property
+                    name="maxThreads"
+                    value="50">
+                </property>
+            </bean>
+        </constructor-arg>
+        <property name="connectors">
+            <list>
+                <bean
+                    id="connector"
+                    class="org.eclipse.jetty.server.ServerConnector">
+                    <constructor-arg ref="server" />
+                    <property
+                        name="port"
+                        value="8448">
+                    </property>
+                </bean>
+            </list>
+        </property>
+        <property
+            name="handler"
+            ref="statHandler">
+        </property>
+    </bean>
+
+    <bean
+        id="statistics"
+        class="org.eclipse.jetty.server.ConnectorStatistics">
+    </bean>
+
+    <bean
+        id="context"
+        class="org.eclipse.jetty.servlet.ServletContextHandler">
+        <property
+            name="contextPath"
+            value="/api/1.0/hms">
+        </property>
+    </bean>
+
+    <bean
+        id="statHandler"
+        class="org.eclipse.jetty.server.handler.StatisticsHandler">
+        <property
+            name="handler"
+            ref="context">
+        </property>
+    </bean>
+
+    <bean
+        id="dispatcher"
+        class="org.eclipse.jetty.servlet.ServletHolder">
+        <constructor-arg>
+            <bean class="org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher" />
+        </constructor-arg>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject">
+            <ref bean="dispatcher" />
+        </property>
+        <property name="targetMethod">
+            <value>setInitParameter</value>
+        </property>
+        <property name="arguments">
+            <list>
+                <value>javax.ws.rs.Application</value>
+                <value>com.vmware.vrack.hms.rest.services.RestServicesFactory</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject">
+            <ref bean="context" />
+        </property>
+        <property name="targetMethod">
+            <value>addServlet</value>
+        </property>
+        <property name="arguments">
+            <list>
+                <ref bean="dispatcher" />
+                <value>/*</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean
+        id="addStats"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property
+            name="targetObject"
+            ref="server">
+        </property>
+        <property
+            name="targetMethod"
+            value="addBean">
+        </property>
+        <property
+            name="arguments"
+            ref="statistics">
+        </property>
+    </bean>
+
+    <!--bean
+        id="AXX10GBTWL"
+        class="com.vmware.vrack.hms.fru.service.X540FruService" >
+    </bean-->
+
+    <!--
+    <util:map id="fruServices">
+        <entry
+            key="AXX10GBTWL"
+            value-ref="AXX10GBTWL">
+        </entry>
+    </util:map>
+
+    <bean
+        class="com.vmware.vrack.hms.boardservice.fru.oob.FruDelegateService"
+        factory-method="getFruDelegateService">
+        <property
+            name="services"
+            ref="fruServices">
+        </property>
+    </bean>
+    -->
+
+	<!-- All Vendor/Board specific class implementation for populating server properties will go here-->
+    <!--util:map id="boardServices">
+        <entry
+            key="S2600GZ"
+            value="com.vmware.vrack.intel.rmm.boardservice.BoardService_S2600GZ">
+        </entry>
+        <entry
+            key="S2600WP"
+            value="com.vmware.vrack.intel.rmm.boardservice.BoardService_S2600WP">
+        </entry>
+    </util:map-->
+
+	<!-- Singleton bean to hold BoardVendor specific class instances along with the instance -->
+    <bean
+        id="boardServiceFactory"
+        class="com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceFactory"
+        init-method="initialize">
+    </bean>
+
+    <!-- 
+    <bean
+        id="boardService"
+        class="com.vmware.vrack.hms.boardservice.oob.BoardService"
+        init-method="init"
+        lazy-init="false"
+        scope="singleton">
+    </bean>
+
+    <bean
+        id="intelBoardService"
+        class="com.vmware.vrack.hms.boardservice.oob.IntelBoardService"
+        init-method="init"
+        lazy-init="false"
+        scope="singleton">
+    </bean>
+
+    <bean
+        id="supermicroBoardService"
+        class="com.vmware.vrack.hms.boardservice.oob.SupermicroBoardService"
+        init-method="init"
+        lazy-init="false"
+        scope="singleton">
+    </bean>
+
+    <bean
+        id="quantaBoardService"
+        class="com.vmware.vrack.hms.boardservice.oob.QuantaBoardService"
+        init-method="init"
+        lazy-init="false"
+        scope="singleton">
+    </bean>
+    -->
+
+    <!-- TODO: Yagnesh: Clean up way we can show dependencies, else if there are more Boards supported, all of them will 
+        come as dependencies here :( -->
+    <bean
+        id="hostConnector"
+        class="com.vmware.vrack.hms.node.server.ServerNodeConnector"
+        factory-method="getInstance"
+        lazy-init="false"
+        scope="singleton"
+        depends-on="initProps,boardServiceFactory">
+        <property
+            name="server"
+            ref="server">
+        </property>
+    </bean>
+
+    <!-- Singleton bean to hold switch specific class instances along with the instance -->
+    <bean
+        id="switchServiceFactory"
+        class="com.vmware.vrack.hms.node.switches.SwitchServiceFactory"
+        init-method="initialize"
+        scope="singleton">
+    </bean>
+
+    <bean
+        id="switchConnector"
+        class="com.vmware.vrack.hms.node.switches.SwitchNodeConnector"
+        factory-method="getInstance"
+        lazy-init="false"
+        scope="singleton"
+        depends-on="switchServiceFactory,hostConnector">
+    </bean>
+
+    <!-- Uncomment this when LLU code is packaged with OOB Agent for partners -->
+    <!-->bean
+        id="lifecycleOperationRepository"
+        class="com.vmware.vrack.hms.component.lifecycle.resource.LifecycleOperationRepository"
+        factory-method="getInstance"
+        lazy-init="false"
+        scope="singleton"
+        depends-on="initProps,boardServiceFactory">
+    </bean-->
+
+    <!--
+    <bean
+        id="IntelS2600GZ"
+        class="com.vmware.vrack.intel.rmm.boardservice.BoardService_S2600GZ"
+        lazy-init="false"
+        scope="singleton">
+    </bean>
+    -->
+</beans>
