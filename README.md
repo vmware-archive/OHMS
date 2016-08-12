@@ -2,10 +2,10 @@
 
 ## Overview, how to build and run
 
-OHMS codebase can be found in the develop branch. Also one can take a look into the file [OHMS_userGuide.pdf](https://github.com/vmware/OHMS/blob/development/OHMS_userGuide.pdf) to know more about the OHMS project apart from the steps to build and run the project.
+OHMS codebase can be found in the develop branch. Also one can take a look into the file [OHMS_userGuide.pdf](https://github.com/vmware/OHMS/blob/master/OHMS_userGuide.pdf) to know more about the OHMS project apart from the steps to build and run the project.
 
 ## License
-OHMS is licensed under the Apache versions 2 license, see the file [LICENSE](https://github.com/vmware/OHMS/blob/development/LICENSE.txt) for information about licences for OHMS and its dependencies.
+OHMS is licensed under the Apache versions 2 license, see the file [LICENSE](https://github.com/vmware/OHMS/blob/master/LICENSE.txt) for information about licences for OHMS and its dependencies.
 
 
 
