@@ -186,7 +186,9 @@ public class BoardService_Dummy
                     return ChassisState.hardResetChassis( serviceHmsNode, command );
                 case POWERCYCLE:
                     host_manageable = true;
+                    if(ChassisState.getChassisPowerStatus(serviceHmsNode, command))
                     return ChassisState.powerCycleChassis( serviceHmsNode, command );
+                    else return ChassisState.powerUpChassis(serviceHmsNode, command);
                 case POWERDOWN:
                     host_manageable = false;
                     return ChassisState.powerDownChassis( serviceHmsNode, command );
