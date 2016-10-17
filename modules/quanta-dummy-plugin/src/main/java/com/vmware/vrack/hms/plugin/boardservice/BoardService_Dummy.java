@@ -34,10 +34,6 @@ import com.vmware.vrack.hms.common.resource.BmcUser;
 import com.vmware.vrack.hms.common.resource.PowerOperationAction;
 import com.vmware.vrack.hms.common.resource.SelfTestResults;
 import com.vmware.vrack.hms.common.resource.SystemBootOptions;
-import com.vmware.vrack.hms.common.resource.chassis.BiosBootType;
-import com.vmware.vrack.hms.common.resource.chassis.BootDeviceSelector;
-import com.vmware.vrack.hms.common.resource.chassis.BootDeviceType;
-import com.vmware.vrack.hms.common.resource.chassis.BootOptionsValidity;
 import com.vmware.vrack.hms.common.resource.chassis.ChassisIdentifyOptions;
 import com.vmware.vrack.hms.common.resource.fru.BoardInfo;
 import com.vmware.vrack.hms.common.resource.fru.EthernetController;
@@ -55,6 +51,7 @@ import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
 import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 import com.vmware.vrack.hms.plugin.ServerPluginConstants;
+import com.vmware.vrack.hms.plugin.command.boot.BootUtilHelper;
 import com.vmware.vrack.hms.plugin.command.chassis.ChassisState;
 
 /*
@@ -274,20 +271,35 @@ public class BoardService_Dummy
     public SystemBootOptions getBootOptions( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        SystemBootOptions systemBootOptions = new SystemBootOptions();
-        systemBootOptions.setBiosBootType( BiosBootType.Legacy );
-        systemBootOptions.setBootDeviceInstanceNumber( 0 );
-        systemBootOptions.setBootDeviceSelector( BootDeviceSelector.PXE );
-        systemBootOptions.setBootDeviceType( BootDeviceType.Internal );
-        systemBootOptions.setBootOptionsValidity( BootOptionsValidity.Persistent );
-        return systemBootOptions;
+        try
+        {
+            return BootUtilHelper.getBootOptions( serviceHmsNode, this.getCommand() );
+        }
+        catch ( IOException e )
+        {
+            logger.error( e.getStackTrace() );
+            throw new HmsException( e );
+        }
+        catch ( HmsException e )
+        {
+            logger.error( e.getStackTrace() );
+            throw e;
+        }
     }
 
     @Override
     public boolean setBootOptions( ServiceHmsNode serviceHmsNode, SystemBootOptions data )
         throws HmsException
     {
-        return true;
+        try
+        {
+            return BootUtilHelper.setBootOptions( serviceHmsNode, data, this.getCommand() );
+        }
+        catch ( IOException e )
+        {
+            logger.error( e.getStackTrace() );
+            throw new HmsException( e );
+        }
     }
 
     @Override
