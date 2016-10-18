@@ -52,6 +52,7 @@ import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 import com.vmware.vrack.hms.plugin.ServerPluginConstants;
 import com.vmware.vrack.hms.plugin.command.boot.BootUtilHelper;
+import com.vmware.vrack.hms.plugin.command.chassis.ChassisIdentify;
 import com.vmware.vrack.hms.plugin.command.chassis.ChassisState;
 
 /*
@@ -333,7 +334,8 @@ public class BoardService_Dummy
     public boolean setChassisIdentification( ServiceHmsNode serviceHmsNode, ChassisIdentifyOptions data )
         throws HmsException
     {
-        return true;
+        return ChassisIdentify.setChassisIdentification( serviceHmsNode, data, this.getCommand() );
+        // return true;
     }
 
     @Override

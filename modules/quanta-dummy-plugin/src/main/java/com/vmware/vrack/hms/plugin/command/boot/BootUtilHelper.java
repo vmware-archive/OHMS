@@ -122,7 +122,7 @@ public class BootUtilHelper
         return data;
     }
 
-    private static String convertByteArraytoHex( byte[] bootParameterB )
+    public static String convertByteArraytoHex( byte[] bootParameterB )
     {
         String byteToHexTemp = DatatypeConverter.printHexBinary( bootParameterB );
         String byteToHex = "";
