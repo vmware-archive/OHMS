@@ -16,6 +16,7 @@
 
 package com.vmware.vrack.hms.plugin.boardservice;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,17 +34,12 @@ import com.vmware.vrack.hms.common.resource.BmcUser;
 import com.vmware.vrack.hms.common.resource.PowerOperationAction;
 import com.vmware.vrack.hms.common.resource.SelfTestResults;
 import com.vmware.vrack.hms.common.resource.SystemBootOptions;
-import com.vmware.vrack.hms.common.resource.chassis.BiosBootType;
-import com.vmware.vrack.hms.common.resource.chassis.BootDeviceSelector;
-import com.vmware.vrack.hms.common.resource.chassis.BootDeviceType;
-import com.vmware.vrack.hms.common.resource.chassis.BootOptionsValidity;
 import com.vmware.vrack.hms.common.resource.chassis.ChassisIdentifyOptions;
 import com.vmware.vrack.hms.common.resource.fru.BoardInfo;
 import com.vmware.vrack.hms.common.resource.fru.EthernetController;
 import com.vmware.vrack.hms.common.resource.sel.SelFetchDirection;
 import com.vmware.vrack.hms.common.resource.sel.SelInfo;
 import com.vmware.vrack.hms.common.resource.sel.SelRecord;
-import com.vmware.vrack.hms.common.servernodes.api.ComponentIdentifier;
 import com.vmware.vrack.hms.common.servernodes.api.HmsApi;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNodeInfo;
@@ -54,6 +50,10 @@ import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
 import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 import com.vmware.vrack.hms.plugin.ServerPluginConstants;
+import com.vmware.vrack.hms.plugin.command.boot.BootUtilHelper;
+import com.vmware.vrack.hms.plugin.command.chassis.ChassisIdentify;
+import com.vmware.vrack.hms.plugin.command.chassis.ChassisState;
+import com.vmware.vrack.hms.plugin.command.fru.FruInfo;
 
 /*
  * This is a sample code which services the OOB agent requests with dummy data.
@@ -64,6 +64,8 @@ import com.vmware.vrack.hms.plugin.ServerPluginConstants;
 public class BoardService_Dummy
     implements IBoardService
 {
+    private String command;
+
     private List<BoardInfo> supportedBoards;
 
     private static Logger logger = Logger.getLogger( BoardService_Dummy.class );
@@ -75,6 +77,13 @@ public class BoardService_Dummy
     public BoardService_Dummy()
     {
         super();
+
+        String osName = System.getProperty( "os.name" );
+        if ( osName.contains( "Windows" ) )
+            command = System.getProperty( "user.home" ) + "\\Win-ipmiutil\\ipmiutil";
+        else if ( osName.contains( "Linux" ) )
+            command = "ipmiutil";
+
         BoardInfo boardInfo = new BoardInfo();
         boardInfo.setBoardManufacturer( ServerPluginConstants.BOARD_MANUFACTURER );
         boardInfo.setBoardProductName( ServerPluginConstants.BOARD_NAME );
@@ -94,6 +103,16 @@ public class BoardService_Dummy
     public List<BoardInfo> getSupportedBoard()
     {
         return supportedBoards;
+    }
+
+    public String getCommand()
+    {
+        return command;
+    }
+
+    public void setCommand( String command )
+    {
+        this.command = command;
     }
 
     @Override
@@ -139,39 +158,50 @@ public class BoardService_Dummy
     public boolean getServerPowerStatus( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        return power_status;
+        try
+        {
+            return ChassisState.getChassisPowerStatus( serviceHmsNode, this.getCommand() );
+        }
+        catch ( IOException e )
+        {
+            throw new HmsException( e );
+        }
     }
 
     @Override
     public boolean powerOperations( ServiceHmsNode serviceHmsNode, PowerOperationAction powerOperationAction )
         throws HmsException
     {
-        switch ( powerOperationAction )
+        try
         {
-            case COLDRESET:
-                power_status = true;
-                host_manageable = true;
-                break;
-            case HARDRESET:
-                power_status = true;
-                host_manageable = true;
-                break;
-            case POWERCYCLE:
-                power_status = true;
-                host_manageable = true;
-                break;
-            case POWERDOWN:
-                power_status = false;
-                host_manageable = false;
-                break;
-            case POWERUP:
-                power_status = true;
-                host_manageable = true;
-                break;
-            default:
-                break;
+            switch ( powerOperationAction )
+            {
+                case COLDRESET:
+                    host_manageable = true;
+                    return ChassisState.coldResetChassis( serviceHmsNode, command );
+                case HARDRESET:
+                    host_manageable = true;
+                    return ChassisState.hardResetChassis( serviceHmsNode, command );
+                case POWERCYCLE:
+                    host_manageable = true;
+                    if(ChassisState.getChassisPowerStatus(serviceHmsNode, command))
+                    return ChassisState.powerCycleChassis( serviceHmsNode, command );
+                    else return ChassisState.powerUpChassis(serviceHmsNode, command);
+                case POWERDOWN:
+                    host_manageable = false;
+                    return ChassisState.powerDownChassis( serviceHmsNode, command );
+                case POWERUP:
+                    host_manageable = true;
+                    return ChassisState.powerUpChassis( serviceHmsNode, command );
+                default:
+                    break;
+            }
+            return false;
         }
-        return true;
+        catch ( IOException e )
+        {
+            throw new HmsException( e );
+        }
     }
 
     @Override
@@ -242,33 +272,43 @@ public class BoardService_Dummy
     public SystemBootOptions getBootOptions( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        SystemBootOptions systemBootOptions = new SystemBootOptions();
-        systemBootOptions.setBiosBootType( BiosBootType.Legacy );
-        systemBootOptions.setBootDeviceInstanceNumber( 0 );
-        systemBootOptions.setBootDeviceSelector( BootDeviceSelector.PXE );
-        systemBootOptions.setBootDeviceType( BootDeviceType.Internal );
-        systemBootOptions.setBootOptionsValidity( BootOptionsValidity.Persistent );
-        return systemBootOptions;
+        try
+        {
+            return BootUtilHelper.getBootOptions( serviceHmsNode, this.getCommand() );
+        }
+        catch ( IOException e )
+        {
+            logger.error( e.getStackTrace() );
+            throw new HmsException( e );
+        }
+        catch ( HmsException e )
+        {
+            logger.error( e.getStackTrace() );
+            throw e;
+        }
     }
 
     @Override
     public boolean setBootOptions( ServiceHmsNode serviceHmsNode, SystemBootOptions data )
         throws HmsException
     {
-        return true;
+        try
+        {
+            return BootUtilHelper.setBootOptions( serviceHmsNode, data, this.getCommand() );
+        }
+        catch ( IOException e )
+        {
+            logger.error( e.getStackTrace() );
+            throw new HmsException( e );
+        }
     }
 
     @Override
     public ServerNodeInfo getServerInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        ServerNodeInfo serverNodeInfo = new ServerNodeInfo();
-        ComponentIdentifier serverComponentIdentifier = new ComponentIdentifier();
-        serverComponentIdentifier.setSerialNumber( "QTF3EV41900143" );
-        serverComponentIdentifier.setPartNumber( "31S2RMB00H0" );
-        serverComponentIdentifier.setManufacturingDate( "Mon May 19 13:22:00 2014" );
-        serverNodeInfo.setComponentIdentifier( serverComponentIdentifier );
-        return serverNodeInfo;
+        FruInfo fruInfo = new FruInfo();
+        return fruInfo.getServerInfo( serviceHmsNode, this.getCommand() );
     }
 
     @Override
@@ -289,7 +329,8 @@ public class BoardService_Dummy
     public boolean setChassisIdentification( ServiceHmsNode serviceHmsNode, ChassisIdentifyOptions data )
         throws HmsException
     {
-        return true;
+        return ChassisIdentify.setChassisIdentification( serviceHmsNode, data, this.getCommand() );
+        // return true;
     }
 
     @Override
