@@ -40,7 +40,6 @@ import com.vmware.vrack.hms.common.resource.fru.EthernetController;
 import com.vmware.vrack.hms.common.resource.sel.SelFetchDirection;
 import com.vmware.vrack.hms.common.resource.sel.SelInfo;
 import com.vmware.vrack.hms.common.resource.sel.SelRecord;
-import com.vmware.vrack.hms.common.servernodes.api.ComponentIdentifier;
 import com.vmware.vrack.hms.common.servernodes.api.HmsApi;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNodeInfo;
@@ -54,6 +53,7 @@ import com.vmware.vrack.hms.plugin.ServerPluginConstants;
 import com.vmware.vrack.hms.plugin.command.boot.BootUtilHelper;
 import com.vmware.vrack.hms.plugin.command.chassis.ChassisIdentify;
 import com.vmware.vrack.hms.plugin.command.chassis.ChassisState;
+import com.vmware.vrack.hms.plugin.command.fru.FruInfo;
 
 /*
  * This is a sample code which services the OOB agent requests with dummy data.
@@ -307,13 +307,8 @@ public class BoardService_Dummy
     public ServerNodeInfo getServerInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        ServerNodeInfo serverNodeInfo = new ServerNodeInfo();
-        ComponentIdentifier serverComponentIdentifier = new ComponentIdentifier();
-        serverComponentIdentifier.setSerialNumber( "QTF3EV41900143" );
-        serverComponentIdentifier.setPartNumber( "31S2RMB00H0" );
-        serverComponentIdentifier.setManufacturingDate( "Mon May 19 13:22:00 2014" );
-        serverNodeInfo.setComponentIdentifier( serverComponentIdentifier );
-        return serverNodeInfo;
+        FruInfo fruInfo = new FruInfo();
+        return fruInfo.getServerInfo( serviceHmsNode, this.getCommand() );
     }
 
     @Override
