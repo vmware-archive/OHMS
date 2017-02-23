@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * Every HmsComponentUpgradePlugin annotation must use this SupportsUpgrade annotation to tell which boards and
  * hypervisor combination it supports.
- *
+ * 
  * @author VMware, Inc.
  */
 @Documented
@@ -34,6 +34,7 @@ import java.lang.annotation.Target;
 @Retention( RetentionPolicy.RUNTIME )
 public @interface SupportsUpgrade
 {
+
     public String boardManufacturer();
 
     public String boardModel();

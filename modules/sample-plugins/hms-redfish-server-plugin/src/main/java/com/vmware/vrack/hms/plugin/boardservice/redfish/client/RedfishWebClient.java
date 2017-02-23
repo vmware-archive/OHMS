@@ -77,12 +77,12 @@ public class RedfishWebClient
         catch ( ProcessingException e )
         {
             LOGGER.debug( "Processing exception occurred for request: GET {}", target.getUri() );
-            throw new RedfishClientException( "Could not perform GET request on {}", targetUri, e );
+            throw new RedfishClientException( "Could not perform GET request on " + targetUri, targetUri, e );
         }
         catch ( WebApplicationException e )
         {
             LOGGER.debug( "Error {} while performing request: GET {}", e.getResponse().getStatus(), target.getUri() );
-            throw new RedfishClientException( "Could not perform GET request on {}", targetUri, e );
+            throw new RedfishClientException( "Could not perform GET request on " + targetUri, targetUri, e );
         }
     }
 

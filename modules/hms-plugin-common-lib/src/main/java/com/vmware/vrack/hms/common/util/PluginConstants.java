@@ -13,10 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 public class PluginConstants
 {
+
     /*
      * Yags: 2014-11-157 public static final String HMS_REGISTER_NME_URI = "/api/1.0/hms/events/register"; public static
      * final String HMS_ON_DEMAND_EVENTS_FETCH_URI = "/api/1.0/hms/event/host"; public static final String

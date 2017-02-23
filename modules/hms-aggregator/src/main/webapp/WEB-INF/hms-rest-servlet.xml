@@ -18,7 +18,8 @@
 		<property name="locations">
 			<list>
 				<value>classpath:hms.properties</value>
-				<value>file:${user.home}/VMware/vRack/hms-config/hms.properties</value>
+				<value>file:${user.home}/VMware/vRack/hms-config/hms.properties
+				</value>
 			</list>
 		</property>
 	</bean>
@@ -36,8 +37,8 @@
 		factory-method="getInstance" lazy-init="false" scope="singleton"
 		depends-on="propertyConfigurer,inbandServiceFactory">
 	</bean>
-
-	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
+	
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
 
 	<context:component-scan
 		base-package="com.vmware.vrack.hms,com.vmware.vrack.hms.controller,
@@ -45,7 +46,8 @@
 		                  com.vmware.vrack.hms.aggregator.switches,
 		                  com.vmware.vrack.hms.boardservice.ib.api,
 		                  com.vmware.vrack.hms.common.util,
-		                  com.vmware.vrack.hms.boardservice.ib.api.cim">
+		                  com.vmware.vrack.hms.boardservice.ib.api.cim,
+		                  com.vmware.vrack.vrm.common">
 	</context:component-scan>
 
 	<mvc:annotation-driven />

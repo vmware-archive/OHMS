@@ -1,0 +1,3 @@
+sdk-version=${hms-sdk.version}
+hms-version=${hms.version}
+api-version=${hms-api.version}

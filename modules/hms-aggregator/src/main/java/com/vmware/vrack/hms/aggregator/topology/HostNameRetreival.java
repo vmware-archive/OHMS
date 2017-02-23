@@ -55,17 +55,20 @@ public class HostNameRetreival
         try
         {
             IInbandService service = InBandServiceProvider.getBoardService( node.getServiceObject() );
+
             if ( service == null )
             {
                 logger.error( "Couldn't determine board service for host " + node.getNodeID() );
                 return null;
             }
+
             hostnameInfo = service.getHostName( node.getServiceObject() );
             if ( hostnameInfo == null )
             {
                 logger.error( "Couldn't determine hostname info for host " + node.getNodeID() );
                 return null;
             }
+
         }
         catch ( Exception e )
         {

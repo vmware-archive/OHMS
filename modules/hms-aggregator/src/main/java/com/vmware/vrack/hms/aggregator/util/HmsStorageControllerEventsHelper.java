@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.aggregator.util;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import com.vmware.vrack.common.event.enums.EventComponent;
  */
 public class HmsStorageControllerEventsHelper
 {
+
     private static Logger logger = Logger.getLogger( HmsStorageControllerEventsHelper.class );
 
     private static final Map<String, List<Event>> storageControllerStatusMap = new HashMap<String, List<Event>>();
@@ -46,40 +48,54 @@ public class HmsStorageControllerEventsHelper
      */
     public List<Event> getStorageControllerOperationalStatusEvents( List<Event> storageControllerEvents, String nodeId )
     {
+
         List<Event> storageControllerEventsAgrregated = new ArrayList<Event>();
         List<Event> preStorageControllerEventList = new ArrayList<Event>();
+
         try
         {
             preStorageControllerEventList = getStorageControllerStatusMap( nodeId );
+
             if ( preStorageControllerEventList != null )
             {
+
                 for ( int i = 0; i < storageControllerEvents.size(); i++ )
                 {
+
                     Event event = storageControllerEvents.get( i );
                     Header eventHeader = event.getHeader();
                     Map<EventComponent, String> eventComponentIdentifier = event.getHeader().getComponentIdentifier();
                     Map<String, String> data = event.getBody().getData();
+
                     if ( ( eventHeader.getEventName() == EventCatalog.STORAGE_CONTROLLER_UP )
                         || ( eventHeader.getEventName() == EventCatalog.STORAGE_CONTROLLER_DOWN ) )
                     {
+
                         logger.debug( "HMS Storage controller operational status events are available for this node: "
                             + nodeId );
+
                         for ( int j = 0; j < preStorageControllerEventList.size(); j++ )
                         {
+
                             Event preEvent = preStorageControllerEventList.get( j );
                             Header preEventHeader = preEvent.getHeader();
                             Map<EventComponent, String> preEventComponentIdentifier =
                                 preEvent.getHeader().getComponentIdentifier();
                             Map<String, String> preData = preEvent.getBody().getData();
+
                             if ( ( preEventHeader.getEventName() == EventCatalog.STORAGE_CONTROLLER_UP )
                                 || ( preEventHeader.getEventName() == EventCatalog.STORAGE_CONTROLLER_DOWN ) )
                             {
+
                                 if ( preEventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ).equals( eventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ) ) )
                                 {
+
                                     logger.debug( "Getting Storage controller component Identifier for comparision for the node: "
                                         + nodeId );
+
                                     if ( data.get( "value" ).equals( preData.get( "value" ) ) )
                                     {
+
                                         logger.debug( "Getting Storage controller operational status comparision for the node: "
                                             + nodeId );
                                         continue;
@@ -107,6 +123,7 @@ public class HmsStorageControllerEventsHelper
                 storageControllerStatusMap.put( nodeId, storageControllerEvents );
                 return storageControllerEvents;
             }
+
             return storageControllerEventsAgrregated;
         }
         catch ( Exception e )
@@ -114,6 +131,7 @@ public class HmsStorageControllerEventsHelper
             logger.error( "HMS aggregator Error while getting Events for server component Storage Controller:" + nodeId,
                           e );
         }
+
         return null;
     }
 
@@ -121,4 +139,5 @@ public class HmsStorageControllerEventsHelper
     {
         return storageControllerStatusMap.get( hostID );
     }
+
 }

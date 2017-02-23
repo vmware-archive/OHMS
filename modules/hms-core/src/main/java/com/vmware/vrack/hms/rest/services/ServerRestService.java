@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * ServerRestService.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -20,10 +20,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -37,11 +42,15 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.log4j.Logger;
 import org.jboss.resteasy.annotations.Form;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
 import com.vmware.vrack.hms.common.HmsConfigHolder;
 import com.vmware.vrack.hms.common.HmsNode;
+import com.vmware.vrack.hms.common.boardvendorservice.remoteconsole.RemoteConsoleCapabilities;
+import com.vmware.vrack.hms.common.boardvendorservice.remoteconsole.RemoteConsoleConnectionInfo;
 import com.vmware.vrack.hms.common.exception.HMSRestException;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.exception.HmsResourceBusyException;
@@ -55,6 +64,7 @@ import com.vmware.vrack.hms.common.resource.chassis.ChassisIdentifyOptions;
 import com.vmware.vrack.hms.common.resource.fru.EthernetController;
 import com.vmware.vrack.hms.common.resource.sel.SelInfo;
 import com.vmware.vrack.hms.common.resource.sel.SelOption;
+import com.vmware.vrack.hms.common.rest.model.SetNodePassword;
 import com.vmware.vrack.hms.common.servernodes.api.HmsApi;
 import com.vmware.vrack.hms.common.servernodes.api.NodeAdminStatus;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
@@ -64,6 +74,7 @@ import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
 import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 import com.vmware.vrack.hms.common.util.Constants;
+import com.vmware.vrack.hms.common.util.HmsGenericUtil;
 import com.vmware.vrack.hms.node.server.ServerNodeConnector;
 import com.vmware.vrack.hms.rest.forms.HMSRestServerActionsForm;
 import com.vmware.vrack.hms.task.IHmsTask;
@@ -73,9 +84,10 @@ import com.vmware.vrack.hms.task.TaskType;
 @Path( "/host" )
 public class ServerRestService
 {
+
     private ServerNodeConnector serverConnector = ServerNodeConnector.getInstance();
 
-    private Logger logger = Logger.getLogger( ServerRestService.class );
+    private Logger logger = LoggerFactory.getLogger( ServerRestService.class );
 
     private boolean useServerInfoCache =
         Boolean.parseBoolean( HmsConfigHolder.getProperty( HmsConfigHolder.HMS_CONFIG_PROPS, "cache_server_info" ) );
@@ -86,21 +98,38 @@ public class ServerRestService
     public Map<String, HmsNode> getHosts()
         throws HMSRestException
     {
-        return serverConnector.nodeMap;
+
+        Map<String, HmsNode> nodeMapCopy = new ConcurrentHashMap<String, HmsNode>();
+
+        Set<Entry<String, HmsNode>> nodeEntrySet = serverConnector.getNodeMap().entrySet();
+        if ( nodeEntrySet != null && nodeEntrySet.size() > 0 )
+        {
+            Iterator<Entry<String, HmsNode>> itr = nodeEntrySet.iterator();
+            while ( itr.hasNext() )
+            {
+                Entry<String, HmsNode> curItem = itr.next();
+                HmsNode hmsNode = curItem.getValue();
+                HmsNode hmsNodeCopy = (HmsNode) HmsGenericUtil.maskPassword( hmsNode );
+                nodeMapCopy.put( curItem.getKey(), hmsNodeCopy );
+            }
+        }
+
+        return nodeMapCopy;
     }
 
     @GET
     @Path( "/{host_id}" )
     @Produces( "application/json" )
-    public ServerNode getHostNode( @PathParam( "host_id" ) String host_id)
+    public ServerNode getHostNode( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
             try
             {
                 executeTask( node, TaskType.PowerStatusServer );
@@ -113,27 +142,30 @@ public class ServerRestService
             }
             catch ( HmsException e )
             {
-                logger.error( "Error getting node power & discoverable state" );
+                logger.error( "Error getting node power & discoverable state.", e );
             }
-            return node;
+
+            return (ServerNode) HmsGenericUtil.maskPassword( node );
         }
     }
 
     @GET
     @Path( "/jnlpRemoteConsoleSupportFiles/{host_id}/{path : .*}" )
     @Produces( MediaType.APPLICATION_OCTET_STREAM )
-    public Response getJnlpSupportFiles( @PathParam( "host_id" ) String host_id, @PathParam( "path" ) String path)
+    public Response getJnlpSupportFiles( @PathParam( "host_id" ) String host_id, @PathParam( "path" ) String path )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
             try
             {
-                ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+                ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
                 final URL url = new URL( "http://" + node.getManagementIp() + "/" + path );
+
                 StreamingOutput stream = new StreamingOutput()
                 {
                     @Override
@@ -163,24 +195,89 @@ public class ServerRestService
     }
 
     @GET
-    @Path( "/{host_id}/powerstatus" )
+    @Path( "/{host_id}/startremoteconsole" )
     @Produces( "application/json" )
-    public ServerNodePowerStatus getHostPowerStatus( @PathParam( "host_id" ) String host_id)
+    public RemoteConsoleConnectionInfo startRemoteConsoleConnection( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        ServerNodePowerStatus status = new ServerNodePowerStatus();
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+            try
+            {
+                executeTask( node, TaskType.RemoteConsoleDisplayRequest );
+            }
+            catch ( HmsResourceBusyException e )
+            {
+                throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), Constants.RESOURCE_BUSY,
+                                            e.getMessage() );
+            }
+            catch ( Exception e )
+            {
+                throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
+                                            e.getMessage() );
+            }
+            return node.getRemoteConsoleConnectionInfo();
+        }
+    }
+
+    @GET
+    @Path( "/{host_id}/remoteconsoledetails" )
+    @Produces( "application/json" )
+    public RemoteConsoleCapabilities getHostRemoteConsoleCapabilities( @PathParam( "host_id" ) String host_id )
+        throws HMSRestException
+    {
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
+            throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
+                                        "Can't find host with id " + host_id );
+        else
+        {
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+            try
+            {
+                executeTask( node, TaskType.GetRemoteConsoleType );
+            }
+            catch ( HmsResourceBusyException e )
+            {
+                throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), Constants.RESOURCE_BUSY,
+                                            e.getMessage() );
+            }
+            catch ( Exception e )
+            {
+                throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
+                                            e.getMessage() );
+            }
+            return node.getRemoteConsoleCapabilities();
+        }
+    }
+
+    @GET
+    @Path( "/{host_id}/powerstatus" )
+    @Produces( "application/json" )
+    public ServerNodePowerStatus getHostPowerStatus( @PathParam( "host_id" ) String host_id )
+        throws HMSRestException
+    {
+
+        ServerNodePowerStatus status = new ServerNodePowerStatus();
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
+            throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
+                                        "Can't find host with id " + host_id );
+        else
+        {
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
             try
             {
                 executeTask( node, TaskType.PowerStatusServer );
+
                 status.setDiscoverable( node.isDiscoverable() );
                 status.setPowered( node.isPowered() );
                 status.setOperationalStatus( node.getOperationalStatus() );
+
                 return status;
             }
             catch ( HmsResourceBusyException e )
@@ -190,24 +287,40 @@ public class ServerRestService
             }
             catch ( HmsException e )
             {
-                logger.error( "Error getting node power & discoverable state : " + host_id );
+                if ( e instanceof HMSRestException )
+                {
+                    logger.error( "Error getting node power & discoverable state: {}.", host_id, e );
+                    throw e;
+                }
+                else
+                {
+                    logger.error( "Error getting node power & discoverable state: {}.", host_id, e );
+                    throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
+                                                e.getMessage() );
+                }
             }
-            return status;
+            catch ( Exception e )
+            {
+                logger.error( "Error getting node power & discoverable state: {}.", host_id, e );
+                throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
+                                            e.getMessage() );
+            }
         }
     }
 
     @GET
     @Path( "/{host_id}/selftest" )
     @Produces( "application/json" )
-    public SelfTestResults getHostSelfTestResults( @PathParam( "host_id" ) String host_id)
+    public SelfTestResults getHostSelfTestResults( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
             try
             {
                 executeTask( node, TaskType.SelfTest );
@@ -224,15 +337,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/bmcusers" )
     @Produces( "application/json" )
-    public List<BmcUser> getBmcUsers( @PathParam( "host_id" ) String host_id)
+    public List<BmcUser> getBmcUsers( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             try
             {
                 executeTask( node, TaskType.ListBmcUsers );
@@ -259,15 +374,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/cpuinfo" )
     @Produces( "application/json" )
-    public List<CPUInfo> getCpuInfo( @PathParam( "host_id" ) String host_id)
+    public List<CPUInfo> getCpuInfo( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             if ( node.getCpuInfo() != null && node.getCpuInfo().size() > 0 && useServerInfoCache )
                 return node.getCpuInfo();
             try
@@ -296,6 +413,7 @@ public class ServerRestService
                 throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                             e.getMessage() );
             }
+
             return node.getCpuInfo();
         }
     }
@@ -303,15 +421,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/storageinfo" )
     @Produces( "application/json" )
-    public List<HddInfo> getHddInfo( @PathParam( "host_id" ) String host_id)
+    public List<HddInfo> getHddInfo( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             if ( node.getHddInfo() != null && node.getHddInfo().size() > 0 && useServerInfoCache )
                 return node.getHddInfo();
             try
@@ -340,6 +460,7 @@ public class ServerRestService
                 throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                             e.getMessage() );
             }
+
             return node.getHddInfo();
         }
     }
@@ -347,15 +468,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/storagecontrollerinfo" )
     @Produces( "application/json" )
-    public List<StorageControllerInfo> getStorageControllerInfo( @PathParam( "host_id" ) String host_id)
+    public List<StorageControllerInfo> getStorageControllerInfo( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             if ( node.getStorageControllerInfo() != null && node.getStorageControllerInfo().size() > 0
                 && useServerInfoCache )
                 return node.getStorageControllerInfo();
@@ -372,22 +495,23 @@ public class ServerRestService
             {
                 if ( e instanceof HMSRestException )
                 {
-                    logger.error( "Error while getting Storage Controller Info for Node: " + host_id + e );
+                    logger.error( "Error while getting Storage Controller Info for Node: {}.", host_id, e );
                     throw e;
                 }
                 else
                 {
-                    logger.error( "Error while getting Storage Controller Info for Node: " + host_id + e );
+                    logger.error( "Error while getting Storage Controller Info for Node: {}.", host_id, e );
                     throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                                 e.getMessage() );
                 }
             }
             catch ( Exception e )
             {
-                logger.error( "Error while getting Storage Controller Info for Node: " + host_id + e );
+                logger.error( "Error while getting Storage Controller Info for Node: {}.", host_id, e );
                 throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                             e.getMessage() );
             }
+
             return node.getStorageControllerInfo();
         }
     }
@@ -395,15 +519,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/memoryinfo" )
     @Produces( "application/json" )
-    public List<PhysicalMemory> getMemoryInfo( @PathParam( "host_id" ) String host_id)
+    public List<PhysicalMemory> getMemoryInfo( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             if ( node.getPhysicalMemoryInfo() != null && useServerInfoCache )
                 return node.getPhysicalMemoryInfo();
             try
@@ -426,12 +552,14 @@ public class ServerRestService
                     throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                                 e.getMessage() );
                 }
+
             }
             catch ( Exception e )
             {
                 throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                             e.getMessage() );
             }
+
             return node.getPhysicalMemoryInfo();
         }
     }
@@ -439,15 +567,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/acpipowerstate" )
     @Produces( "application/json" )
-    public AcpiPowerState getHostAcpiPowerState( @PathParam( "host_id" ) String host_id)
+    public AcpiPowerState getHostAcpiPowerState( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             try
             {
                 executeTask( node, TaskType.AcpiPowerState );
@@ -481,15 +611,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/nicinfo" )
     @Produces( "application/json" )
-    public List<EthernetController> getNicInfo( @PathParam( "host_id" ) String host_id)
+    public List<EthernetController> getNicInfo( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             if ( node.getEthernetControllerList() != null && node.getEthernetControllerList().size() > 0
                 && useServerInfoCache )
                 return node.getEthernetControllerList();
@@ -530,10 +662,12 @@ public class ServerRestService
     public BaseResponse updateNodes( @Form HMSRestServerActionsForm actions )
         throws HMSRestException
     {
+
         BaseResponse response = new BaseResponse();
-        if ( !serverConnector.nodeMap.containsKey( actions.getId() ) )
+        if ( !serverConnector.getNodeMap().containsKey( actions.getId() ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + actions.getId() );
+
         TaskType type = null;
         switch ( actions.getAction() )
         {
@@ -552,10 +686,12 @@ public class ServerRestService
             case "power_up":
                 type = TaskType.PowerUpServer;
                 break;
+
         }
+
         if ( type != null )
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( actions.getId() );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( actions.getId() );
             try
             {
                 executeTask( node, type );
@@ -571,6 +707,7 @@ public class ServerRestService
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request", "Can't find action :"
                 + actions.getAction() + " to perform on host " + actions.getId() );
         }
+
         response.setStatusCode( Status.ACCEPTED.getStatusCode() );
         response.setStatusMessage( "Requested update triggered successfully for node: " + actions.getId() );
         return response;
@@ -579,16 +716,18 @@ public class ServerRestService
     @PUT
     @Path( "/{host_id}" )
     @Produces( "application/json" )
-    public BaseResponse updateNodes( @PathParam( "host_id" ) String host_id, @QueryParam( "action" ) String action)
+    public BaseResponse updateNodes( @PathParam( "host_id" ) String host_id, @QueryParam( "action" ) String action )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
+
         try
         {
             NodeAdminStatus nodeAdminAction = NodeAdminStatus.valueOf( action );
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
             node.setAdminStatus( nodeAdminAction );
             BaseResponse response = new BaseResponse();
             response.setStatusCode( Status.ACCEPTED.getStatusCode() );
@@ -597,8 +736,9 @@ public class ServerRestService
         }
         catch ( IllegalArgumentException e )
         {
-            logger.info( "Action not of type NodeOperationalStatus" );
+            logger.info( "Action not of type NodeOperationalStatus.", e );
         }
+
         HMSRestServerActionsForm hmsActionsForm = new HMSRestServerActionsForm();
         hmsActionsForm.setAction( action );
         hmsActionsForm.setId( host_id );
@@ -608,15 +748,17 @@ public class ServerRestService
     @GET
     @Path( "/{host_id}/bootoptions" )
     @Produces( "application/json" )
-    public SystemBootOptions getSystemBootOptions( @PathParam( "host_id" ) String host_id)
+    public SystemBootOptions getSystemBootOptions( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             try
             {
                 executeTask( node, TaskType.GetSystemBootOptions );
@@ -643,6 +785,7 @@ public class ServerRestService
                 throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                             e.getMessage() );
             }
+
             return node.getSytemBootOptions();
         }
     }
@@ -652,16 +795,18 @@ public class ServerRestService
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( "application/json" )
     public BaseResponse getSystemBootOptions( @PathParam( "host_id" ) String host_id,
-                                              SystemBootOptions systemBootOptions)
-                                                  throws HMSRestException
+                                              SystemBootOptions systemBootOptions )
+        throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
             BaseResponse response = new BaseResponse();
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             try
             {
                 executeTask( node, TaskType.SetSystemBootOptions, systemBootOptions );
@@ -703,16 +848,18 @@ public class ServerRestService
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( "application/json" )
     public BaseResponse chassisIdentify( @PathParam( "host_id" ) String host_id,
-                                         ChassisIdentifyOptions chassisIdentifyOptions)
-                                             throws HMSRestException
+                                         ChassisIdentifyOptions chassisIdentifyOptions )
+        throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
             BaseResponse response = new BaseResponse();
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             try
             {
                 executeTask( node, TaskType.ChassisIdentify, chassisIdentifyOptions );
@@ -744,6 +891,7 @@ public class ServerRestService
                 throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                             e.getMessage() );
             }
+
             response.setStatusMessage( "Chassis Identify Succeeded." );
             return response;
         }
@@ -753,15 +901,17 @@ public class ServerRestService
     @Path( "/{host_id}/selinfo" )
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( "application/json" )
-    public SelInfo selInfo( @PathParam( "host_id" ) String host_id, SelOption selOption)
+    public SelInfo selInfo( @PathParam( "host_id" ) String host_id, SelOption selOption )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
             try
             {
                 executeTask( node, TaskType.SelInfo, selOption );
@@ -788,22 +938,65 @@ public class ServerRestService
                 throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                             e.getMessage() );
             }
+
             return node.getSelInfo();
         }
+    }
+
+    @PUT
+    @Path( "/{host_id}/setpassword" )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( "application/json" )
+    public BaseResponse setBmcPassword( @PathParam( "host_id" ) String host_id, SetNodePassword nodePassword )
+        throws HMSRestException
+    {
+        logger.debug( "Attempting to rotate oob password on host " + host_id + " for user "
+            + nodePassword.getUsername() );
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
+        {
+            throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
+                                        "Can't find host with id " + host_id );
+        }
+
+        ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
+
+        if ( !( nodePassword.getCurrentPassword().equals( node.getManagementUserPassword() )
+            && nodePassword.getUsername().equals( node.getManagementUserName() ) ) )
+        {
+            throw new HMSRestException( Status.UNAUTHORIZED.getStatusCode(), "Server Error",
+                                        "Unauthorized access to resource" );
+        }
+        try
+        {
+            executeTask( node, TaskType.SetBmcPassword, nodePassword );
+        }
+        catch ( Exception e )
+        {
+            logger.error( "Exception received while rotating oob password on host", e );
+            throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
+        }
+        node.setManagementUserPassword( nodePassword.getNewPassword() );
+
+        BaseResponse response = new BaseResponse();
+        response.setStatusCode( Status.OK.getStatusCode() );
+        response.setStatusMessage( "Password rotation on " + host_id + " have finished successfully." );
+        return response;
     }
 
     @GET
     @Path( "/{host_id}/supportedAPI" )
     @Produces( "application/json" )
-    public List<HmsApi> getAvailableNodeOperations( @PathParam( "host_id" ) String host_id)
+    public List<HmsApi> getAvailableNodeOperations( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
             try
             {
                 executeTask( node, TaskType.GetSupportedAPI );
@@ -820,6 +1013,7 @@ public class ServerRestService
             }
             return node.getSupportedHMSAPI();
         }
+
     }
 
     private void executeTask( ServerNode node, TaskType taskType )
@@ -833,12 +1027,12 @@ public class ServerRestService
         }
         catch ( HmsResourceBusyException e )
         {
-            logger.error( "Encountered HmsResourceBusyException during execution of task", e );
+            logger.error( "Encountered HmsResourceBusyException during execution of task.", e );
             throw e;
         }
         catch ( HmsException e )
         {
-            logger.error( "Encountered exception during execution of task", e );
+            logger.error( "Encountered exception during execution of task.", e );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
         }
         catch ( Exception e )
@@ -846,9 +1040,11 @@ public class ServerRestService
             logger.error( "Encountered exception during execution of task", e );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
         }
+
     }
 
-    // Some Ipmi commands need to send extra Command parameters in form of byte array.
+    // Some Ipmi commands need to send extra Command parameters in form of byte
+    // array.
     // SetSystemBootOptions is an example that needs the command parameters.
     private void executeTask( ServerNode node, TaskType taskType, Object data )
         throws HMSRestException, HmsResourceBusyException
@@ -861,7 +1057,7 @@ public class ServerRestService
         }
         catch ( HmsResourceBusyException e )
         {
-            logger.error( "Encountered HmsResourceBusyException during execution of task", e );
+            logger.error( "Encountered HmsResourceBusyException during execution of task.", e );
             throw e;
         }
         catch ( HmsException e )
@@ -874,5 +1070,54 @@ public class ServerRestService
             logger.error( "Encountered exception during execution of task", e );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
         }
+
+    }
+
+    @DELETE
+    @Path( "/{hostId}" )
+    @Produces( "application/json" )
+    public Response removeServer( @PathParam( "hostId" ) String hostId )
+        throws HmsException, Exception
+    {
+        logger.info( "In removeServer, removing host with hostId: {}.", hostId );
+        BaseResponse response = null;
+        String message = null;
+
+        // check that hostId is a valid hostId (exists in the nodeMap).
+        if ( !serverConnector.getNodeMap().containsKey( hostId ) )
+        {
+            logger.debug( "In removeServer, Server with NodeID: {} not found in inventory.", hostId );
+            response = HmsGenericUtil.getBaseResponse( Status.BAD_REQUEST, "Invalid HostId: " + hostId );
+            return Response.status( Status.BAD_REQUEST ).entity( response ).build();
+        }
+
+        // put server in maintenance
+        NodeAdminStatus nodeAdminStatus = NodeAdminStatus.DECOMISSION;
+        ServerNode serverNode = (ServerNode) serverConnector.getNodeMap().get( hostId );
+        serverNode.setAdminStatus( nodeAdminStatus );
+        logger.debug( "In removeServer, set host with hostId: {} admin status as {}.", hostId,
+                      nodeAdminStatus.toString() );
+
+        // remove hostId from ServerNodeConnector nodeMap
+        ServerNode serverNode1 = (ServerNode) serverConnector.removeServer( hostId );
+        if ( serverNode1 == null )
+        {
+            message = String.format( "Failed to remove host '%1$s' from inventory.", hostId );
+            logger.error( "In removeServer, {}.", message );
+            response = HmsGenericUtil.getBaseResponse( Status.INTERNAL_SERVER_ERROR, message );
+            serverNode.setAdminStatus( NodeAdminStatus.OPERATIONAL );
+            logger.info( "In removeServer, as {}, set host '{}' admin status to {}.", message, hostId,
+                         NodeAdminStatus.OPERATIONAL.toString() );
+            return Response.status( Status.INTERNAL_SERVER_ERROR ).entity( response ).build();
+        }
+
+        // Remove BoardService
+        BoardServiceProvider.removeBoardServiceClass( hostId );
+        BoardServiceProvider.removeNodeSupportedOperations( hostId );
+
+        message = String.format( "Removed host '%1$s' from inventory.", hostId );
+        logger.info( "In removeServer, {}", message );
+        response = HmsGenericUtil.getBaseResponse( Status.OK, message );
+        return Response.status( Status.OK ).entity( response ).build();
     }
 }

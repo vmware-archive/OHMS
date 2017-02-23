@@ -20,6 +20,7 @@ import javax.ws.rs.QueryParam;
 
 public class HMSRestServerActionsForm
 {
+
     @FormParam( "action" )
     private String action;
 
@@ -45,4 +46,5 @@ public class HMSRestServerActionsForm
     {
         this.id = id;
     }
+
 }

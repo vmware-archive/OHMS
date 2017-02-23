@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.aggregator.util;
 
 import static org.junit.Assert.assertNotNull;
@@ -47,6 +48,7 @@ import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
  */
 public class FruIdEventsHelperUtilTest
 {
+
     private static Logger logger = Logger.getLogger( FruIdEventsHelperUtilTest.class );
 
     /**
@@ -60,6 +62,7 @@ public class FruIdEventsHelperUtilTest
         Event event = new Event();
         Body body = new Body();
         Header header = new Header();
+
         try
         {
             // Construct CPU Event for Testing
@@ -68,6 +71,7 @@ public class FruIdEventsHelperUtilTest
             data.put( "unit", EventUnitType.DISCRETE.toString() );
             data.put( "eventName", "CPU_POST_FAILURE" );
             body.setData( data );
+
             Map<EventComponent, String> compIdentifier = new HashMap<EventComponent, String>();
             compIdentifier.put( EventComponent.CPU, "0" );
             compIdentifier.put( EventComponent.SERVER, "N5" );
@@ -76,9 +80,11 @@ public class FruIdEventsHelperUtilTest
             header.setEventName( EventCatalog.CPU_POST_FAILURE );
             header.setSeverity( EventSeverity.CRITICAL );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
             events.add( event );
+
             // Construct CPU FRU Information
             List<CpuInfo> cpuInfoList = new ArrayList<CpuInfo>();
             CpuInfo cpuInfo = new CpuInfo();
@@ -92,6 +98,7 @@ public class FruIdEventsHelperUtilTest
             cpuInfo.setLocation( "0" );
             cpuInfo.setFruId( "-9458916751211679985" );
             cpuInfoList.add( cpuInfo );
+
             cpuEventsFruID = FruIdEventsHelperUtil.addFruIDtoCpuEvents( events, cpuInfoList );
             Map<String, String> eventData = cpuEventsFruID.get( 0 ).getBody().getData();
             assertNotNull( eventData.get( "fruID" ) );
@@ -113,6 +120,7 @@ public class FruIdEventsHelperUtilTest
         Event event = new Event();
         Body body = new Body();
         Header header = new Header();
+
         try
         {
             // Construct MEMORY Event for testing
@@ -121,6 +129,7 @@ public class FruIdEventsHelperUtilTest
             data.put( "unit", EventUnitType.DEGREES_CELSIUS.toString() );
             data.put( "eventName", "MEMORY_TEMP_ABOVE_THRESHOLD" );
             body.setData( data );
+
             Map<EventComponent, String> compIdentifier = new HashMap<EventComponent, String>();
             compIdentifier.put( EventComponent.MEMORY, "ChannelA_Dimm0" );
             compIdentifier.put( EventComponent.SERVER, "N5" );
@@ -129,9 +138,11 @@ public class FruIdEventsHelperUtilTest
             header.setEventName( EventCatalog.DIMM_TEMPERATURE_ABOVE_UPPER_THRESHOLD );
             header.setSeverity( EventSeverity.WARNING );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
             events.add( event );
+
             // Construct MEMORY FRU Information
             List<MemoryInfo> memoryInfoList = new ArrayList<MemoryInfo>();
             MemoryInfo memoryInfo = new MemoryInfo();
@@ -145,6 +156,7 @@ public class FruIdEventsHelperUtilTest
             memoryInfo.setLocation( "ChannelA_Dimm0" );
             memoryInfo.setFruId( "179086051211679985" );
             memoryInfoList.add( memoryInfo );
+
             memoryEventsFruID = FruIdEventsHelperUtil.addFruIDtoMemoryEvents( events, memoryInfoList );
             Map<String, String> eventData = memoryEventsFruID.get( 0 ).getBody().getData();
             assertNotNull( eventData.get( "fruID" ) );
@@ -161,11 +173,13 @@ public class FruIdEventsHelperUtilTest
     @Test
     public void addFruIDtoStorageEventsTest()
     {
+
         List<Event> events = new ArrayList<Event>();
         List<Event> storageEventsFruID = new ArrayList<Event>();
         Event event = new Event();
         Body body = new Body();
         Header header = new Header();
+
         try
         {
             // Construct Storage/HDD Event for Testing
@@ -174,6 +188,7 @@ public class FruIdEventsHelperUtilTest
             data.put( "unit", "DISCRETE" );
             data.put( "eventName", "HDD_SLOT_FULL" );
             body.setData( data );
+
             Map<EventComponent, String> compIdentifier = new HashMap<EventComponent, String>();
             compIdentifier.put( EventComponent.STORAGE, "0" );
             compIdentifier.put( EventComponent.SERVER, "N5" );
@@ -182,9 +197,11 @@ public class FruIdEventsHelperUtilTest
             header.setEventName( EventCatalog.HDD_UP );
             header.setSeverity( EventSeverity.INFORMATIONAL );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
             events.add( event );
+
             // Construct Storage/HDD FRU Information
             List<StorageInfo> storageInfoList = new ArrayList<StorageInfo>();
             StorageInfo storageInfo = new StorageInfo();
@@ -199,6 +216,7 @@ public class FruIdEventsHelperUtilTest
             storageInfo.setLocation( "0" );
             storageInfo.setId( "0" );
             storageInfoList.add( storageInfo );
+
             storageEventsFruID = FruIdEventsHelperUtil.addFruIDtoStorageEvents( events, storageInfoList );
             Map<String, String> eventData = storageEventsFruID.get( 0 ).getBody().getData();
             assertNotNull( eventData.get( "fruID" ) );
@@ -215,11 +233,13 @@ public class FruIdEventsHelperUtilTest
     @Test
     public void addFruIDtoStorageControllerEventsTest()
     {
+
         List<Event> events = new ArrayList<Event>();
         List<Event> storageControllerEventsFruID = new ArrayList<Event>();
         Event event = new Event();
         Body body = new Body();
         Header header = new Header();
+
         try
         {
             // Construct Storage Controllers Event for Testing
@@ -228,6 +248,7 @@ public class FruIdEventsHelperUtilTest
             data.put( "unit", "DISCRETE" );
             data.put( "eventName", "STORAGE_CONTROLLER_DOWN" );
             body.setData( data );
+
             Map<EventComponent, String> compIdentifier = new HashMap<EventComponent, String>();
             compIdentifier.put( EventComponent.STORAGE_CONTROLLER, "vmhba0 Patsburg 4-Port SATA Storage Control Unit" );
             compIdentifier.put( EventComponent.SERVER, "N5" );
@@ -236,9 +257,11 @@ public class FruIdEventsHelperUtilTest
             header.setEventName( EventCatalog.STORAGE_CONTROLLER_DOWN );
             header.setSeverity( EventSeverity.ERROR );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
             events.add( event );
+
             // Construct Storage Controller FRU Information
             List<StorageController> StorageControllerList = new ArrayList<StorageController>();
             StorageController storageControllerInfo = new StorageController();
@@ -253,6 +276,7 @@ public class FruIdEventsHelperUtilTest
             storageControllerInfo.setFruId( "944039473-157926983" );
             storageControllerInfo.setOperationalStatus( "offline" );
             StorageControllerList.add( storageControllerInfo );
+
             storageControllerEventsFruID =
                 FruIdEventsHelperUtil.addFruIDtoStorageControllerEvents( events, StorageControllerList );
             Map<String, String> eventData = storageControllerEventsFruID.get( 0 ).getBody().getData();
@@ -270,11 +294,13 @@ public class FruIdEventsHelperUtilTest
     @Test
     public void addFruIDtoEthernetControllerEventsTest()
     {
+
         List<Event> events = new ArrayList<Event>();
         List<Event> ethernetControllerEventsFruID = new ArrayList<Event>();
         Event event = new Event();
         Body body = new Body();
         Header header = new Header();
+
         try
         {
             // Construct Ethernet Controller or NIC Event for Testing
@@ -283,6 +309,7 @@ public class FruIdEventsHelperUtilTest
             data.put( "unit", "DISCRETE" );
             data.put( "eventName", "NIC_LINK_DOWN" );
             body.setData( data );
+
             Map<EventComponent, String> compIdentifier = new HashMap<EventComponent, String>();
             compIdentifier.put( EventComponent.NIC, "vmnic0" );
             compIdentifier.put( EventComponent.SERVER, "N5" );
@@ -291,9 +318,11 @@ public class FruIdEventsHelperUtilTest
             header.setEventName( EventCatalog.NIC_LINK_DOWN );
             header.setSeverity( EventSeverity.ERROR );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
             events.add( event );
+
             // Construct Ethernet Controller FRU Information
             List<EthernetController> ethernetControllerInfoList = new ArrayList<EthernetController>();
             List<PortInfo> portInfoList = new ArrayList<PortInfo>();
@@ -307,11 +336,14 @@ public class FruIdEventsHelperUtilTest
             ethernetController.setHostId( "N5" );
             ethernetController.setSpeedInMbps( "1000" );
             ethernetController.setFirmwareVersion( "1.61, 0x80000919" );
+
             portInfo.setMacAddress( "c4:54:44:72:c5:d4" );
             portInfo.setDeviceName( "vmnic0" );
             portInfoList.add( portInfo );
             ethernetController.setPortInfos( portInfoList );
+
             ethernetControllerInfoList.add( ethernetController );
+
             ethernetControllerEventsFruID =
                 FruIdEventsHelperUtil.addFruIDtoEthernetControllerEvents( events, ethernetControllerInfoList );
             Map<String, String> eventData = ethernetControllerEventsFruID.get( 0 ).getBody().getData();
@@ -329,11 +361,13 @@ public class FruIdEventsHelperUtilTest
     @Test
     public void addFruIDtoHostEventsTest()
     {
+
         List<Event> events = new ArrayList<Event>();
         List<Event> hostEventsFruID = new ArrayList<Event>();
         Event event = new Event();
         Body body = new Body();
         Header header = new Header();
+
         try
         {
             // Construct SYSTEM Event for Testing
@@ -342,6 +376,7 @@ public class FruIdEventsHelperUtilTest
             data.put( "unit", "DISCRETE" );
             data.put( "eventName", "SYSTEM_STATUS" );
             body.setData( data );
+
             Map<EventComponent, String> compIdentifier = new HashMap<EventComponent, String>();
             compIdentifier.put( EventComponent.SYSTEM, "PCIe Slot1" );
             compIdentifier.put( EventComponent.SERVER, "N5" );
@@ -350,9 +385,11 @@ public class FruIdEventsHelperUtilTest
             // header.setEventName(EventCatalog.SYSTEM_STATUS);
             header.setSeverity( EventSeverity.INFORMATIONAL );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
             events.add( event );
+
             String serverFruID = "1676845885";
             hostEventsFruID = FruIdEventsHelperUtil.addFruIDtoHostEvents( events, serverFruID );
             Map<String, String> eventData = hostEventsFruID.get( 0 ).getBody().getData();
@@ -363,4 +400,5 @@ public class FruIdEventsHelperUtilTest
             logger.info( "Integrate FRU ID with Host Events Test Failed" );
         }
     }
+
 }

@@ -23,13 +23,14 @@ import java.util.Date;
  */
 public final class TypeConverter
 {
+
     private TypeConverter()
     {
     }
 
     /**
      * Converts int to byte array in BigEndian convention. Encodes unsigned byte in Java byte representation.
-     *
+     * 
      * @see TypeConverter#intToByte(int)
      * @param value
      * @return int converted to byte array
@@ -47,7 +48,7 @@ public final class TypeConverter
 
     /**
      * Converts int to byte array in LittleEndian convention. Encodes unsigned byte in Java byte representation.
-     *
+     * 
      * @see TypeConverter#intToByte(int)
      * @param value
      * @return int converted to byte array
@@ -65,7 +66,7 @@ public final class TypeConverter
 
     /**
      * Converts byte array in LittleEndian convention to int. Encodes unsigned byte in Java byte representation.
-     *
+     * 
      * @see TypeConverter#intToByte(int)
      * @param value Byte array holding values.
      * @return Byte array converted to int in a little endian convention.
@@ -90,7 +91,7 @@ public final class TypeConverter
     /**
      * Because Java doesn't support unsigned byte values, simple type casting leads to overflows and wrong values. This
      * function casts int to pseudo unsigned byte.
-     *
+     * 
      * @param value int value (must be in range 0-255)
      * @return byte value
      * @throws IllegalArgumentException when value is out of range.
@@ -112,7 +113,7 @@ public final class TypeConverter
     /**
      * Because Java doesn't support unsigned byte values, simple type casting leads to overflows and wrong values. This
      * function casts pseudo unsigned byte to int.
-     *
+     * 
      * @param value byte value
      * @return int value
      */
@@ -127,7 +128,7 @@ public final class TypeConverter
     /**
      * Converts BCD encoded byte with bits 7:4 holding the Least Significant digit of the revision and bits 3:0 holding
      * the Most Significant bits.
-     *
+     * 
      * @param value decoded value
      * @return decoded value
      */
@@ -135,12 +136,13 @@ public final class TypeConverter
     {
         int lower = ( byteToInt( value ) & 0xf0 ) >> 4;
         int higher = byteToInt( value ) & 0x0f;
+
         return higher * 10 + lower;
     }
 
     /**
      * Decodes 2's complement value that is encoded on lesser than 16 number of bits.
-     *
+     * 
      * @param value - value to be decoded
      * @param msb - 0-based index at which the encoded value begins
      * @return decoded value
@@ -170,7 +172,7 @@ public final class TypeConverter
 
     /**
      * Decodes 1's complement value that is encoded on lesser than 16 number of bits.
-     *
+     * 
      * @param value - value to be decoded
      * @param msb - 0-based index at which the encoded value begins
      * @return decoded value
@@ -185,6 +187,7 @@ public final class TypeConverter
         }
         if ( base )
         {
+
             for ( int i = 31; i > msb; --i )
             {
                 int mask = 0x1 << i;
@@ -201,6 +204,7 @@ public final class TypeConverter
     public static String decodeBcdPlus( byte[] text )
     {
         char[] result = new char[text.length * 2];
+
         for ( int i = 0; i < text.length; ++i )
         {
             result[2 * i] =
@@ -208,6 +212,7 @@ public final class TypeConverter
             result[2 * i + 1] =
                 decodeBcdPlusChar( TypeConverter.intToByte( TypeConverter.byteToInt( text[i] ) & 0xf ) );
         }
+
         return new String( result );
     }
 
@@ -259,7 +264,9 @@ public final class TypeConverter
         {
             cnt += 3 - cnt % 3;
         }
+
         byte[] newText = new byte[cnt / 3 * 4];
+
         int index = 0;
         for ( int i = 0; i < text.length; ++i )
         {
@@ -279,10 +286,12 @@ public final class TypeConverter
                     break;
             }
         }
+
         for ( int i = 0; i < newText.length; ++i )
         {
             newText[i] = TypeConverter.intToByte( TypeConverter.byteToInt( newText[i] ) + 0x20 );
         }
+
         return new String( newText, Charset.forName( "US-ASCII" ) );
     }
 

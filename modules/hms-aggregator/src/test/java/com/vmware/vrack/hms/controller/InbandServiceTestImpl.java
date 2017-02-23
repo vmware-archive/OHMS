@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * InbandServiceTestImpl.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -24,6 +24,7 @@ import com.vmware.vrack.hms.common.boardvendorservice.api.model.SystemDetails;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.resource.fru.EthernetController;
+import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 import com.vmware.vrack.hms.common.servernodes.api.ComponentIdentifier;
 import com.vmware.vrack.hms.common.servernodes.api.HmsApi;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
@@ -49,6 +50,7 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 public class InbandServiceTestImpl
     implements IInbandService
 {
+
     @Override
     public List<ServerComponentEvent> getComponentEventList( ServiceHmsNode serviceNode, ServerComponent component )
         throws HmsException
@@ -67,12 +69,14 @@ public class InbandServiceTestImpl
                     nicEvent.setEventName( NodeEvent.NIC_PACKET_DROP_ABOVE_THRESHHOLD );
                     nicEvent.setDiscreteValue( "Nic Packet Drop above thread" );
                     serverComponentEvents.add( nicEvent );
+
                     nicEvent = new ServerComponentEvent();
                     nicEvent.setEventId( "NIC1" );
                     nicEvent.setComponentId( "vmnic1" );
                     nicEvent.setEventName( NodeEvent.NIC_LINK_DOWN );
                     nicEvent.setDiscreteValue( "NIC Link Down" );
                     serverComponentEvents.add( nicEvent );
+
                     return serverComponentEvents;
                 case STORAGE:
                     serverComponentEvents = new ArrayList<ServerComponentEvent>();
@@ -135,33 +139,37 @@ public class InbandServiceTestImpl
     public List<CPUInfo> getCpuInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        List<CPUInfo> cpus = new ArrayList<CPUInfo>();
+        List<CPUInfo> cpuList = new ArrayList<CPUInfo>();
         CPUInfo cpu1 = new CPUInfo();
         ComponentIdentifier cpuIdentifier1 = new ComponentIdentifier();
         cpuIdentifier1.setManufacturer( "INTEL" );
         cpuIdentifier1.setProduct( "Intel Xeon Processor" );
         cpu1.setComponentIdentifier( cpuIdentifier1 );
         cpu1.setId( "1" );
+        cpu1.setFruOperationalStatus( FruOperationalStatus.Operational );
         cpu1.setMaxClockFrequency( (long) 2600 );
         cpu1.setTotalCpuCores( 4 );
-        cpus.add( cpu1 );
+        cpuList.add( cpu1 );
+
         CPUInfo cpu2 = new CPUInfo();
         ComponentIdentifier cpuIdentifier2 = new ComponentIdentifier();
         cpuIdentifier2.setManufacturer( "INTEL" );
         cpuIdentifier2.setProduct( "Intel Xeon Processor" );
         cpu1.setComponentIdentifier( cpuIdentifier2 );
         cpu2.setId( "2" );
+        cpu2.setFruOperationalStatus( FruOperationalStatus.Operational );
         cpu2.setMaxClockFrequency( (long) 2600 );
         cpu2.setTotalCpuCores( 4 );
-        cpus.add( cpu2 );
-        return cpus;
+        cpuList.add( cpu2 );
+
+        return cpuList;
     }
 
     @Override
     public List<PhysicalMemory> getSystemMemoryInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        List<PhysicalMemory> memories = new ArrayList<PhysicalMemory>();
+        List<PhysicalMemory> memoryList = new ArrayList<PhysicalMemory>();
         PhysicalMemory memory1 = new PhysicalMemory();
         ComponentIdentifier memoryIdentifier1 = new ComponentIdentifier();
         memoryIdentifier1.setProduct( "DIMM" );
@@ -169,8 +177,10 @@ public class InbandServiceTestImpl
         memory1.setComponentIdentifier( memoryIdentifier1 );
         memory1.setLocation( "DIMM1" );
         memory1.setId( "1" );
+        memory1.setFruOperationalStatus( FruOperationalStatus.Operational );
         memory1.setMaxMemorySpeedInHertz( (long) 1600000 );
-        memories.add( memory1 );
+        memoryList.add( memory1 );
+
         PhysicalMemory memory2 = new PhysicalMemory();
         ComponentIdentifier memoryIdentifier2 = new ComponentIdentifier();
         memoryIdentifier2.setProduct( "DIMM" );
@@ -178,9 +188,11 @@ public class InbandServiceTestImpl
         memory1.setComponentIdentifier( memoryIdentifier2 );
         memory2.setLocation( "DIMM2" );
         memory2.setId( "2" );
+        memory2.setFruOperationalStatus( FruOperationalStatus.NonOperational );
         memory2.setMaxMemorySpeedInHertz( (long) 1600000 );
-        memories.add( memory2 );
-        return memories;
+        memoryList.add( memory2 );
+
+        return memoryList;
     }
 
     @Override
@@ -190,23 +202,31 @@ public class InbandServiceTestImpl
         List<EthernetController> nics = new ArrayList<EthernetController>();
         EthernetController controller1 = new EthernetController();
         ComponentIdentifier nicIdentifier = new ComponentIdentifier();
+
         nicIdentifier.setManufacturer( "Intel" );
         nicIdentifier.setProduct( "Ethernet Controller x540EC" );
+
         controller1.setComponentIdentifier( nicIdentifier );
+
         List<PortInfo> portInfos = new ArrayList<PortInfo>();
         PortInfo portInfo1 = new PortInfo();
+
         SpeedInfo info = new SpeedInfo();
         info.setSpeed( (long) 1000 );
         info.setUnit( SpeedUnit.Mbps );
+
         portInfo1.setLinkSpeedInMBps( info );
         portInfo1.setDeviceName( "vmnic0" );
         portInfo1.setLinkStatus( NicStatus.OK );
         portInfos.add( portInfo1 );
+
         PortInfo portInfo2 = new PortInfo();
+
         portInfo2.setLinkSpeedInMBps( info );
         portInfo2.setDeviceName( "vmnic1" );
         portInfo2.setLinkStatus( NicStatus.DISCONNECTED );
         portInfos.add( portInfo2 );
+
         controller1.setPortInfos( portInfos );
         nics.add( controller1 );
         return nics;
@@ -222,13 +242,25 @@ public class InbandServiceTestImpl
         hddInfo1.setDiskCapacityInMB( 808080 );
         hddInfo1.setFirmwareInfo( "ABC09" );
         hddInfo1.setType( "HDD" );
+        hddInfo1.setCapacityDisk( true );
         hddInfos.add( hddInfo1 );
+
         HddInfo hddinfo2 = new HddInfo();
         hddinfo2.setName( "HDD2" );
         hddinfo2.setDiskCapacityInMB( 808080 );
         hddinfo2.setFirmwareInfo( "ABC09" );
         hddinfo2.setType( "HDD" );
+        hddinfo2.setCapacityDisk( true );
         hddInfos.add( hddinfo2 );
+
+        HddInfo hddinfo3 = new HddInfo();
+        hddinfo3.setName( "SSD3" );
+        hddinfo3.setDiskCapacityInMB( 808080 );
+        hddinfo3.setFirmwareInfo( "ABC08" );
+        hddinfo3.setType( "SSD" );
+        hddinfo3.setCapacityDisk( false );
+        hddInfos.add( hddinfo3 );
+
         return hddInfos;
     }
 
@@ -268,6 +300,7 @@ public class InbandServiceTestImpl
         throws HmsException
     {
         // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -282,7 +315,9 @@ public class InbandServiceTestImpl
     public List<StorageControllerInfo> getStorageControllerInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
+
         List<StorageControllerInfo> storageControllerInfoList = new ArrayList<StorageControllerInfo>();
+
         StorageControllerInfo storageControllerInfo1 = new StorageControllerInfo();
         ComponentIdentifier componentIdentifier1 = new ComponentIdentifier();
         componentIdentifier1.setManufacturer( "Intel Corporation" );
@@ -293,6 +328,7 @@ public class InbandServiceTestImpl
         storageControllerInfo1.setDriver( "ahci" );
         storageControllerInfo1.setFirmwareVersion( "23fh.56" );
         storageControllerInfoList.add( storageControllerInfo1 );
+
         StorageControllerInfo storageControllerInfo2 = new StorageControllerInfo();
         ComponentIdentifier componentIdentifier2 = new ComponentIdentifier();
         componentIdentifier2.setManufacturer( "LSI" );
@@ -303,6 +339,8 @@ public class InbandServiceTestImpl
         storageControllerInfo2.setDriver( "mpt2sas" );
         storageControllerInfo2.setFirmwareVersion( "59fh.51" );
         storageControllerInfoList.add( storageControllerInfo2 );
+
         return storageControllerInfoList;
     }
+
 }

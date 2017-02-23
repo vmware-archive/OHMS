@@ -32,6 +32,7 @@ import com.vmware.vrack.hms.common.util.EventsUtil;
 
 public class MonitorResponseCallback
 {
+
     private static Logger logger = Logger.getLogger( MonitorResponseCallback.class );
 
     public void callbackEventSubcribers( HmsNode node, List<ServerComponent> components )
@@ -43,12 +44,14 @@ public class MonitorResponseCallback
                                                                           component.getEventComponent() );
             List<Event> events = EventMonitoringSubscriptionHolder.getEventList( node, component );
             postCallBackRequest( subscribers, events );
+
             List<Event> criticalEvents = EventMonitoringSubscriptionHolder.getEventList( node, component, true );
             if ( criticalEvents != null && criticalEvents.size() > 0 )
             {
                 EventsUtil.broadcastNmeEvents( criticalEvents );
             }
         }
+
     }
 
     public void callbackSwitchEventSubcribers( HmsNode node, List<SwitchComponentEnum> switchComponents )
@@ -60,12 +63,14 @@ public class MonitorResponseCallback
                                                                           component.getEventComponent() );
             List<Event> events = EventMonitoringSubscriptionHolder.getSwitchEventList( node, component );
             postCallBackRequest( subscribers, events );
+
             List<Event> criticalEvents = EventMonitoringSubscriptionHolder.getSwitchEventList( node, component, true );
             if ( criticalEvents != null && criticalEvents.size() > 0 )
             {
                 EventsUtil.broadcastNmeEvents( criticalEvents );
             }
         }
+
     }
 
     public void postCallBackRequest( List<EventMonitoringSubscription> subscribers, List<Event> events )
@@ -73,7 +78,9 @@ public class MonitorResponseCallback
         for ( EventMonitoringSubscription subscriber : subscribers )
         {
             EventsUtil.broadcastEvents( events, subscriber );
+
         }
+
     }
 
     /**
@@ -89,17 +96,20 @@ public class MonitorResponseCallback
             // Get Map holding URL and corresponding events to be sent there (Maskable)
             Map<BaseEventMonitoringSubscription, List<Event>> eventsToBesent =
                 EventMonitoringSubscriptionHolder.getFilteredEvents( events );
+
             if ( eventsToBesent != null )
             {
                 for ( BaseEventMonitoringSubscription bms : eventsToBesent.keySet() )
                 {
                     List<Event> curEvents = eventsToBesent.get( bms );
+
                     if ( curEvents != null && !curEvents.isEmpty() )
                     {
                         EventsUtil.broadcastEvents( curEvents, bms );
                     }
                 }
             }
+
             // Filter Non maskable events from the list of Events, if the events list contains any event that is non
             // maskable event,
             // broadcast it to all the non maskable event endpoints
@@ -108,10 +118,12 @@ public class MonitorResponseCallback
             {
                 EventsUtil.broadcastNmeEvents( criticalEvents );
             }
+
         }
         catch ( HmsException e )
         {
             logger.error( "Unable to broadcast events received from HMS-OOB Agent: ", e );
         }
     }
+
 }

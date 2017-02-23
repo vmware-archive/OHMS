@@ -48,6 +48,7 @@ import com.vmware.vrack.hms.node.server.ServerNodeConnector;
 public class HmsServiceFilters
     implements ContainerRequestFilter, ContainerResponseFilter
 {
+
     /** The logger. */
     private static Logger logger = LoggerFactory.getLogger( HmsServiceFilters.class );
 
@@ -55,6 +56,7 @@ public class HmsServiceFilters
     public void filter( ContainerRequestContext reqCtx, ContainerResponseContext rspCtx )
         throws IOException
     {
+
         logger.debug( "Returning response code {} for request: {} {}", rspCtx.getStatus(), reqCtx.getMethod(),
                       reqCtx.getUriInfo().getAbsolutePath() );
     }
@@ -63,17 +65,22 @@ public class HmsServiceFilters
     public void filter( ContainerRequestContext reqCtx )
         throws IOException
     {
+
         String method = reqCtx.getMethod();
         String requestURI = reqCtx.getUriInfo().getAbsolutePath().toString();
+
         logger.debug( "Received request: [ {} on {} ].", method, requestURI );
+
         // if service is in MAINTENANCE, abort request and send a response of
         // 503 (Service Unavailable)
         if ( ServiceManager.getServiceState().equals( ServiceState.NORMAL_MAINTENANCE )
             || ServiceManager.getServiceState().equals( ServiceState.FORCE_MAINTENANCE ) )
         {
+
             // allow hms upgrade monitoring api, even if service in maintenance
             if ( !( method.equalsIgnoreCase( HttpMethod.GET ) && requestURI.matches( ".*/upgrade/monitor/.*" ) ) )
             {
+
                 logger.debug( "Service is in MAINTENANCE. Abort request: {} {}", reqCtx.getMethod(),
                               reqCtx.getUriInfo().getAbsolutePath() );
                 BaseResponse baseResponse =
@@ -82,6 +89,7 @@ public class HmsServiceFilters
                 reqCtx.abortWith( Response.status( Status.SERVICE_UNAVAILABLE.getStatusCode() ).entity( baseResponse ).type( MediaType.APPLICATION_JSON ).build() );
             }
         }
+
         if ( reqCtx instanceof PostMatchContainerRequestContext )
         {
             isNodeOperational( (PostMatchContainerRequestContext) reqCtx );
@@ -95,38 +103,51 @@ public class HmsServiceFilters
      */
     private void isNodeOperational( PostMatchContainerRequestContext reqCtx )
     {
+
         UriInfo info = reqCtx.getUriInfo();
         String methodName = null;
         String className = null;
+
         ResourceMethodInvoker method = reqCtx.getResourceMethod();
+
         if ( method != null )
         {
+
             methodName = method.getMethod().getName();
             className = method.getMethod().getDeclaringClass().getCanonicalName();
         }
+
         if ( methodName.equalsIgnoreCase( "updateNodes" )
             && className.equalsIgnoreCase( "com.vmware.vrack.hms.rest.services.ServerRestService" ) )
         {
+
             MultivaluedMap<String, String> queryParameters = info.getQueryParameters();
             if ( queryParameters != null && queryParameters.containsKey( "action" ) )
             {
+
                 try
                 {
+
                     NodeAdminStatus.valueOf( queryParameters.get( "action" ).get( 0 ) );
                     return;
+
                 }
                 catch ( IllegalArgumentException e )
                 {
+
                     logger.info( "Action not of type NodeOperationalStatus" );
                 }
             }
         }
+
         MultivaluedMap<String, String> parameters = info.getPathParameters();
         if ( parameters != null && parameters.containsKey( "host_id" ) )
         {
-            HmsNode node = ServerNodeConnector.getInstance().nodeMap.get( parameters.get( "host_id" ).get( 0 ) );
+
+            HmsNode node = ServerNodeConnector.getInstance().getNodeMap().get( parameters.get( "host_id" ).get( 0 ) );
             if ( node != null && !node.isNodeOperational() )
             {
+
                 reqCtx.abortWith( Response.status( Status.SERVICE_UNAVAILABLE.getStatusCode() ).entity( new BaseResponse( Status.SERVICE_UNAVAILABLE.getStatusCode(),
                                                                                                                           "Service Unavialble",
                                                                                                                           node.getAdminStatus().getMessage( node.getNodeID() ) ) ).type( MediaType.APPLICATION_JSON ).build() );

@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SshUtilTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -15,18 +15,16 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.utils;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.io.IOException;
-import java.util.Properties;
-
-import org.apache.log4j.Logger;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import java.util.Properties;
+import java.util.logging.Level;
+
+import org.junit.*;
+
+import static org.junit.Assert.*;
+import com.jcraft.jsch.JSchException;
+import java.io.IOException;
+import org.apache.log4j.Logger;
 
 /**
  * @author tanvishah
@@ -56,7 +54,9 @@ public class SshUtilTest
         sessionConfig.put( "StrictHostKeyChecking", "no" );
         Session expResult = null;
         Session result = null;
+
         result = SshUtil.getSessionObject( username, password, hostname, port, sessionConfig );
+
         boolean isResultNotNull = false;
         if ( result == null )
         {
@@ -66,6 +66,7 @@ public class SshUtilTest
         {
             isResultNotNull = true;
         }
+
         logger.info( "[TS] : Expected result : Session Object should be NOT NULL , actual result : Session Object is NOT NULL ="
             + isResultNotNull );
         assertNotNull( result );
@@ -86,7 +87,9 @@ public class SshUtilTest
         Properties sessionConfig = new java.util.Properties();
         sessionConfig.put( "StrictHostKeyChecking", "no" );
         Session result = null;
+
         result = SshUtil.getSessionObject( username, password, hostname, port, sessionConfig );
+
         boolean isResultNull = false;
         if ( result == null )
         {
@@ -97,7 +100,9 @@ public class SshUtilTest
             isResultNull = false;
         }
         logger.info( "[TS] : Expected result : Will throw an error when we will try to connect" );
+
         result.connect( 1000 );
+
     }
 
     /**
@@ -111,13 +116,27 @@ public class SshUtilTest
         String username = null;
         String password = "ADMIN";
         String hostname = "10.28.197.23";
+
         int port = 65534;
         Properties sessionConfig = new java.util.Properties();
         sessionConfig.put( "StrictHostKeyChecking", "no" );
         Session result = null;
+
         result = SshUtil.getSessionObject( username, password, hostname, port, sessionConfig );
+
         result.connect( 1000 );
+        boolean isResultNull = false;
+        if ( result == null )
+        {
+            isResultNull = true;
+        }
+        else
+        {
+            isResultNull = false;
+        }
+
         logger.info( "[TS] : Expected result : Will throw an error when we will try to connect" );
+
         result.connect( 1000 );
     }
 
@@ -136,7 +155,9 @@ public class SshUtilTest
         Properties sessionConfig = new java.util.Properties();
         sessionConfig.put( "StrictHostKeyChecking", "no" );
         Session sessionobj = null;
+
         sessionobj = SshUtil.getSessionObject( username, password, hostname, port, sessionConfig );
+
         sessionobj.connect( 6000 );
         String command = "vmware -v";
         String expResult = "";
@@ -149,6 +170,7 @@ public class SshUtilTest
         {
             logger.error( "Exception occured while executing command.", ex );
         }
+
         logger.info( "[TS] : Expected result : Result of the command is NOT NULL, actual result : Result of the command = "
             + result );
         assertNotNull( result );
@@ -169,10 +191,13 @@ public class SshUtilTest
         Properties sessionConfig = new java.util.Properties();
         sessionConfig.put( "StrictHostKeyChecking", "no" );
         Session sessionobj = null;
+
         sessionobj = SshUtil.getSessionObject( username, password, hostname, port, sessionConfig );
         sessionobj.connect( 6000 );
+
         String command = "random cmd";
         String expResult = "";
+
         String result = null;
         try
         {
@@ -180,10 +205,13 @@ public class SshUtilTest
         }
         catch ( JSchException ex )
         {
+
         }
         catch ( IOException ex )
         {
+
         }
+
         logger.info( "[TS] : Expected result : Result of the command is NOT NULL, actual result : Result of the command = "
             + result );
         assertNotNull( result );
@@ -210,6 +238,7 @@ public class SshUtilTest
         catch ( IOException ex )
         {
         }
+
         logger.info( "[TS] : Expected result : Result of the command is NULL, actual result : Result of the command = "
             + result );
         assertNull( result );
@@ -230,8 +259,10 @@ public class SshUtilTest
         Properties sessionConfig = new java.util.Properties();
         sessionConfig.put( "StrictHostKeyChecking", "no" );
         Session sessionobj = null;
+
         sessionobj = SshUtil.getSessionObject( username, password, hostname, port, sessionConfig );
         sessionobj.connect( 6000 );
+
         String command = null;
         String result = null;
         try
@@ -240,10 +271,13 @@ public class SshUtilTest
         }
         catch ( JSchException ex )
         {
+
         }
         catch ( IOException ex )
         {
+
         }
+
         logger.info( "[TS] : Expected result : Result of the command is NULL, actual result : Result of the command = "
             + result );
         assertNull( result );

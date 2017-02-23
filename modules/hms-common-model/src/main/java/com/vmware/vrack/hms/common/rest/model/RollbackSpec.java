@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -27,8 +28,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class RollbackSpec
 {
-    /** The scripts location. */
-    private String scriptsLocation;
 
     /** The HMS token. */
     private String id;
@@ -51,25 +50,5 @@ public class RollbackSpec
     public void setId( String hmsToken )
     {
         this.id = hmsToken;
-    }
-
-    /**
-     * Gets the scripts location.
-     *
-     * @return the scriptsLocation
-     */
-    public String getScriptsLocation()
-    {
-        return scriptsLocation;
-    }
-
-    /**
-     * Sets the scripts location.
-     *
-     * @param scriptsLocation the scriptsLocation to set
-     */
-    public void setScriptsLocation( String scriptsLocation )
-    {
-        this.scriptsLocation = scriptsLocation;
     }
 }

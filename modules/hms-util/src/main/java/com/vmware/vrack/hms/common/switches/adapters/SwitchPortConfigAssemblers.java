@@ -24,22 +24,27 @@ public final class SwitchPortConfigAssemblers
     public static NBSwitchPortConfig toSwitchPortConfig( SwitchPort config )
     {
         NBSwitchPortConfig lConfig = new NBSwitchPortConfig();
+
         if ( config == null )
             return null;
+
         lConfig.setAutoneg( toAutoNegMode( config.getAutoneg() ) );
         lConfig.setDuplex( toDuplexMode( config.getDuplex() ) );
         lConfig.setMtu( config.getMtu() );
         lConfig.setSpeed( config.getSpeed() );
         lConfig.setType( toType( config.getType() ) );
         lConfig.setIpAddress( SwitchNetworkPrefixAssemblers.toSwitchNetworkPrefix( config.getIpAddress() ) );
+
         return lConfig;
     }
 
     private static NBSwitchPortConfig.PortAutoNegMode toAutoNegMode( SwitchPort.PortAutoNegMode mode )
     {
         NBSwitchPortConfig.PortAutoNegMode lMode = null;
+
         if ( mode == null )
             return null;
+
         switch ( mode )
         {
             case OFF:
@@ -51,14 +56,17 @@ public final class SwitchPortConfigAssemblers
             default:
                 break;
         }
+
         return lMode;
     }
 
     private static NBSwitchPortConfig.PortDuplexMode toDuplexMode( SwitchPort.PortDuplexMode mode )
     {
         NBSwitchPortConfig.PortDuplexMode lMode = null;
+
         if ( mode == null )
             return null;
+
         switch ( mode )
         {
             case FULL:
@@ -70,14 +78,17 @@ public final class SwitchPortConfigAssemblers
             default:
                 break;
         }
+
         return lMode;
     }
 
     private static NBSwitchPortConfig.PortType toType( SwitchPort.PortType type )
     {
         NBSwitchPortConfig.PortType lType = null;
+
         if ( type == null )
             return null;
+
         switch ( type )
         {
             case EXTERNAL:
@@ -101,6 +112,7 @@ public final class SwitchPortConfigAssemblers
             default:
                 break;
         }
+
         return lType;
     }
 }

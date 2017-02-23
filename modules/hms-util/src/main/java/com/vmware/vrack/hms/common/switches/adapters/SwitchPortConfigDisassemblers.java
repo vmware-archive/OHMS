@@ -23,22 +23,27 @@ public class SwitchPortConfigDisassemblers
     public static SwitchPort fromSwitchPortConfig( NBSwitchPortConfig config )
     {
         SwitchPort lConfig = new SwitchPort();
+
         if ( config == null )
             return null;
+
         lConfig.setAutoneg( fromAutoNegMode( config.getAutoneg() ) );
         lConfig.setDuplex( fromDuplexMode( config.getDuplex() ) );
         lConfig.setMtu( config.getMtu() );
         lConfig.setSpeed( config.getSpeed() );
         lConfig.setType( fromType( config.getType() ) );
         lConfig.setIpAddress( SwitchNetworkPrefixDisassemblers.fromSwitchNetworkPrefix( config.getIpAddress() ) );
+
         return lConfig;
     }
 
     private static SwitchPort.PortAutoNegMode fromAutoNegMode( NBSwitchPortConfig.PortAutoNegMode mode )
     {
         SwitchPort.PortAutoNegMode lMode = null;
+
         if ( mode == null )
             return null;
+
         switch ( mode )
         {
             case OFF:
@@ -50,14 +55,17 @@ public class SwitchPortConfigDisassemblers
             default:
                 break;
         }
+
         return lMode;
     }
 
     private static SwitchPort.PortDuplexMode fromDuplexMode( NBSwitchPortConfig.PortDuplexMode mode )
     {
         SwitchPort.PortDuplexMode lMode = null;
+
         if ( mode == null )
             return null;
+
         switch ( mode )
         {
             case FULL:
@@ -69,14 +77,17 @@ public class SwitchPortConfigDisassemblers
             default:
                 break;
         }
+
         return lMode;
     }
 
     private static SwitchPort.PortType fromType( NBSwitchPortConfig.PortType type )
     {
         SwitchPort.PortType lType = null;
+
         if ( type == null )
             return null;
+
         switch ( type )
         {
             case EXTERNAL:
@@ -100,6 +111,7 @@ public class SwitchPortConfigDisassemblers
             default:
                 break;
         }
+
         return lType;
     }
 }

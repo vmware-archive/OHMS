@@ -23,6 +23,7 @@ public class HttpResponse
 
     private HttpResponse()
     {
+
     }
 
     public HttpResponse( int responseCode, String responseBody )
@@ -50,4 +51,5 @@ public class HttpResponse
     {
         this.responseBody = responseBody;
     }
+
 }

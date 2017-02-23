@@ -25,64 +25,81 @@ import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode.SwitchRoleType;
 
-public class SwitchPortUpDownEventsHelper {
-	
-	 private static Logger logger = Logger.getLogger(SwitchUpDownEventsHelper.class);
-	    
+public class SwitchPortUpDownEventsHelper
+{
+
+    private static Logger logger = Logger.getLogger( SwitchUpDownEventsHelper.class );
+
     private static final String SWITCH_PORT_UP = "Switch Port up";
+
     private static final String SWITCH_PORT_DOWN = "Switch Port Down";
-    
-	public static List<ServerComponentEvent> getSwitchPortUpDownEvents(List<ServerComponentEvent> events, SwitchRoleType switchRole) throws HmsException {
-		if (events != null && switchRole != null) {
+
+    public static List<ServerComponentEvent> getSwitchPortUpDownEvents( List<ServerComponentEvent> events,
+                                                                        SwitchRoleType switchRole )
+        throws HmsException
+    {
+        if ( events != null && switchRole != null )
+        {
             List<ServerComponentEvent> serverComponentSensorlist = new ArrayList<>();
-            try {
-            	for (ServerComponentEvent serverComponentEvent : events) {
-            		boolean unsupportedEventType = false;
-            		
-            		if (serverComponentEvent.getDiscreteValue().equals(SWITCH_PORT_UP)) {
-	            		switch (switchRole) {
-	            		case TOR:
-	            			serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_PORT_UP);
-	            			break;
-	            		case SPINE:
-	            			serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_PORT_UP);
-	            			break;
-	            		case MANAGEMENT:
-	            			serverComponentEvent.setEventName(NodeEvent.MANAGEMENT_SWITCH_PORT_UP);
-	            			break;
-						default:
-							unsupportedEventType = true;
-							break;
-	            		}
-            		}
-            		else if (serverComponentEvent.getDiscreteValue().equals(SWITCH_PORT_DOWN)) {
-	            		switch (switchRole) {
-	            		case TOR:
-	            			serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_PORT_DOWN);
-	            			break;
-	            		case SPINE:
-	            			serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_PORT_DOWN);
-	            			break;
-	            		case MANAGEMENT:
-	            			serverComponentEvent.setEventName(NodeEvent.MANAGEMENT_SWITCH_PORT_DOWN);
-	            			break;
-						default:
-							unsupportedEventType = true;
-							break;
-	            		}
-            		}
-        			serverComponentEvent.setEventId(switchRole.name());
-        			if (!unsupportedEventType)
-        				serverComponentSensorlist.add(serverComponentEvent);
-            	}
-            	return serverComponentSensorlist;
-            } catch (Exception e) {
-                logger.error("Cannot get switch port Up or Down event Information at getSwitchPortUpDownEvents", e);
-                throw new HmsException("Unable to get switch port Up or Down event information at getSwitchPortUpDownEvents", e);
+            try
+            {
+                for ( ServerComponentEvent serverComponentEvent : events )
+                {
+                    boolean unsupportedEventType = false;
+
+                    if ( serverComponentEvent.getDiscreteValue().equals( SWITCH_PORT_UP ) )
+                    {
+                        switch ( switchRole )
+                        {
+                            case TOR:
+                                serverComponentEvent.setEventName( NodeEvent.TOR_SWITCH_PORT_UP );
+                                break;
+                            case SPINE:
+                                serverComponentEvent.setEventName( NodeEvent.SPINE_SWITCH_PORT_UP );
+                                break;
+                            case MANAGEMENT:
+                                serverComponentEvent.setEventName( NodeEvent.MANAGEMENT_SWITCH_PORT_UP );
+                                break;
+                            default:
+                                unsupportedEventType = true;
+                                break;
+                        }
+                    }
+                    else if ( serverComponentEvent.getDiscreteValue().equals( SWITCH_PORT_DOWN ) )
+                    {
+                        switch ( switchRole )
+                        {
+                            case TOR:
+                                serverComponentEvent.setEventName( NodeEvent.TOR_SWITCH_PORT_DOWN );
+                                break;
+                            case SPINE:
+                                serverComponentEvent.setEventName( NodeEvent.SPINE_SWITCH_PORT_DOWN );
+                                break;
+                            case MANAGEMENT:
+                                serverComponentEvent.setEventName( NodeEvent.MANAGEMENT_SWITCH_PORT_DOWN );
+                                break;
+                            default:
+                                unsupportedEventType = true;
+                                break;
+                        }
+                    }
+                    serverComponentEvent.setEventId( switchRole.name() );
+                    if ( !unsupportedEventType )
+                        serverComponentSensorlist.add( serverComponentEvent );
+                }
+                return serverComponentSensorlist;
             }
-        } else {
-            throw new HmsException("Server Component Event Null to generate the switch port up or down or invalid");
+            catch ( Exception e )
+            {
+                logger.error( "Cannot get switch port Up or Down event Information at getSwitchPortUpDownEvents", e );
+                throw new HmsException( "Unable to get switch port Up or Down event information at getSwitchPortUpDownEvents",
+                                        e );
+            }
         }
-	}
+        else
+        {
+            throw new HmsException( "Server Component Event Null to generate the switch port up or down or invalid" );
+        }
+    }
 
 }

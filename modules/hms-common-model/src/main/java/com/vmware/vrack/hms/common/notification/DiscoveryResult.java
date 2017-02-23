@@ -13,10 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.notification;
 
 public class DiscoveryResult
 {
+
     private NodeDiscoveryResult hosts;
 
     private NodeDiscoveryResult switches;
@@ -40,4 +42,5 @@ public class DiscoveryResult
     {
         this.switches = switches;
     }
+
 }

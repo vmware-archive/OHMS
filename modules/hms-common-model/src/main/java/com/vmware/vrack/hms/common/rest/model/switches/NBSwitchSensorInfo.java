@@ -279,6 +279,7 @@ public class NBSwitchSensorInfo
         {
             this.status = status;
         }
+
     };
 
     public static class PsuStatus

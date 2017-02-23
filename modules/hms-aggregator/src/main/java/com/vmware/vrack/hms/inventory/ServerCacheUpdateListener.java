@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import org.apache.log4j.Logger;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class ServerCacheUpdateListener
     implements ApplicationListener<ServerDataChangeMessage>
 {
+
     @Autowired
     private HmsDataCache hmsDataCache;
 
@@ -41,6 +43,7 @@ public class ServerCacheUpdateListener
     public void onApplicationEvent( ServerDataChangeMessage event )
     {
         // read event here and update the cache.
+
         try
         {
             hmsDataCache.updateHmsDataCache( event.getServerInfo().getNodeId(), event.getComponent(),
@@ -50,6 +53,7 @@ public class ServerCacheUpdateListener
         {
             logger.error( "Error in the HMS Server FRU cache update listener ", e );
         }
+
     }
 
     public HmsDataCache getHmsDataCache()

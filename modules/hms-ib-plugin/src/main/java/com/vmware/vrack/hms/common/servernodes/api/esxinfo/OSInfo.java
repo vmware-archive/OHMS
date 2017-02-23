@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.esxinfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * wrapper class for hypervisor related Properties
- *
+ * 
  * @author VMware, Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )

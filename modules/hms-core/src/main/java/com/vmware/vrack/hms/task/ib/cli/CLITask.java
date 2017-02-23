@@ -26,6 +26,7 @@ import com.vmware.vrack.hms.task.ib.IBTask;
 public abstract class CLITask
     extends IBTask
 {
+
     public ServerNode node;
 
     public TaskResponse response;
@@ -72,6 +73,7 @@ public abstract class CLITask
             catch ( JSchException jSchException )
             {
                 // TODO: Log exception
+
                 if ( connector != null )
                 {
                     try
@@ -110,4 +112,5 @@ public abstract class CLITask
             }
         }
     }
+
 }

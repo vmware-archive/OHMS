@@ -21,6 +21,7 @@ public class HMSRestException
     extends HmsException
     implements Serializable
 {
+
     private static final long serialVersionUID = 614622508173467361L;
 
     private int responseErrorCode;
@@ -31,6 +32,13 @@ public class HMSRestException
     {
         super( errorMessage );
         this.reason = reason;
+        this.responseErrorCode = responseErrorCode;
+    }
+
+    public HMSRestException( int responseErrorCode, String errorMessage, Throwable e )
+    {
+        super( errorMessage, e );
+        this.reason = errorMessage;
         this.responseErrorCode = responseErrorCode;
     }
 
@@ -54,4 +62,5 @@ public class HMSRestException
     {
         this.reason = reason;
     }
+
 }

@@ -23,7 +23,7 @@ import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 
 /**
  * Class for Memory related Properties
- *
+ * 
  * @author VMware Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -33,11 +33,11 @@ public class MemoryInfo
 {
     private String id;
 
-    private BigInteger memoryCapacityInBytes;
+    private BigInteger memoryCapacityInBytes = BigInteger.ZERO;
 
     private String memoryType;
 
-    private Long memorySpeedInHertz;
+    private Long memorySpeedInHertz = 0L;
 
     private String operationalStatus;
 
@@ -70,7 +70,10 @@ public class MemoryInfo
 
     public void setMemoryCapacityInBytes( BigInteger memoryCapacityInBytes )
     {
-        this.memoryCapacityInBytes = memoryCapacityInBytes;
+        if ( memoryCapacityInBytes != null )
+        {
+            this.memoryCapacityInBytes = memoryCapacityInBytes;
+        }
     }
 
     public Long getMemorySpeedInHertz()
@@ -80,7 +83,10 @@ public class MemoryInfo
 
     public void setMemorySpeedInHertz( Long memorySpeedInHertz )
     {
-        this.memorySpeedInHertz = memorySpeedInHertz;
+        if ( memorySpeedInHertz != null )
+        {
+            this.memorySpeedInHertz = memorySpeedInHertz;
+        }
     }
 
     public String getOperationalStatus()
@@ -105,24 +111,40 @@ public class MemoryInfo
 
     /**
      * Get the Physical Memory FRU Information Wrapper method to get the MemoryInfo object for the node
-     *
+     * 
      * @param serverNodeMemoryInfo
      * @param nodeID
      * @return MemoryInfo
      */
     public MemoryInfo getMemoryInfo( PhysicalMemory serverNodeMemoryInfo, String nodeID )
     {
+
         MemoryInfo memoryInfo = new MemoryInfo();
+
         memoryInfo.setId( serverNodeMemoryInfo.getId() );
-        memoryInfo.setMemoryCapacityInBytes( serverNodeMemoryInfo.getCapacityInBytes() );
-        memoryInfo.setMemorySpeedInHertz( serverNodeMemoryInfo.getMaxMemorySpeedInHertz() );
+
+        if ( serverNodeMemoryInfo.getCapacityInBytes() != null )
+        {
+            memoryInfo.setMemoryCapacityInBytes( serverNodeMemoryInfo.getCapacityInBytes() );
+        }
+        if ( serverNodeMemoryInfo.getMaxMemorySpeedInHertz() != null )
+        {
+            memoryInfo.setMemorySpeedInHertz( serverNodeMemoryInfo.getMaxMemorySpeedInHertz() );
+        }
         memoryInfo.setMemoryType( serverNodeMemoryInfo.getMemoryType() );
         memoryInfo.setLocation( serverNodeMemoryInfo.getLocation() );
         memoryInfo.setHostId( nodeID );
+
+        if ( serverNodeMemoryInfo.getFruOperationalStatus() != null )
+        {
+            memoryInfo.setOperationalStatus( serverNodeMemoryInfo.getFruOperationalStatus().toString() );
+        }
+
         if ( serverNodeMemoryInfo.getComponentIdentifier() != null )
         {
             memoryInfo.setComponentIdentifier( serverNodeMemoryInfo.getComponentIdentifier() );
         }
+
         return memoryInfo;
     }
 }

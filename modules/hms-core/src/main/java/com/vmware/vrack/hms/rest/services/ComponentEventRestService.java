@@ -24,7 +24,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.common.event.Event;
 import com.vmware.vrack.common.event.enums.EventComponent;
@@ -55,13 +56,15 @@ import com.vmware.vrack.hms.utils.HMSOOBHealthSensor;
  * @author sgakhar Controller for on demand component events
  */
 @Path( "/event" )
+@SuppressWarnings( "deprecation" )
 public class ComponentEventRestService
 {
+
     private ServerNodeConnector serverConnector = ServerNodeConnector.getInstance();
 
     private SwitchNodeConnector switchConnector = SwitchNodeConnector.getInstance();
 
-    private Logger logger = Logger.getLogger( ComponentEventRestService.class );
+    private Logger logger = LoggerFactory.getLogger( ComponentEventRestService.class );
 
     /**
      * @param host_id
@@ -74,15 +77,17 @@ public class ComponentEventRestService
     @Path( "/host/{host_id}/{event_source}" )
     @Produces( "application/json" )
     public List<Event> getComponnetEvents( @PathParam( "host_id" ) String host_id,
-                                           @PathParam( "event_source" ) EventComponent event_source)
-                                               throws HMSRestException
+                                           @PathParam( "event_source" ) EventComponent event_source )
+        throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
             try
             {
                 ServerComponent component = EventMonitoringSubscriptionHolder.getMappedServerComponents( event_source );
@@ -118,16 +123,17 @@ public class ComponentEventRestService
     @GET
     @Path( "/host/nme/{host_id}" )
     @Produces( "application/json" )
-    public List<Event> getComponnetNmeEvents( @PathParam( "host_id" ) String host_id)
+    public List<Event> getComponnetNmeEvents( @PathParam( "host_id" ) String host_id )
         throws HMSRestException
     {
-        if ( !serverConnector.nodeMap.containsKey( host_id ) )
+
+        if ( !serverConnector.getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
             List<Event> events = new ArrayList<Event>();
-            ServerNode node = (ServerNode) serverConnector.nodeMap.get( host_id );
+            ServerNode node = (ServerNode) serverConnector.getNodeMap().get( host_id );
             try
             {
                 for ( ServerComponent component : ServerComponent.values() )
@@ -156,7 +162,7 @@ public class ComponentEventRestService
 
     /**
      * Returns you On-Demand Health Events for HMS
-     * 
+     *
      * @return List<Event>
      * @throws HmsException
      */
@@ -166,11 +172,13 @@ public class ComponentEventRestService
     public List<Event> getComponentEvents()
         throws HmsException
     {
+
         ServerNode node = ServerNodeConnector.getInstance().getApplicationNode();
         try
         {
             executeHealthMonitorTask( node, ServerComponent.HMS );
-            return EventMonitoringSubscriptionHolder.getEventList( node, ServerComponent.HMS );
+            List<Event> eventList = EventMonitoringSubscriptionHolder.getEventList( node, ServerComponent.HMS );
+            return eventList;
         }
         catch ( HmsException e )
         {
@@ -186,9 +194,10 @@ public class ComponentEventRestService
     @Path( "/switches/{switch_id}/{event_source}" )
     @Produces( "application/json" )
     public List<Event> getSwitchComponentEvents( @PathParam( "switch_id" ) String switchId,
-                                                 @PathParam( "event_source" ) EventComponent eventSource)
-                                                     throws HMSRestException
+                                                 @PathParam( "event_source" ) EventComponent eventSource )
+        throws HMSRestException
     {
+
         if ( !switchConnector.contains( switchId ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find switch with id " + switchId );
@@ -216,9 +225,10 @@ public class ComponentEventRestService
     @GET
     @Path( "/switches/nme/{switch_id}" )
     @Produces( "application/json" )
-    public List<Event> getSwitchComponentNmeEvents( @PathParam( "switch_id" ) String switchId)
+    public List<Event> getSwitchComponentNmeEvents( @PathParam( "switch_id" ) String switchId )
         throws HMSRestException
     {
+
         if ( !switchConnector.contains( switchId ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find switch with id " + switchId );
@@ -228,6 +238,7 @@ public class ComponentEventRestService
             SwitchNode switchNode = switchConnector.getSwitchNode( switchId );
             HmsNode node = new HMSSwitchNode( switchNode.getSwitchId(), switchNode.getIpAddress(),
                                               switchNode.getUsername(), switchNode.getPassword() );
+
             for ( SwitchComponentEnum component : SwitchComponentEnum.values() )
             {
                 try
@@ -276,6 +287,7 @@ public class ComponentEventRestService
             logger.error( "Encountered exception during execution of task", e );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
         }
+
     }
 
     /**
@@ -303,7 +315,7 @@ public class ComponentEventRestService
 
     /**
      * Execute HmsLocalMonitorTask for the given Server Node
-     * 
+     *
      * @param node
      * @param component
      * @return
@@ -329,5 +341,7 @@ public class ComponentEventRestService
             logger.error( "Encountered exception during execution of task", e );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
         }
+
     }
+
 }

@@ -42,6 +42,7 @@ import com.vmware.vim.vmomi.core.impl.BlockingFuture;
  */
 public class VLSITools
 {
+
     /*
      * Re-factor hard coded string 2014-08-07
      */
@@ -57,7 +58,7 @@ public class VLSITools
         {
             for ( int i = 0; i < 3600; i++ )
             {
-                BlockingFuture<TaskInfo> p = new BlockingFuture<TaskInfo>();
+                BlockingFuture<TaskInfo> p = new BlockingFuture();
                 task.getInfo( p );
                 TaskInfo info = p.get( 1, TimeUnit.HOURS );
                 Thread.sleep( 1000 );
@@ -85,7 +86,7 @@ public class VLSITools
 
     /**
      * Show the first found default device from the corresponding type
-     *
+     * 
      * @param clazz VirtualDevice to search for
      * @param client Client connection
      * @param host Host to look in
@@ -134,6 +135,7 @@ public class VLSITools
     {
         EnvironmentBrowser envb = client.createStub( EnvironmentBrowser.class, computeResMor.getEnvironmentBrowser() );
         ConfigOptionDescriptor[] key = envb.queryConfigOptionDescriptor();
+
         LinkedHashSet<VirtualDevice> list = new LinkedHashSet<>();
         for ( ConfigOptionDescriptor k : key )
         {
@@ -145,7 +147,7 @@ public class VLSITools
 
     /**
      * Find all ComputeResource groups, for the current vSphere
-     *
+     * 
      * @param client
      * @return
      */
@@ -161,4 +163,5 @@ public class VLSITools
         }
         return res;
     }
+
 }

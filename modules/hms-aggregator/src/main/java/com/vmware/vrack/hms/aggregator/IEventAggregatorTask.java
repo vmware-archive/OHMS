@@ -26,11 +26,25 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 /**
  * @author sgakhar Event Aggregator to be used by Event Rest Endpoints.
  */
+@SuppressWarnings( "deprecation" )
 public interface IEventAggregatorTask
 {
+
+    public List<Event> getAggregatedEvents( ServerNode node, ServerComponent component, boolean oobMonitoring,
+                                            boolean ibMonitoring )
+        throws HMSRestException;
+
     public List<Event> getAggregatedEvents( ServerNode node, ServerComponent component )
         throws HMSRestException;
 
     public List<Event> getAggregatedSwitchEvents( String switchId, SwitchComponentEnum component )
         throws HMSRestException;
+
+    public List<Event> processEvents( ServerNode node, ServerComponent component )
+        throws HMSRestException;
+
+    public List<Event> getAggregatedSwitchEvents( String switchId, SwitchComponentEnum component,
+                                                  boolean switchMonitoring )
+        throws HMSRestException;
+
 }

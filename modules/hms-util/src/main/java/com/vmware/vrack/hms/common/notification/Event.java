@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Model for Events.
- *
+ * 
  * @author ychawda
  */
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -163,6 +163,7 @@ public class Event
     {
         if ( lastUpdatedTime == -1L || ( new Date() ).getTime() - lastUpdatedTime > frequency )
             return true;
+
         return false;
     }
 
@@ -174,4 +175,5 @@ public class Event
             + frequency + ", instance=" + instance + ", registered=" + registered + ", eventRegistrationTime="
             + eventRegistrationTime + ", targetId=" + targetId + ", lastUpdatedTime=" + lastUpdatedTime + "]";
     }
+
 }

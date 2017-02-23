@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import java.net.Inet4Address;
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Utility to get the Network Interfaces related details for a specific network interface
- *
+ * 
  * @author kprafull
  */
 public class NetworkInterfaceUtil
@@ -37,7 +38,7 @@ public class NetworkInterfaceUtil
     /**
      * Used to get the IPv4 address of a specific network interface. If the name is null or "ANY" the function returns
      * any valid ipV4 address of the host.
-     *
+     * 
      * @param name - example eth0, eth1
      * @return
      * @throws SocketException
@@ -51,6 +52,7 @@ public class NetworkInterfaceUtil
         if ( name != null && !name.equals( "" ) && !name.equals( ANY_VALID_INTERFACE ) )
         {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+
             // Check if the configured interface is available
             while ( interfaces.hasMoreElements() )
             {
@@ -58,11 +60,13 @@ public class NetworkInterfaceUtil
                 if ( current.getName().equals( name ) )
                 {
                     // if (!current.isUp() || current.isLoopback() || current.isVirtual()) continue;
+
                     Enumeration<InetAddress> addresses = current.getInetAddresses();
                     while ( addresses.hasMoreElements() )
                     {
                         InetAddress current_addr = addresses.nextElement();
                         // if (current_addr.isLoopbackAddress()) continue;
+
                         if ( current_addr instanceof Inet4Address )
                             ipV4Address = current_addr.getHostAddress();
                     }
@@ -85,24 +89,29 @@ public class NetworkInterfaceUtil
                     NetworkInterface current = interfaces.nextElement();
                     if ( !current.isUp() || current.isLoopback() || current.isVirtual() )
                         continue;
+
                     Enumeration<InetAddress> addresses = current.getInetAddresses();
                     while ( addresses.hasMoreElements() )
                     {
                         InetAddress current_addr = addresses.nextElement();
                         if ( current_addr.isLoopbackAddress() )
                             continue;
+
                         if ( current_addr instanceof Inet4Address )
                             ipV4Address = current_addr.getHostAddress();
                     }
                 }
             }
         }
+
         log.debug( "Returning network interface{" + name + "} request with ip address {" + ipV4Address + "}" );
+
         return ipV4Address;
     }
 
     public static boolean isNetworkInterfaceUp( String name )
     {
+
         try
         {
             if ( name != null && !name.equals( "" ) && !name.equals( ANY_VALID_INTERFACE ) )
@@ -116,6 +125,7 @@ public class NetworkInterfaceUtil
         {
             log.debug( "Error while getting Response from Hms OOB Agent.", e );
         }
+
         return false;
     }
 

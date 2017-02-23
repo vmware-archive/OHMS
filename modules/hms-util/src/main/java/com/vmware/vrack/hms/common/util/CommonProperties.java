@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component( "commonProperties" )
 public class CommonProperties
 {
     /**
@@ -35,12 +35,18 @@ public class CommonProperties
     /**
      * Thread pool count.
      */
-    private static Integer pluginThreadPoolCount;
+    // private static Integer pluginThreadPoolCount;
+
+    private static Integer maxConcurrentTasksPerNode = 5;
+
+    private static Long concurrentOperationRetryThreadSleepTime = 20000L;
+
+    private static Long retryThreadSleepTime = 30000L;
 
     /**
      * Plugin Task Timeout
      */
-    private static Long pluginTaskTimeOut;
+    // private static Long pluginTaskTimeOut;
 
     @Autowired
     @Value( "${prm.basic.username}" )
@@ -66,25 +72,46 @@ public class CommonProperties
         return prmBasicAuthPass;
     }
 
-    public static Integer getPluginThreadPoolCount()
+    public static Integer getMaxConcurrentTasksPerNode()
     {
-        return pluginThreadPoolCount;
+        return maxConcurrentTasksPerNode;
     }
 
-    @Value( "${hms.task.scheduler.thread.count}" )
-    public void setPluginThreadPoolCount( Integer pluginThreadPoolCount )
+    @Value( "${hms.max.concurrent.tasks.per.node:5}" )
+    public void setMaxConcurrentTasksPerNode( Integer maxConcurrentTasksPerNode )
     {
-        CommonProperties.pluginThreadPoolCount = pluginThreadPoolCount;
+        CommonProperties.maxConcurrentTasksPerNode = maxConcurrentTasksPerNode;
     }
 
-    public static Long getPluginTaskTimeOut()
+    public static Long getConcurrentOperationRetryThreadSleepTime()
     {
-        return pluginTaskTimeOut;
+        return concurrentOperationRetryThreadSleepTime;
     }
 
-    @Value( "${hms.plugin.task.timeout}" )
-    public void setPluginTaskTimeOut( Long pluginTaskTimeOut )
+    @Value( "${hms.node.concurrent.operation.retry.thread.sleep.time:20000}" )
+    public void setConcurrentOperationRetryThreadSleepTime( Long concurrentOperationRetryThreadSleepTime )
     {
-        CommonProperties.pluginTaskTimeOut = pluginTaskTimeOut;
+        CommonProperties.concurrentOperationRetryThreadSleepTime = concurrentOperationRetryThreadSleepTime;
     }
+
+    @Value( "${sleep.before.retry.millis:30000}" )
+    public void setRetryThreadSleepTime( Long retryThreadSleepTime )
+    {
+        CommonProperties.retryThreadSleepTime = retryThreadSleepTime;
+    }
+
+    public static Long getRetryThreadSleepTime()
+    {
+        return retryThreadSleepTime;
+    }
+
+    /*
+     * public static Integer getPluginThreadPoolCount() { return pluginThreadPoolCount; }
+     * @Value("${hms.task.scheduler.thread.count}") public void setPluginThreadPoolCount(Integer pluginThreadPoolCount)
+     * { CommonProperties.pluginThreadPoolCount = pluginThreadPoolCount; } public static Long getPluginTaskTimeOut() {
+     * return pluginTaskTimeOut; }
+     * @Value("${hms.plugin.task.timeout}") public void setPluginTaskTimeOut(Long pluginTaskTimeOut) {
+     * CommonProperties.pluginTaskTimeOut = pluginTaskTimeOut; }
+     */
+
 }

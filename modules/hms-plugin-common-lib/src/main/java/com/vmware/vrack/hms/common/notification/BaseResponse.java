@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.notification;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -68,4 +69,5 @@ public class BaseResponse
     {
         this.errorMessage = errorMessage;
     }
+
 }

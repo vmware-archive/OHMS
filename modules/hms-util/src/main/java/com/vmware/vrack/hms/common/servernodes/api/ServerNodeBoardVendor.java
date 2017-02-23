@@ -22,10 +22,12 @@ package com.vmware.vrack.hms.common.servernodes.api;
  */
 public enum ServerNodeBoardVendor
 {
+
     INTEL( ServerNodeBoardVendor.INTEL_CORP ),
     SUPERMICRO( ServerNodeBoardVendor.SUPERMICRO_CORP ),
     QUANTA( ServerNodeBoardVendor.QUANTA_CORP ),
     OTHERS( ServerNodeBoardVendor.OTHER_CORP );
+
     private static final String INTEL_CORP = "Intel Corporation";
 
     private static final String SUPERMICRO_CORP = "Supermicro";
@@ -73,4 +75,5 @@ public enum ServerNodeBoardVendor
             return ServerNodeBoardVendor.OTHERS;
         }
     }
+
 }

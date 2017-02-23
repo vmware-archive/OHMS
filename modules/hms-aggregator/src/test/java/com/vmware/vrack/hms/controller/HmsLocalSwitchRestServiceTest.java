@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HmsLocalSwitchRestServiceTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -47,6 +47,7 @@ import com.vmware.vrack.hms.switches.HmsAggregatorDummyDataProvider;
 @PrepareForTest( { HmsSwitchRestService.class } )
 public class HmsLocalSwitchRestServiceTest
 {
+
     private static Logger logger = Logger.getLogger( HmsLocalSwitchRestServiceTest.class );
 
     private MockMvc mockMvc;
@@ -61,9 +62,12 @@ public class HmsLocalSwitchRestServiceTest
         this.mockMvc = MockMvcBuilders.standaloneSetup( new HmsSwitchRestService() ).build();
         // this.mockMvc =
         // MockMvcBuilders.webAppContextSetup(applicationContext).build();
+
         Map<String, SwitchNode> switchNodeMap = new HashMap<String, SwitchNode>();
         SwitchNode node = new SwitchNode( "S1", "ssh", "10.28.197.242", 22, "cumulus", "root123" );
+
         switchNodeMap.put( "S1", node );
+
         // populating Nodemap before we could query its peripheral info
         InventoryLoader.getInstance().setSwitchNodeMap( switchNodeMap );
     }
@@ -72,6 +76,7 @@ public class HmsLocalSwitchRestServiceTest
     public void testGetSwitchInfo()
         throws Throwable
     {
+
         try
         {
             this.mockMvc.perform( get( "http://localhost:8080/napi/switches/S1" ) ).andReturn();
@@ -83,6 +88,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -101,6 +107,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -119,6 +126,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -137,6 +145,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -155,6 +164,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -173,6 +183,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -191,6 +202,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -209,6 +221,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -227,6 +240,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -245,6 +259,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -263,6 +278,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -281,6 +297,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -299,6 +316,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -317,6 +335,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -335,6 +354,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -353,6 +373,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -371,6 +392,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -389,6 +411,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -407,6 +430,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -425,6 +449,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -443,6 +468,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -461,6 +487,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -479,6 +506,7 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
 
@@ -497,6 +525,27 @@ public class HmsLocalSwitchRestServiceTest
             assertTrue( e.getCause() instanceof NullPointerException );
             throw e.getCause();
         }
+
         throw new Exception( "failed" );
     }
+
+    @Test( expected = NullPointerException.class )
+    public void testSetSwitchTime()
+        throws Throwable
+    {
+        try
+        {
+            this.mockMvc.perform( put( "http://localhost:8080/napi/switches/S1/time?value=10000" ).accept( MediaType.APPLICATION_JSON ).contentType( MediaType.APPLICATION_JSON ) ).andReturn();
+        }
+        catch ( NestedServletException e )
+        {
+            assertNotNull( e );
+            assertNotNull( e.getCause() );
+            assertTrue( e.getCause() instanceof NullPointerException );
+            throw e.getCause();
+        }
+
+        throw new Exception( "failed" );
+    }
+
 }

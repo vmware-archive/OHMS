@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 /**
@@ -130,4 +131,5 @@ public class HostIdentifier
             return false;
         return true;
     }
+
 }

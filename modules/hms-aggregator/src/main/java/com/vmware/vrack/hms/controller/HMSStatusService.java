@@ -17,7 +17,8 @@ package com.vmware.vrack.hms.controller;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +42,7 @@ import com.vmware.vrack.hms.common.service.ServiceState;
 @RequestMapping( "/state" )
 public class HMSStatusService
 {
-    private static Logger logger = Logger.getLogger( HMSStatusService.class );
+    private static Logger logger = LoggerFactory.getLogger( HMSStatusService.class );
 
     @Value( "${monitor.shutdown.additional.waittime:60000}" )
     private Long shutdownMonitoringAdditionalWaitTime;
@@ -58,12 +59,6 @@ public class HMSStatusService
     @Value( "${hms.oob.nodes.pathinfo}" )
     private String oobNodesEndpoint;
 
-    @Value( "${hms.switch.host}" )
-    private String oobHost;
-
-    @Value( "${hms.switch.port}" )
-    private int oobPort;
-
     /**
      * This method is used for setting the Admin Status of HMS
      * 
@@ -78,6 +73,7 @@ public class HMSStatusService
         throws HMSRestException, Exception
     {
         boolean serviceStateChanged = false;
+
         BaseResponse response = new BaseResponse();
         try
         {
@@ -87,6 +83,7 @@ public class HMSStatusService
                 || ( ServiceManager.getServiceState().equals( ServiceState.NORMAL_MAINTENANCE )
                     && ServiceState.FORCE_MAINTENANCE.equals( serviceState ) ) ) )
             {
+
                 switch ( serviceState.getServiceState() )
                 {
                     case "NORMAL_MAINTENANCE":
@@ -97,8 +94,8 @@ public class HMSStatusService
                                                                     serviceMaintenanceRetryInterval );
                         break;
                     case "RUNNING":
-                        serviceStateChanged = ServiceManager.setServiceInRunning( hmsIbInventoryLocation, oobHost,
-                                                                                  oobPort, oobNodesEndpoint );
+                        serviceStateChanged =
+                            ServiceManager.setServiceInRunning( hmsIbInventoryLocation, oobNodesEndpoint );
                         break;
                 }
             }
@@ -117,6 +114,7 @@ public class HMSStatusService
                                                       serviceState.getServiceState(), e.getMessage() ) );
             return response;
         }
+
         if ( serviceStateChanged )
         {
             response.setStatusCode( StatusCode.OK.getValue() );
@@ -147,4 +145,5 @@ public class HMSStatusService
         hmsServiceState.setHmsServiceState( ServiceManager.getServiceState() );
         return hmsServiceState;
     }
+
 }

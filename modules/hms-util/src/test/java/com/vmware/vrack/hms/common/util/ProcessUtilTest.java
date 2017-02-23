@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import static org.junit.Assert.assertTrue;
@@ -33,6 +34,7 @@ import org.junit.Test;
  */
 public class ProcessUtilTest
 {
+
     /** The user home. */
     private String userHome;
 
@@ -44,7 +46,8 @@ public class ProcessUtilTest
      */
     public ProcessUtilTest()
     {
-        userHome = System.getProperty( "user.home" );
+
+        userHome = System.getProperty( "java.io.tmpdir" );
         Calendar cal = Calendar.getInstance();
         timeInMillis = Long.toString( cal.getTimeInMillis() );
     }
@@ -56,6 +59,7 @@ public class ProcessUtilTest
     @Ignore
     public void testgetCommandExitValue()
     {
+
         List<String> cmdWithArgs = new ArrayList<String>();
         if ( SystemUtils.IS_OS_LINUX )
         {
@@ -66,11 +70,14 @@ public class ProcessUtilTest
             cmdWithArgs.add( 0, "dir" );
         }
         cmdWithArgs.add( 1, userHome );
+
         int exitValue = ProcessUtil.getCommandExitValue( cmdWithArgs );
         assertTrue( exitValue != -1 );
         assertTrue( exitValue == 0 );
+
         cmdWithArgs.remove( 1 );
         cmdWithArgs.add( 1, userHome + File.separator + timeInMillis + File.separator + timeInMillis );
+
         exitValue = ProcessUtil.getCommandExitValue( cmdWithArgs );
         assertTrue( exitValue != -1 );
         assertTrue( exitValue == 1 );

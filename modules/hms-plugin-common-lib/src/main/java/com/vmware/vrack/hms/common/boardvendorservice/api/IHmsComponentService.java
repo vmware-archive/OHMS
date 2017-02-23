@@ -21,16 +21,19 @@ public interface IHmsComponentService
      * Initializes Board Service
      */
     // public void init() throws HmsException;
+
     /**
      * Cleans up Board Service
      */
     // public void destroy() throws HmsException;
+
     /**
      * Gives timeout for board service operations in milliseconds
-     *
+     * 
      * @param hmsApi
      * @return
      * @throws HmsException
      */
     // public long getTimeOutForOperation(HmsApi hmsApi) throws HmsException;
+
 }

@@ -2,12 +2,11 @@
  * BoardServiceProvider.java
  * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
- * Copyright (c) 2016 Intel Corporation
- *
+
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0
- *
+
  * Unless required by applicable law or agreed to in writing, software distributed
  * under the License is distributed on an "AS IS" BASIS, without warranties or
  * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
@@ -16,7 +15,15 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.boardservice;
 
-import com.vmware.vrack.hms.common.ExternalService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vmware.vrack.hms.common.HmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceFactory;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
@@ -26,15 +33,6 @@ import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.resource.fru.BoardInfo;
 import com.vmware.vrack.hms.common.servernodes.api.HmsApi;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
-import org.apache.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper.addNodeRateLimitModelForNode;
-import static com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceFactory.getBoardServiceFactory;
 
 /**
  * Factory class to provide Board Service Instance for Service Server Node. Board Service instance can also be cached
@@ -44,17 +42,15 @@ import static com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceFac
  */
 public class BoardServiceProvider
 {
-    private static Logger logger = Logger.getLogger( BoardServiceProvider.class );
+    private static Logger logger = LoggerFactory.getLogger( BoardServiceProvider.class );
 
     // Key = Node Id, Value = IBoardService
-    private static Map<String, Class> cachedBoardServiceClasses = new ConcurrentHashMap<>();
+    private static Map<String, Class> cachedBoardServiceClasses = new ConcurrentHashMap<String, Class>();
 
-    private static Map<String, Class> cachedBoardServiceClassesForServices = new ConcurrentHashMap<>();
-
-    private static Map<String, List<HmsApi>> operationSupported = new ConcurrentHashMap<>();
+    private static Map<String, List<HmsApi>> operationSupported = new ConcurrentHashMap<String, List<HmsApi>>();
 
     private static Map<String, IComponentLifecycleManager> componentLifecycleManagerInstanceMap =
-        new ConcurrentHashMap<>();
+        new ConcurrentHashMap<String, IComponentLifecycleManager>();
 
     private static Class<?> componentLifecycleManagerClass = IComponentLifecycleManager.class;
 
@@ -62,6 +58,7 @@ public class BoardServiceProvider
      * Method to get cached Board Service from Board Service Factory
      *
      * @param serviceHmsNode
+     * @param cached
      * @return
      * @throws Exception
      */
@@ -132,27 +129,6 @@ public class BoardServiceProvider
     }
 
     /**
-     * Add a BoardService Object into cache for later user use against key = serviceId.
-     *
-     * @param serviceId
-     * @param boardServiceClass
-     * @throws HmsException
-     */
-    public static void addBoardServiceClassForService( String serviceId, Class boardServiceClass )
-        throws HmsException
-    {
-        if ( serviceId == null )
-        {
-            throw new HmsException( "ServiceId cannot be null" );
-        }
-        if ( boardServiceClass == null )
-        {
-            throw new HmsException( "IBoardService class cannot be null" );
-        }
-        cachedBoardServiceClassesForServices.put( serviceId, boardServiceClass );
-    }
-
-    /**
      * Add a BoardService Object into the cache for later user use against key = NodeId. If overwrite = false, it will
      * not replace existing IBoardService if it is already present in cachedBoardServices
      *
@@ -169,11 +145,14 @@ public class BoardServiceProvider
         {
             throw new HmsException( "Service Hms Node can Not be Null" );
         }
+
         if ( boardServiceClass == null )
         {
             throw new HmsException( "IBoardService class can Not be Null" );
         }
+
         String nodeId = serviceHmsNode.getNodeID();
+
         if ( nodeId != null )
         {
             if ( overwrite || cachedBoardServiceClasses.get( nodeId ) == null )
@@ -186,42 +165,8 @@ public class BoardServiceProvider
         {
             throw new HmsException( "Node Id should NOT be null while adding in cached Board service" );
         }
+
         return true;
-    }
-
-    /**
-     * Prepares mapping of Service to Board Service Implementation and caches it for future use.
-     * TODO extract to newly created, dedicated provider following provider convention (e.g. ExternalServiceProvider)
-     *
-     * @param services
-     */
-    public static void prepareBoardServiceClassesForServices( List<ExternalService> services )
-    {
-        BoardServiceFactory boardServiceFactory = getBoardServiceFactory();
-        for ( ExternalService service : services )
-        {
-            String boardServiceKey = getServiceKey( service );
-            Class<?> boardServiceClass = boardServiceFactory.getBoardServiceClass( boardServiceKey );
-
-            try
-            {
-                addBoardServiceClassForService( boardServiceKey, boardServiceClass );
-                addNodeRateLimitModelForNode( service.getServiceEndpoint() );
-            }
-            catch ( HmsException e )
-            {
-                logger.error( "Exception while adding Board Service into BoardServiceProvider:"
-                                  + boardServiceClass, e );
-            }
-        }
-    }
-
-    private static String getServiceKey( ExternalService service )
-    {
-        BoardInfo boardInfo = new BoardInfo();
-        boardInfo.setBoardManufacturer( service.getServiceType() );
-        boardInfo.setBoardProductName( service.getServiceType() );
-        return BoardServiceFactory.getBoardServiceKey( boardInfo );
     }
 
     /**
@@ -235,46 +180,64 @@ public class BoardServiceProvider
     public static boolean prepareBoardServiceClassesForNodes( List<HmsNode> hmsNodes )
         throws Exception
     {
-        BoardServiceFactory boardServiceFactory = getBoardServiceFactory();
-        if ( hmsNodes != null )
+        BoardServiceFactory boardServiceFactory = BoardServiceFactory.getBoardServiceFactory();
+
+        if ( hmsNodes == null || hmsNodes.isEmpty() )
         {
-            for ( HmsNode hmsNode : hmsNodes )
+            logger.warn( "In prepareBoardServiceClassesForNodes, node list is null." );
+            return false;
+        }
+        for ( HmsNode hmsNode : hmsNodes )
+        {
+            if ( hmsNode != null )
             {
-                if ( hmsNode != null )
+
+                // skip loading BoardService class, if it is already loaded.
+                if ( cachedBoardServiceClasses.containsKey( hmsNode.getNodeID() ) )
                 {
-                    ServerNode serverNode = (ServerNode) hmsNode;
-                    BoardInfo boardInfo = new BoardInfo();
-                    boardInfo.setBoardManufacturer( serverNode.getBoardVendor() );
-                    boardInfo.setBoardProductName( serverNode.getBoardProductName() );
-                    String boardServiceKey = BoardServiceFactory.getBoardServiceKey( boardInfo );
-                    Class<?> boardServiceClass = boardServiceFactory.getBoardServiceClass( boardServiceKey );
-                    if ( boardServiceClass != null )
+                    logger.warn( "In prepareBoardServiceClassesForNodes, BoardService already prepared for Node '{}'.",
+                                 hmsNode.getNodeID() );
+                    continue;
+                }
+                logger.info( "In prepareBoardServiceClassesForNodes, preparing BoardService for Node: '{}'.",
+                             hmsNode.getNodeID() );
+
+                ServerNode serverNode = (ServerNode) hmsNode;
+                BoardInfo boardInfo = new BoardInfo();
+                boardInfo.setBoardManufacturer( serverNode.getBoardVendor() );
+                boardInfo.setBoardProductName( serverNode.getBoardProductName() );
+
+                String boardServiceKey = BoardServiceFactory.getBoardServiceKey( boardInfo );
+                Class<?> boardServiceClass = boardServiceFactory.getBoardServiceClass( boardServiceKey );
+                if ( boardServiceClass != null )
+                {
+                    try
                     {
-                        try
+                        logger.debug( "In prepareBoardServiceClassesForNodes, BoardService Class for the Node: "
+                            + "'{}' is: '{}'", hmsNode.getNodeID(), boardServiceClass.getName() );
+                        BoardServiceProvider.addBoardServiceClass( serverNode.getServiceObject(), boardServiceClass,
+                                                                   false );
+
+                        if ( componentLifecycleManagerClass.isAssignableFrom( boardServiceClass ) )
                         {
-                            BoardServiceProvider.addBoardServiceClass( serverNode.getServiceObject(), boardServiceClass,
-                                                                       false );
-                            if ( componentLifecycleManagerClass.isAssignableFrom( boardServiceClass ) )
-                            {
-                                componentLifecycleManagerInstanceMap.put( serverNode.getServiceObject().getNodeID(),
-                                                                          (IComponentLifecycleManager) getBoardService(
-                                                                              serverNode.getServiceObject() ) );
-                            }
-                            addNodeRateLimitModelForNode( serverNode.getNodeID() );
+                            componentLifecycleManagerInstanceMap.put( serverNode.getServiceObject().getNodeID(),
+                                                                      (IComponentLifecycleManager) getBoardService( serverNode.getServiceObject() ) );
                         }
-                        catch ( InstantiationException e )
-                        {
-                            logger.error( "Exception during creating new Instance of class:" + boardServiceClass, e );
-                        }
-                        catch ( IllegalAccessException e )
-                        {
-                            logger.error( "Exception during creating new Instance of class:" + boardServiceClass, e );
-                        }
-                        catch ( HmsException e )
-                        {
-                            logger.error( "Exception while adding Board Service into BoardServiceProvider:"
-                                              + boardServiceClass, e );
-                        }
+
+                        // HmsPluginServiceCallWrapper.addNodeRateLimitModelForNode(serverNode.getNodeID());
+                    }
+                    catch ( InstantiationException e )
+                    {
+                        logger.error( "Exception during creating new Instance of class:" + boardServiceClass, e );
+                    }
+                    catch ( IllegalAccessException e )
+                    {
+                        logger.error( "Exception during creating new Instance of class:" + boardServiceClass, e );
+                    }
+                    catch ( HmsException e )
+                    {
+                        logger.error( "Exception while adding Board Service into BoardServiceProvider:"
+                            + boardServiceClass, e );
                     }
                 }
             }
@@ -286,6 +249,7 @@ public class BoardServiceProvider
      * Method to get operations supported by board service
      *
      * @param serviceHmsNode
+     * @param cached
      * @return
      * @throws Exception
      */
@@ -300,8 +264,9 @@ public class BoardServiceProvider
                 if ( boardService == null )
                 {
                     throw new HmsException( "Unable to get Board Service instance for Node "
-                                                + serviceHmsNode.getNodeID() );
+                        + serviceHmsNode.getNodeID() );
                 }
+
                 return boardService.getSupportedHmsApi( serviceHmsNode );
             }
             catch ( HmsException e )
@@ -327,71 +292,58 @@ public class BoardServiceProvider
     }
 
     /**
-     * Method to remove board service for particular node
+     * Removes the board service.
      *
-     * @param node
-     * @return
+     * @param nodeId the node id
+     * @return true, if successful
+     * @throws HmsException When the given nodeId is null or blank or not in the Cached BoardService Classes Map.
      */
-    public static boolean removeBoardServiceClass( ServiceHmsNode node )
+    public static void removeBoardServiceClass( final String nodeId )
+        throws HmsException
     {
-        if ( node != null )
+        if ( StringUtils.isBlank( nodeId ) )
         {
-            logger.debug( "Removing board service for node [ " + node.getNodeID() + " ]" );
-            cachedBoardServiceClasses.remove( node.getNodeID() );
-            return true;
+            throw new HmsException( "NodeID is either null or blank." );
+        }
+        if ( cachedBoardServiceClasses.containsKey( nodeId ) )
+        {
+            Class<?> boardServiceClass = cachedBoardServiceClasses.remove( nodeId );
+            /*
+             * We are checking if Key exists ConcurrentHashMap.containsKey(), before calling ConcurrentHashMap.remove();
+             * If ConcurrentHashMap contains Key ,value can't be null. Hence calling boardServiceClass.getSimpleName()
+             * is null safe.
+             */
+            logger.debug( "In removeBoardService, Removed BoardService Class: '{}' for nodeId: '{}'.",
+                          boardServiceClass.getSimpleName(), nodeId );
         }
         else
         {
-            logger.error( "Cannot remove null node. Provide right node." );
-            return false;
+            throw new HmsException( String.format( "BaordService Class not found for nodeId: '%s'", nodeId ) );
         }
     }
 
     /**
-     * Gets IBoardService implementation for ExternalService - either cached instance or
-     * TODO extract to newly created, dedicated provider following provider convention (e.g. ExternalServiceProvider)
+     * Removes the node supported operations.
      *
-     * @param externalService
-     * @return
-     * @throws HmsException
+     * @param nodeId the node id
+     * @return true, if successful
+     * @throws HmsException If the given nodeId is null or blank or is not in the OperationSupported map.
      */
-    public static IBoardService getServiceForExternalService( ExternalService externalService )
+    public static void removeNodeSupportedOperations( final String nodeId )
         throws HmsException
     {
-        if ( externalService != null )
+        if ( StringUtils.isBlank( nodeId ) )
         {
-            String serviceKey = getServiceKey( externalService );
-            try
-            {
-                IBoardService boardService;
-                Class<?> boardServiceClass = cachedBoardServiceClassesForServices.get( serviceKey );
-                if ( boardServiceClass == null )
-                {
-                    throw new HmsException( "No Board service found for Service:" + serviceKey );
-                }
-                else
-                {
-                    try
-                    {
-                        boardService = (IBoardService) boardServiceClass.newInstance();
-                    }
-                    catch ( Exception e )
-                    {
-                        logger.error( "Error while getting IBoardService for Service:" + serviceKey, e );
-                        throw new HmsException( e );
-                    }
-                }
-                return boardService;
-            }
-            catch ( HmsException e )
-            {
-                logger.error( "Error while getting Board Service for Service:" + serviceKey, e );
-                throw e;
-            }
+            throw new HmsException( "NodeID is either null or blank." );
+        }
+        if ( operationSupported.containsKey( nodeId ) )
+        {
+            operationSupported.remove( nodeId );
+            logger.debug( "In removeNodeSupportedOperations, Removed Supported Operations for nodeId: '{}'.", nodeId );
         }
         else
         {
-            throw new HmsException( "External Service is NULL" );
+            throw new HmsException( String.format( "Supported Operations not found for nodeId: '{}'.", nodeId ) );
         }
     }
 }

@@ -19,16 +19,16 @@
     <groupId>com.vmware.vrack</groupId>
     <artifactId>hms</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>2.0.0-RELEASE</version>
     <properties>
+    	<hms.redfish.server.plugin.version>1.1.0-RELEASE</hms.redfish.server.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <BUILD_NUMBER>000000</BUILD_NUMBER>
         <vimvmodl.version>1.0.0</vimvmodl.version>
-        <vxipmi.version>1.0.17-vmware-0.0.1</vxipmi.version>
         <hms-sdk.version>1.0.0</hms-sdk.version>
-        <event-catalogue.version>1.0.0</event-catalogue.version>
-        <vxipmi.hms.version>0.0.1-SNAPSHOT</vxipmi.hms.version>
+        <event-catalogue.version>1.2.0-RELEASE</event-catalogue.version>
         <vrack-vrm.version>1.0.0</vrack-vrm.version>
+        <vrack-vrm.build.number>3688701</vrack-vrm.build.number>
         <vim25.version>5.5</vim25.version>
         <vlsi.version>5.5.0</vlsi.version>
         <!-- JAVA -->
@@ -56,6 +56,10 @@
         <spring-webmvc.version>4.0.1.RELEASE</spring-webmvc.version>
         <spring-beans.version>4.0.1.RELEASE</spring-beans.version>
         <spring-test.version>4.0.1.RELEASE</spring-test.version>
+		<!-- MANIFESTS JCABI -->
+        <jcabi-manifests.version>1.1</jcabi-manifests.version>
+		<!-- MORTBAYJETTY -->
+        <mortbay.jetty.version>7.0.0.pre5</mortbay.jetty.version>
         <!-- JUNIT -->
         <junit.version>4.12</junit.version>
         <!-- MOCKITO -->
@@ -68,6 +72,7 @@
         <xstream.version>1.4.8</xstream.version>
         <stax2-api.version>4.0.0</stax2-api.version>
         <woodstox-core.version>5.0.2</woodstox-core.version>
+		<woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
         <sblim-cim-client2.version>2.2.5</sblim-cim-client2.version>
         <opencsv.version>2.3</opencsv.version>
         <!-- LOGGING -->
@@ -78,6 +83,7 @@
         <slf4j-log4j12.version>1.7.12</slf4j-log4j12.version>
         <!-- APACHE -->
         <httpclient.version>4.5.1</httpclient.version>
+		<httpasyncclient.version>4.1.1</httpasyncclient.version>
         <httpcore.version>4.4.3</httpcore.version>
         <commons-pool2.version>2.4.2</commons-pool2.version>
         <commons-lang3.version>3.4</commons-lang3.version>
@@ -85,6 +91,7 @@
         <commons-compress.version>1.8</commons-compress.version>
         <commons-io.version>2.4</commons-io.version>
         <tomcat7-maven-plugin.version>2.2</tomcat7-maven-plugin.version>
+		<commons-configuration.version>1.10</commons-configuration.version>
         <!-- CODEHAUS -->
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
         <jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
@@ -155,7 +162,7 @@
                 -->
                 <module>modules/repository</module>
                 <module>modules/hms-common-model</module>
-                <!--module>modules/hms-common-switch-plugin</module-->
+                <module>modules/hms-common-switch-plugin</module>
                 <module>modules/hms-oob-plugin-testlib</module>
                 <module>modules/hms-core</module>
                 <module>modules/hms-ib-plugin</module>
@@ -204,7 +211,7 @@
             <modules>
                 <module>modules/repository</module>
                 <module>modules/hms-common-model</module>
-                <!--module>modules/hms-common-switch-plugin</module-->
+                <module>modules/hms-common-switch-plugin</module>
                 <module>modules/hms-oob-plugin-testlib</module>
                 <module>modules/hms-core</module>
                 <module>modules/hms-ib-plugin</module>

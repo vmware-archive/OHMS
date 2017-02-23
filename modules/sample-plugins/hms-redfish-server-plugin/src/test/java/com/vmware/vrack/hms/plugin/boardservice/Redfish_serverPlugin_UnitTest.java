@@ -17,7 +17,6 @@
 
 package com.vmware.vrack.hms.plugin.boardservice;
 
-import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.exception.OperationNotSupportedOOBException;
@@ -41,6 +40,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -77,6 +77,12 @@ public class Redfish_serverPlugin_UnitTest
                 }
             };
         }
+
+        @Override
+        List<URI> readRedfishServices( String redfishServicesConfigurationFilePath )
+        {
+            return singletonList( SERVICE_ENDPOINT );
+        }
     };
 
     ServiceServerNode node;
@@ -88,11 +94,8 @@ public class Redfish_serverPlugin_UnitTest
     public void init()
         throws IOException, HmsException
     {
-        List<ServiceHmsNode> nodes = plugin.getNodesForComputerSystems( SERVICE_ENDPOINT );
-
-        ServiceHmsNode hmsNode = nodes.iterator().next();
         node = new ServiceServerNode();
-        node.setNodeID( hmsNode.getNodeID() );
+        node.setNodeID( "f6c6520c-602c-bfbd-11e4-453f2b0595c0" ); //taken from "mock.json"
     }
 
     /**
@@ -298,15 +301,5 @@ public class Redfish_serverPlugin_UnitTest
         }
         assertNotNull( "boardInfoList cannot be null!", boardInfoList );
         assertTrue( "boardInfoList cannot be empty, there must be at least 1 Board!", boardInfoList.size() > 0 );
-    }
-
-    @Test
-    public void testGetNodesForComputerSystems()
-        throws HmsException
-    {
-        logger.info( "Test Redfish Service getNodesForComputerSystems" );
-        List<ServiceHmsNode> computerSystems = plugin.getNodesForComputerSystems( SERVICE_ENDPOINT );
-
-        return;
     }
 }

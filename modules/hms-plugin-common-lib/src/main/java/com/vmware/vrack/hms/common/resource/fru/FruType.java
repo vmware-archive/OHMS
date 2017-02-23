@@ -13,9 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.fru;
 
 public enum FruType
 {
+
     Board, Product, Chassis, Power_Supply, DC_Output, DC_Load, Management_Access, Extended_Compatibility, Oem;
+
 }

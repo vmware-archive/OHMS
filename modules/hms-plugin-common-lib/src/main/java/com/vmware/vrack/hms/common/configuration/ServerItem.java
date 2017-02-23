@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServerItemBoardInfo;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServerItemHypervisorInfo;
 
-@JsonInclude( JsonInclude.Include.NON_NULL )
 @JsonIgnoreProperties( ignoreUnknown = true )
+@JsonInclude( JsonInclude.Include.NON_NULL )
 public class ServerItem
 {
     private String id;
@@ -191,4 +192,5 @@ public class ServerItem
     {
         this.hypervisorInfo = hypervisorInfo;
     }
+
 }

@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HMSLocalSubscriberRestServiceTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -61,6 +61,7 @@ public class HMSLocalSubscriberRestServiceTest
         // Setup Spring test in standalone mode
         this.mockMvc = MockMvcBuilders.standaloneSetup( new HMSLocalSubscriberRestService() ).build();
         // this.mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext).build();
+
         Map<String, ServerNode> nodeMap = new HashMap<String, ServerNode>();
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
@@ -68,8 +69,10 @@ public class HMSLocalSubscriberRestServiceTest
         node.setOsUserName( "root" );
         node.setOsPassword( "root123" );
         nodeMap.put( "N1", node );
+
         // populating Nodemap before we could query its peripheral info
         InventoryLoader.getInstance().setNodeMap( nodeMap );
+
         // Adding our test Implementation class to provide sample data.
         InBandServiceProvider.addBoardService( node.getServiceObject(), new InbandServiceTestImpl(), true );
     }
@@ -87,12 +90,14 @@ public class HMSLocalSubscriberRestServiceTest
         subscriptions.add( subscription2 );
         ObjectMapper mapper = new ObjectMapper();
         String subscriptionsAsString = mapper.writeValueAsString( subscriptions );
+
         MvcResult result =
             this.mockMvc.perform( post( ( "http://localhost:8080/events/register" ) ).content( subscriptionsAsString ).contentType( MediaType.APPLICATION_JSON ) ).andExpect( status().isOk() ).andReturn();
         assertNotNull( result.getResponse() );
         logger.info( "Response after non maskable endpoints registration: "
             + result.getResponse().getContentAsString() );
         assertTrue( result.getResponse().getContentAsString().contains( "NME request" ) );
+
         // Now trying to get endpoints registered for non-maskable events
         MvcResult nonmaskableEndpoints =
             this.mockMvc.perform( get( ( "http://localhost:8080/events/register" ) ) ).andExpect( status().isOk() ).andReturn();
@@ -113,19 +118,23 @@ public class HMSLocalSubscriberRestServiceTest
         subscription.setNodeId( "N1" );
         subscription.setSubscriberId( "PRM" );
         subscriptions.add( subscription );
+
         EventMonitoringSubscription subscription2 = new EventMonitoringSubscription();
         subscription2.setNotificationEndpoint( "http://localhost:8080/response2" );
         subscription.setComponent( EventComponent.CPU );
         subscription.setNodeId( "N1" );
         subscription.setSubscriberId( "PRM" );
         subscriptions.add( subscription2 );
+
         ObjectMapper mapper = new ObjectMapper();
         String subscriptionsAsString = mapper.writeValueAsString( subscriptions );
+
         MvcResult result =
             this.mockMvc.perform( post( ( "http://localhost:8080/events/subscribe" ) ).content( subscriptionsAsString ).contentType( MediaType.APPLICATION_JSON ) ).andExpect( status().isOk() ).andReturn();
         assertNotNull( result.getResponse() );
         logger.info( "Response after event subscription: " + result.getResponse().getContentAsString() );
         assertTrue( result.getResponse().getContentAsString().contains( "subcription request" ) );
+
         // Now trying to get endpoints registered for non-maskable events
         MvcResult nonmaskableEndpoints =
             this.mockMvc.perform( get( ( "http://localhost:8080/events/PRM" ) ) ).andExpect( status().isOk() ).andReturn();
@@ -133,7 +142,9 @@ public class HMSLocalSubscriberRestServiceTest
         logger.info( "Response that should return all subscriptions by PRM: "
             + nonmaskableEndpoints.getResponse().getContentAsString() );
         assertTrue( nonmaskableEndpoints.getResponse().getContentAsString().contains( "http://localhost:8080/response" ) );
+
         // Now will try to unsubscribe Events
+
         List<EventMonitoringSubscription> unsubscriptions = new ArrayList<EventMonitoringSubscription>();
         EventMonitoringSubscription unsubscription = new EventMonitoringSubscription();
         unsubscription.setNotificationEndpoint( "http://localhost:8080/response" );
@@ -142,10 +153,12 @@ public class HMSLocalSubscriberRestServiceTest
         unsubscription.setSubscriberId( "PRM" );
         unsubscriptions.add( unsubscription );
         String unsubscriptionsAsString = mapper.writeValueAsString( unsubscriptions );
+
         MvcResult unsubscriptionResult =
             this.mockMvc.perform( post( ( "http://localhost:8080/events/unsubscribe" ) ).content( unsubscriptionsAsString ).contentType( MediaType.APPLICATION_JSON ) ).andExpect( status().isOk() ).andReturn();
         assertNotNull( unsubscriptionResult.getResponse() );
         logger.info( "Response after unsubscription: " + unsubscriptionResult.getResponse().getContentAsString() );
         assertTrue( unsubscriptionResult.getResponse().getContentAsString().contains( "Operation completed successfully" ) );
+
     }
 }

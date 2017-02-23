@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.nic;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -147,4 +148,5 @@ public class PortInfo
     {
         this.switchPortMac = switchPortMac;
     }
+
 }

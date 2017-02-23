@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.event;
 
 import com.vmware.vrack.common.event.enums.EventCatalog;
@@ -25,6 +26,7 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
  */
 public enum NodeEvent
 {
+
     CPU_TEMP_ABOVE_THRESHHOLD( ServerComponent.CPU, EventValueType.READING,
         EventCatalog.CPU_TEMPERATURE_ABOVE_UPPER_THRESHOLD ),
     CPU_TEMP_BELOW_THRESHHOLD( ServerComponent.CPU, EventValueType.READING,
@@ -40,6 +42,7 @@ public enum NodeEvent
     @Deprecated CPU_FAILURE( ServerComponent.CPU, EventValueType.DISCRETE ),
     PCH_TEMP_ABOVE_THRESHOLD( ServerComponent.SERVER, EventValueType.READING,
         EventCatalog.PCH_TEMPERATURE_ABOVE_THRESHOLD ),
+
     MEMORY_TEMP_ABOVE_THRESHOLD( ServerComponent.MEMORY, EventValueType.READING,
         EventCatalog.DIMM_TEMPERATURE_ABOVE_UPPER_THRESHOLD ),
     @Deprecated MEMORY_THEMAL_MARGIN_CRITICAL_THRESHOLD( ServerComponent.MEMORY, EventValueType.DISCRETE ),
@@ -47,6 +50,7 @@ public enum NodeEvent
     @Deprecated MEMORY_TEMPERATURE( ServerComponent.MEMORY, EventValueType.READING ),
     @Deprecated MEMORY_STATUS( ServerComponent.MEMORY, null ),
     @Deprecated MEMORY_FAILURE( ServerComponent.MEMORY, EventValueType.DISCRETE ),
+
     HDD_DOWN( ServerComponent.STORAGE, EventValueType.DISCRETE, EventCatalog.HDD_DOWN ),
     HDD_UP( ServerComponent.STORAGE, EventValueType.DISCRETE, EventCatalog.HDD_UP ),
     @Deprecated HDD_FAILURE( ServerComponent.STORAGE, EventValueType.DISCRETE ),
@@ -59,6 +63,7 @@ public enum NodeEvent
         EventCatalog.HDD_WEAROUT_ABOVE_THRESHOLD ),
     @Deprecated HDD_HEALTH_CRITICAL( ServerComponent.STORAGE, EventValueType.DISCRETE ),
     @Deprecated HDD_EMPTY_DISK_BAY( ServerComponent.STORAGE, EventValueType.DISCRETE ),
+
     SSD_UP( ServerComponent.STORAGE, EventValueType.DISCRETE, EventCatalog.SSD_UP ),
     SSD_DOWN( ServerComponent.STORAGE, EventValueType.DISCRETE, EventCatalog.SSD_DOWN ),
     SSD_WRITE_ERROR( ServerComponent.STORAGE, EventValueType.DISCRETE, EventCatalog.SSD_EXCESSIVE_WRITE_ERRORS ),
@@ -67,24 +72,30 @@ public enum NodeEvent
         EventCatalog.SSD_TEMPERATURE_ABOVE_THRESHOLD ),
     SSD_WEAROUT_ABOVE_THRESHOLD( ServerComponent.STORAGE, EventValueType.DISCRETE,
         EventCatalog.SSD_WEAROUT_ABOVE_THRESHOLD ),
+
     STORAGE_CONTROLLER_UP( ServerComponent.STORAGE_CONTROLLER, EventValueType.DISCRETE,
         EventCatalog.STORAGE_CONTROLLER_UP ),
     STORAGE_CONTROLLER_DOWN( ServerComponent.STORAGE_CONTROLLER, EventValueType.DISCRETE,
         EventCatalog.STORAGE_CONTROLLER_DOWN ),
+
     // Drive slot/Bay specific events
     @Deprecated HDD_SLOT_EMPTY( ServerComponent.STORAGE, EventValueType.DISCRETE ),
     @Deprecated HDD_SLOT_FULL( ServerComponent.STORAGE, EventValueType.DISCRETE ),
+
     @Deprecated FAN_SPEED( ServerComponent.FAN, EventValueType.READING ),
     @Deprecated FAN_FAILURE( ServerComponent.FAN, EventValueType.DISCRETE ),
     @Deprecated FAN_STATUS_NON_RECOVERABLE( ServerComponent.FAN, EventValueType.DISCRETE ),
     @Deprecated FAN_SPEED_THRESHHOLD( ServerComponent.FAN, EventValueType.READING ),
+
     @Deprecated POWERUNIT_TEMP_ABOVE_THRESHOLD( ServerComponent.POWERUNIT, EventValueType.READING ),
     @Deprecated POWER_UNIT_STATUS_FAILURE( ServerComponent.POWERUNIT, EventValueType.DISCRETE ),
     @Deprecated POWER_UNIT_STATUS( ServerComponent.POWERUNIT, EventValueType.DISCRETE ),
+
     BMC_NOT_REACHABLE( ServerComponent.BMC, EventValueType.DISCRETE, EventCatalog.BMC_NOT_REACHABLE ),
     BMC_FAILURE( ServerComponent.BMC, EventValueType.DISCRETE, EventCatalog.BMC_MANAGEMENT_FAILURE ),
     BMC_AUTHENTICATION_FAILURE( ServerComponent.BMC, EventValueType.DISCRETE, EventCatalog.BMC_AUTHENTICATION_FAILURE ),
     @Deprecated BMC_STATUS( ServerComponent.BMC, EventValueType.DISCRETE ),
+
     SYSTEM_PCIE_ERROR( ServerComponent.SERVER, EventValueType.DISCRETE, EventCatalog.SERVER_PCIE_ERROR ),
     SYSTEM_POST_ERROR( ServerComponent.SERVER, EventValueType.DISCRETE, EventCatalog.SERVER_POST_ERROR ),
     @Deprecated SYSTEM_REBOOT( ServerComponent.SYSTEM, EventValueType.DISCRETE ),
@@ -92,6 +103,7 @@ public enum NodeEvent
     @Deprecated SYSTEM_SET_BOOT_ORDER_FAILURE( ServerComponent.SYSTEM, EventValueType.DISCRETE ),
     @Deprecated SYSTEM_OS_BOOTUP_FAILURE( ServerComponent.SYSTEM, EventValueType.DISCRETE ),
     @Deprecated SYSTEM_STATUS( ServerComponent.SYSTEM, EventValueType.DISCRETE ),
+
     NIC_LINK_DOWN( ServerComponent.NIC, EventValueType.DISCRETE, EventCatalog.NIC_LINK_DOWN ),
     NIC_PORT_DOWN( ServerComponent.NIC, EventValueType.DISCRETE, EventCatalog.NIC_PORT_DOWN ),
     NIC_PORT_UP( ServerComponent.NIC, EventValueType.DISCRETE, EventCatalog.NIC_PORT_UP ),
@@ -100,12 +112,14 @@ public enum NodeEvent
     NIC_TEMPERATURE_ABOVE_THRESHHOLD( ServerComponent.NIC, EventValueType.READING ),
     NIC_PACKET_TRANSFER_RATE( ServerComponent.NIC, EventValueType.READING ),
     NIC_TEMPERATURE( ServerComponent.NIC, EventValueType.READING ),
+
     MANAGEMENT_SWITCH_DOWN( SwitchComponentEnum.SWITCH, EventValueType.DISCRETE, EventCatalog.MANAGEMENT_SWITCH_DOWN ),
     MANAGEMENT_SWITCH_UP( SwitchComponentEnum.SWITCH, EventValueType.DISCRETE, EventCatalog.MANAGEMENT_SWITCH_UP ),
     TOR_SWITCH_DOWN( SwitchComponentEnum.SWITCH, EventValueType.DISCRETE, EventCatalog.TOR_SWITCH_DOWN ),
     TOR_SWITCH_UP( SwitchComponentEnum.SWITCH, EventValueType.DISCRETE, EventCatalog.TOR_SWITCH_UP ),
     SPINE_SWITCH_DOWN( SwitchComponentEnum.SWITCH, EventValueType.DISCRETE, EventCatalog.SPINE_SWITCH_DOWN ),
     SPINE_SWITCH_UP( SwitchComponentEnum.SWITCH, EventValueType.DISCRETE, EventCatalog.SPINE_SWITCH_UP ),
+
     MANAGEMENT_SWITCH_PORT_DOWN( SwitchComponentEnum.SWITCH_PORT, EventValueType.DISCRETE,
         EventCatalog.MANAGEMENT_SWITCH_PORT_DOWN ),
     MANAGEMENT_SWITCH_PORT_UP( SwitchComponentEnum.SWITCH_PORT, EventValueType.DISCRETE,
@@ -119,17 +133,20 @@ public enum NodeEvent
     @Deprecated HMS_AGENT_CPU_STATUS( ServerComponent.HMS, EventValueType.READING ),
     @Deprecated HMS_AGENT_MEMORY_STATUS( ServerComponent.HMS, EventValueType.READING ),
     @Deprecated HMS_AGENT_THREAD_COUNT( ServerComponent.HMS, EventValueType.READING ),
+
     @Deprecated HMS_OOB_AGENT_RESTHANDLER_MEAN_RESPONSETIME( ServerComponent.HMS, EventValueType.DISCRETE ),
     @Deprecated HMS_OOB_AGENT_RESTHANDLER_STATUS( ServerComponent.HMS, EventValueType.DISCRETE ),
     @Deprecated HMS_OOB_AGENT_RESTHANDLER_STARTED_DURATION( ServerComponent.HMS, EventValueType.DISCRETE ),
     @Deprecated HMS_OOB_AGENT_RESTHANDLER_MESSAGE_OUT_COUNT( ServerComponent.HMS, EventValueType.READING ),
     @Deprecated HMS_OOB_AGENT_RESTHANDLER_MESSAGE_IN_COUNT( ServerComponent.HMS, EventValueType.READING ),
+
     @Deprecated HOST_OS_NOT_RESPONSIVE( ServerComponent.OPERATING_SYSTEM, EventValueType.DISCRETE ),
     HOST_UP( ServerComponent.SERVER, EventValueType.DISCRETE, EventCatalog.SERVER_UP ),
     HOST_DOWN( ServerComponent.SERVER, EventValueType.DISCRETE, EventCatalog.SERVER_DOWN ),
     HMS_AGENT_UP( ServerComponent.HMS, EventValueType.DISCRETE, EventCatalog.HMS_AGENT_UP ),
     HMS_AGENT_DOWN( ServerComponent.HMS, EventValueType.DISCRETE, EventCatalog.HMS_AGENT_DOWN ),
     INVALID();
+
     private final ServerComponent component;
 
     private final SwitchComponentEnum switchComponentEnum;
@@ -197,4 +214,5 @@ public enum NodeEvent
     {
         return eventID;
     }
+
 }

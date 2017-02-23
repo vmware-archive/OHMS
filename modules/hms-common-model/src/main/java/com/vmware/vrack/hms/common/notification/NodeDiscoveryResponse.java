@@ -17,7 +17,7 @@ package com.vmware.vrack.hms.common.notification;
 
 /**
  * Response that will be sent, when it enquires about the discovery statsus
- *
+ * 
  * @author VMware Inc.
  */
 public class NodeDiscoveryResponse

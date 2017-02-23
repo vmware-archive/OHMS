@@ -25,6 +25,7 @@ import com.vmware.vrack.hms.utils.SshUtil;
 
 public class CLITaskConnector
 {
+
     private static Logger logger = Logger.getLogger( CLITaskConnector.class );
 
     private Session session = null;
@@ -86,4 +87,5 @@ public class CLITaskConnector
         this.sshPwd = null;
         this.ipAddress = null;
     }
+
 }

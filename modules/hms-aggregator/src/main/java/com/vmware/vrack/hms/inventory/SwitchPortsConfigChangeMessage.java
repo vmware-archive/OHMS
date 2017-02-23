@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchPortInfo;
 public class SwitchPortsConfigChangeMessage
     extends ApplicationEvent
 {
+
     private List<NBSwitchPortInfo> portsList;
 
     private String switchID;
@@ -61,4 +63,5 @@ public class SwitchPortsConfigChangeMessage
     {
         this.switchID = switchID;
     }
+
 }

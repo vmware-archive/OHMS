@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * Every LifeCycleComponentManager implementation that supports upgrade must annotate its class with the
  * HmsComponentUpgradePlugin annotation.
- *
+ * 
  * @author VMware, Inc.
  */
 @Documented
@@ -35,4 +35,5 @@ import java.lang.annotation.Target;
 public @interface HmsComponentUpgradePlugin
 {
     public SupportsUpgrade[] supportsUpgradeFor();
+
 }

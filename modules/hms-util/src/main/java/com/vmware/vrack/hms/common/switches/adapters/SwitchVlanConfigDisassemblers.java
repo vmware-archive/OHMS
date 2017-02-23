@@ -28,12 +28,15 @@ public class SwitchVlanConfigDisassemblers
     {
         SwitchVlan lConfig = new SwitchVlan();
         String netmask = null;
+
         if ( config == null )
             return null;
+
         if ( config.getIpAddress() != null )
         {
             netmask = IpUtils.prefixLenToNetmask( config.getIpAddress().getPrefixLen() );
         }
+
         lConfig.setIgmp( fromIgmp( config.getIgmp() ) );
         if ( config.getIpAddress() != null )
             lConfig.setIpAddress( config.getIpAddress().getPrefix() );
@@ -41,6 +44,7 @@ public class SwitchVlanConfigDisassemblers
         lConfig.setId( config.getVid() );
         lConfig.setTaggedPorts( new HashSet<String>() );
         lConfig.setUntaggedPorts( new HashSet<String>() );
+
         if ( config.getTaggedPorts() != null )
         {
             for ( String port : config.getTaggedPorts() )
@@ -48,6 +52,7 @@ public class SwitchVlanConfigDisassemblers
                 lConfig.getTaggedPorts().add( port );
             }
         }
+
         if ( config.getUntaggedPorts() != null )
         {
             for ( String port : config.getUntaggedPorts() )
@@ -55,15 +60,19 @@ public class SwitchVlanConfigDisassemblers
                 lConfig.getUntaggedPorts().add( port );
             }
         }
+
         return lConfig;
     }
 
     private static SwitchVlanIgmp fromIgmp( NBSwitchVlanConfig.Igmp config )
     {
         SwitchVlanIgmp lConfig = new SwitchVlanIgmp();
+
         if ( config == null )
             return null;
+
         lConfig.setIgmpQuerier( config.getIgmpQuerier() );
+
         return lConfig;
     }
 }

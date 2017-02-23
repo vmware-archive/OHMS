@@ -25,6 +25,7 @@ import com.vmware.vrack.hms.task.ib.cli.CLITaskConnector;
 public abstract class TaskSuite
     implements IHmsTask
 {
+
     public TaskResponse response;
 
     public ServerNode node;
@@ -40,15 +41,18 @@ public abstract class TaskSuite
         getConnection();
         executeTask();
         destroy();
+
         return response;
     }
 
     public void getConnection()
     {
+
         // getIPMIConnection();
         // getCLIConnection();
         // getCIMClient();
     }
+
     /*
      * protected void getIPMIConnection() { try { ipmiConnector = new
      * IpmiTaskConnector(this.node.getManagementIp(),node.getManagementUserName(),node.getManagementUserPassword());
@@ -98,6 +102,7 @@ public abstract class TaskSuite
          * if(ipmiConnector != null) { try { ipmiConnector.destroy(); ipmiConnector = null; } catch (Exception e) {
          * logger.error("Error while destroying ipmiConnector: ", e); } }
          */
+
         if ( sshConnector != null )
         {
             try
@@ -111,4 +116,5 @@ public abstract class TaskSuite
             }
         }
     }
+
 }

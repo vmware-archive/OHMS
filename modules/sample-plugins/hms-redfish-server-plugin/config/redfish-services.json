@@ -1,0 +1,5 @@
+{
+  "services" : [
+    "https://localhost:8449/redfish/v1"
+  ]
+}

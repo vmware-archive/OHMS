@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import au.com.bytecode.opencsv.CSVReader;
-
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.vmware.vim.binding.vim.HostSystem;
@@ -43,6 +41,7 @@ import com.vmware.vim.binding.vim.host.NetworkSystem;
 import com.vmware.vim.binding.vim.host.PciDevice;
 import com.vmware.vim.binding.vim.host.PhysicalNic;
 import com.vmware.vim.binding.vim.host.PhysicalNic.LinkSpeedDuplex;
+import com.vmware.vrack.hms.boardservice.ib.InbandConstants;
 import com.vmware.vrack.hms.boardservice.ib.InbandServiceImpl;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
@@ -61,10 +60,23 @@ import com.vmware.vrack.hms.common.servernodes.api.nic.PortInfo;
 import com.vmware.vrack.hms.common.util.EsxiSshUtil;
 import com.vmware.vrack.hms.vsphere.HostProxy;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 @Component
 public class NicInfoHelper
 {
+
     private static Logger logger = LoggerFactory.getLogger( NicInfoHelper.class );
+
+    private static final String SLOT = " Slot ";
+
+    private static final String BUS = "Bus ";
+
+    private static final String SPACE = " ";
+
+    private static final String CLOSE_BRACE = ")";
+
+    private static final String OPEN_BRACE = " (";
 
     private static final String VENDOR = "vendor";
 
@@ -81,12 +93,6 @@ public class NicInfoHelper
     private static final String NIC_TRANSMIT_PACKET_DROPS = "Transmitpacketsdropped";
 
     private static final String NIC_FIRMWARE_DRIVER_INFO = "DriverInfo";
-
-    private static final String PORT_UP = " port up";
-
-    private static final String PORT_DOWN = " port down";
-
-    private static final String PORT = " port ";
 
     /**
      * Configurable Threshold value for NIC Packet Drop
@@ -115,12 +121,16 @@ public class NicInfoHelper
             Map<String, List<PortInfo>> portMap = new HashMap<String, List<PortInfo>>();
             Map<String, String> mapfirmwareVersion = new HashMap<String, String>();
             Map<String, String> mapLinkSpeed = new HashMap<String, String>();
+
             String maxLinkSpeed;
             String firmwareVersion = null;
+
             // List of pciDeviceInfoMap, which we will be using to group Nics
             // and Vendor name and Product Name
             Map<String, Map<String, String>> pciDeviceInfoMap = new HashMap<>();
+
             NetworkSystem networkSystem = hostProxy.getNetworkSystemObj();
+
             if ( networkSystem != null )
             {
                 NetworkInfo networkInfo = networkSystem.getNetworkInfo();
@@ -135,20 +145,25 @@ public class NicInfoHelper
                             info.setMacAddress( pnic.getMac() );
                             info.setDeviceName( pnic.getDevice() );
                             // info.setDriver(pnic.getDriver());
+
                             if ( pnic.getLinkSpeed() != null )
                             {
                                 SpeedInfo speed =
                                     new SpeedInfo( (long) pnic.getLinkSpeed().getSpeedMb(), SpeedUnit.Mbps );
                                 info.setLinkSpeedInMBps( speed );
                             }
+
                             info.setLinkStatus( ( pnic.getLinkSpeed() != null ) ? NicStatus.OK
                                             : NicStatus.DISCONNECTED );
+
                             LinkSpeedDuplex[] linkSpeeds = pnic.getValidLinkSpecification();
                             // maxLinkSpeed = new
                             // SpeedInfo(getMaxLinkSpeed(linkSpeeds),
                             // SpeedUnit.Mbps);
                             maxLinkSpeed = Long.toString( getMaxLinkSpeed( linkSpeeds ) );
+
                             Session session = null;
+
                             try
                             {
                                 try
@@ -162,6 +177,7 @@ public class NicInfoHelper
                                     logger.error( "Cannot create ssh session Object for node : "
                                         + ( node != null ? node.getNodeID() : null ), e );
                                 }
+
                                 try
                                 {
                                     firmwareVersion =
@@ -174,12 +190,15 @@ public class NicInfoHelper
                                                        pnic.getDevice(), node.getNodeID() );
                                     logger.debug( err, e );
                                 }
+
                             }
                             finally
                             {
                                 destroySession( session );
                             }
+
                             Map<String, String> pciInfo = null;
+
                             try
                             {
                                 pciInfo = ( getPciDeviceInfo( pnic.getPci(), hostProxy ) );
@@ -188,7 +207,9 @@ public class NicInfoHelper
                             {
                                 logger.error( "Error getting Pci Device Id for physical Nic: " + pnic.getDevice() );
                             }
+
                             String key = ( pciInfo != null ) ? pciInfo.get( DEVICEID ) : null;
+
                             // Prepare Map with Nics with same DeviceId under
                             // one ethernetController
                             if ( portMap.containsKey( key ) )
@@ -204,6 +225,7 @@ public class NicInfoHelper
                                 mapfirmwareVersion.put( key, firmwareVersion );
                                 mapLinkSpeed.put( key, maxLinkSpeed );
                             }
+
                             // put into pciDeviceMap
                             if ( !pciDeviceInfoMap.containsKey( key ) )
                             {
@@ -234,9 +256,11 @@ public class NicInfoHelper
     {
         logger.debug( "Trying to get Nic Firmware data on node [ " + nodeId + " ] for Nic [ " + nicDeviceName + " ]" );
         String firmwareInfo = null;
+
         if ( nicDeviceName != null && !"".equals( nicDeviceName.trim() ) && session != null )
         {
             String command = String.format( Constants.GET_NIC_FIRMWARE_INFO_COMMAND, nicDeviceName.trim() );
+
             // Result will be received in csv format after executing following
             // command
             // AdvertisedAutoNegotiation,AdvertisedLinkModes,AutoNegotiation,CableType,CurrentMessageLevel,DriverInfo,LinkDetected,
@@ -246,6 +270,7 @@ public class NicInfoHelper
             // Pair,7,"0000:02:00.0,igb,""1.48, 0x800006e7"",5.0.5.1,",true,Up
             // ,vmnic0,1,true,false,false,"TP,",true,true,true,internal,"MagicPacket(tm),",
             String result = EsxiSshUtil.executeCommand( session, command );
+
             // if result String ends with '\n' We need to remove that extra
             // character,
             // else it will appear as last character while parsing
@@ -253,23 +278,33 @@ public class NicInfoHelper
             {
                 result = result.substring( 0, result.length() - 1 );
             }
+
             logger.debug( "Nic details [ " + nicDeviceName + " ] as CSV: " + result );
+
             CSVReader csvReader = null;
+
             try
             {
                 // convert String into InputStream
                 InputStream is = new ByteArrayInputStream( result.getBytes() );
+
                 // read it with BufferedReader
                 BufferedReader br = new BufferedReader( new InputStreamReader( is ) );
+
                 csvReader = new CSVReader( br );
+
                 // read all lines at once
                 List<String[]> records = csvReader.readAll();
+
                 Iterator<String[]> iterator = records.iterator();
+
                 // skip header row
                 String[] headerRow = iterator.next();
                 List<String> headers = Arrays.asList( headerRow );
+
                 // Calculate their indexes in the response array
                 int driverInfoIndex = getIndexInArray( headers, NIC_FIRMWARE_DRIVER_INFO );
+
                 while ( iterator.hasNext() )
                 {
                     String[] record = iterator.next();
@@ -279,9 +314,11 @@ public class NicInfoHelper
                         String driverInfoCSV = record[driverInfoIndex];
                         logger.debug( "NIC Driver info: Nic [ " + nicDeviceName + " ], Node [ " + nodeId
                             + " ], DriverInfo CSV: [ " + driverInfoCSV + " ]" );
+
                         InputStream iStream = new ByteArrayInputStream( driverInfoCSV.getBytes() );
                         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( iStream ) );
                         csvReader = new CSVReader( bufferedReader );
+
                         String[] nicDriverRecords = csvReader.readNext();
                         List<String> nicDriverInfo = Arrays.asList( nicDriverRecords );
                         if ( nicDriverInfo.size() > 2 )
@@ -306,6 +343,7 @@ public class NicInfoHelper
                     csvReader.close();
                 }
             }
+
             return firmwareInfo;
         }
         else
@@ -328,6 +366,7 @@ public class NicInfoHelper
         throws HmsException
     {
         Map<String, String> pciDeviceInfo = new HashMap<>();
+
         if ( pciHash != null && !"".equals( pciHash ) && hostProxy != null )
         {
             HostSystem hostSystem = hostProxy.getHostSystem();
@@ -339,15 +378,35 @@ public class NicInfoHelper
                     for ( PciDevice device : hardwareInfo.getPciDevice() )
                     {
                         String pciDeviceId = null;
+
                         if ( device.getId() != null && device.getId().equals( pciHash ) )
                         {
-                            pciDeviceId =
-                                Byte.toString( device.getBus() ).concat( ":" ).concat( Byte.toString( device.getSlot() ) );
+                            String busId = "NA";
+                            String slotId = "NA";
+                            if ( device.getBus() >= 0 )
+                            {
+                                busId = Byte.toString( device.getBus() );
+                            }
+                            else
+                            {
+                                logger.warn( "Invalid BusId: " + device.getBus() );
+                            }
+                            if ( device.getSlot() >= 0 )
+                            {
+                                slotId = Byte.toString( device.getSlot() );
+                            }
+                            else
+                            {
+                                logger.warn( "Invalid SlotId: " + device.getSlot() );
+                            }
+                            pciDeviceId = BUS + busId + SLOT + slotId;
                             String pciManufacturer = device.getVendorName();
                             String pciProductName = device.getDeviceName();
+
                             pciDeviceInfo.put( DEVICEID, pciDeviceId );
                             pciDeviceInfo.put( VENDOR, pciManufacturer );
                             pciDeviceInfo.put( PRODUCT, pciProductName );
+
                             return pciDeviceInfo;
                         }
                     }
@@ -424,7 +483,9 @@ public class NicInfoHelper
                     componentIdentifier.setProduct( pciDeviceInfoMap.get( key ).get( PRODUCT ) );
                     controller.setComponentIdentifier( componentIdentifier );
                     controller.setPciDeviceId( pciDeviceInfoMap.get( key ).get( DEVICEID ) );
+                    controller.setLocation( pciDeviceInfoMap.get( key ).get( DEVICEID ) );
                 }
+
                 ethernetControllers.add( controller );
             }
         }
@@ -441,10 +502,11 @@ public class NicInfoHelper
      */
     public static List<ServerComponentEvent> getNicSensor( ServiceHmsNode serviceNode, ServerComponent component,
                                                            InbandServiceImpl inbandServiceImpl )
-                                                               throws HmsException
+        throws HmsException
     {
         List<EthernetController> ethernetControllers = null;
         List<ServerComponentEvent> componentSensors = new ArrayList<ServerComponentEvent>();
+
         try
         {
             if ( inbandServiceImpl != null )
@@ -465,10 +527,12 @@ public class NicInfoHelper
                 + serviceNode != null ? serviceNode.getNodeID() : serviceNode + "]" );
             throw e;
         }
+
         if ( ethernetControllers != null )
         {
             Session session = null;
             ServiceServerNode node = null;
+
             try
             {
                 node = (ServiceServerNode) serviceNode;
@@ -478,6 +542,7 @@ public class NicInfoHelper
                 logger.error( "serviceNode is not an instance of ServiceServerNode: "
                     + ( node != null ? node.getNodeID() : node ) );
             }
+
             try
             {
                 try
@@ -491,9 +556,11 @@ public class NicInfoHelper
                     logger.error( "Cannot create ssh session Object for node : "
                         + ( node != null ? node.getNodeID() : node ), e );
                 }
+
                 for ( EthernetController controller : ethernetControllers )
                 {
                     List<PortInfo> portInfos = controller.getPortInfos();
+
                     for ( PortInfo portInfo : portInfos )
                     {
                         try
@@ -503,25 +570,33 @@ public class NicInfoHelper
                             // If Link Status is DISCONNECTED, then it will
                             // generate Component Sensor Object
                             ServerComponentEvent componentSensor = new ServerComponentEvent();
-                            String portStr = controller.getComponentIdentifier().getManufacturer() + " "
-                                + controller.getComponentIdentifier().getProduct();
-                            String componentId = portStr + PORT + portInfo.getDeviceName();
+                            String location = "";
+                            if ( controller.getLocation() != null )
+                            {
+                                location = OPEN_BRACE + controller.getLocation() + CLOSE_BRACE;
+                            }
+                            String componentId = controller.getComponentIdentifier().getManufacturer() + SPACE
+                                + controller.getComponentIdentifier().getProduct() + location;
+
+                            String nicPort = portInfo.getDeviceName();
                             componentSensor.setComponentId( componentId );
                             componentSensor.setUnit( EventUnitType.DISCRETE );
+
                             if ( portInfo.getLinkStatus() == NicStatus.DISCONNECTED )
                             {
                                 componentSensor.setDiscreteValue( Constants.NIC_PORT_DOWN_SENSOR_DISCRETE_VALUE );
                                 componentSensor.setEventName( NodeEvent.NIC_PORT_DOWN );
-                                componentSensor.setEventId( portStr + PORT_DOWN );
+                                componentSensor.setEventId( nicPort );
                                 componentSensors.add( componentSensor );
                             }
                             else
                             {
                                 componentSensor.setDiscreteValue( Constants.NIC_PORT_UP_SENSOR_DISCRETE_VALUE );
                                 componentSensor.setEventName( NodeEvent.NIC_PORT_UP );
-                                componentSensor.setEventId( portStr + PORT_UP );
+                                componentSensor.setEventId( nicPort );
                                 componentSensors.add( componentSensor );
                             }
+
                             try
                             {
                                 NicStatisticsInfo statisticsInfo =
@@ -558,6 +633,7 @@ public class NicInfoHelper
             logger.error( "Could Not find any Nic info on node [" + serviceNode != null ? serviceNode.getNodeID()
                             : serviceNode + "]" );
         }
+
         return componentSensors;
     }
 
@@ -574,9 +650,11 @@ public class NicInfoHelper
     {
         logger.debug( "Trying to get Nic Statistics data for Nic: " + nicDeviceName );
         NicStatisticsInfo statisticsInfo = new NicStatisticsInfo();
+
         if ( nicDeviceName != null && !"".equals( nicDeviceName.trim() ) && session != null )
         {
             String command = String.format( Constants.GET_NIC_PACKET_DROP_INFO_COMMAND, nicDeviceName.trim() );
+
             // Result will be received in csv format after executing following
             // command
             // Bytesreceived,Bytessent,NICName,Packetsreceived,Packetssent,ReceiveCRCerrors,ReceiveFIFOerrors,Receiveframeerrors,
@@ -584,6 +662,7 @@ public class NicInfoHelper
             // TransmitFIFOerrors,Transmitabortederrors,Transmitcarriererrors,Transmitheartbeaterrors,Transmitpacketsdropped,Transmitwindowerrors,
             // 1106636402154,1494164093163,vmnic0,1205726782,1376297918,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             String result = EsxiSshUtil.executeCommand( session, command );
+
             // if result String ends with '\n' We need to remove that extra
             // character,
             // else it will appear as last character while parsing
@@ -591,26 +670,36 @@ public class NicInfoHelper
             {
                 result = result.substring( 0, result.length() - 1 );
             }
+
             logger.debug( result );
+
             CSVReader csvReader = null;
+
             try
             {
                 // convert String into InputStream
                 InputStream is = new ByteArrayInputStream( result.getBytes() );
+
                 // read it with BufferedReader
                 BufferedReader br = new BufferedReader( new InputStreamReader( is ) );
+
                 csvReader = new CSVReader( br );
+
                 // read all lines at once
                 List<String[]> records = csvReader.readAll();
+
                 Iterator<String[]> iterator = records.iterator();
+
                 // skip header row
                 String[] headerRow = iterator.next();
                 List<String> headers = Arrays.asList( headerRow );
+
                 // Calculate their indexes in the response array
                 int receivedPacketsIndex = getIndexInArray( headers, NIC_RECEIVED_PACKETS );
                 int transmittedPacketsIndex = getIndexInArray( headers, NIC_TRANSMITTED_PACKETS );
                 int receivePacketDropsIndex = getIndexInArray( headers, NIC_RECEIVE_PACKET_DROPS );
                 int transmitPacketDropsIndex = getIndexInArray( headers, NIC_TRANSMIT_PACKET_DROPS );
+
                 while ( iterator.hasNext() )
                 {
                     // Nic Statistics records will contain total 21 fields
@@ -619,6 +708,7 @@ public class NicInfoHelper
                     // record[11]- receivePacketDrops, record[18]-
                     // transmitPacketDrops
                     String[] record = iterator.next();
+
                     if ( record.length > 19 )
                     {
                         statisticsInfo.setPacketsReceived( getLongValue( record[receivedPacketsIndex] ) );
@@ -639,6 +729,7 @@ public class NicInfoHelper
                     csvReader.close();
                 }
             }
+
             return statisticsInfo;
         }
         else
@@ -690,6 +781,7 @@ public class NicInfoHelper
             try
             {
                 Long longValue = new Long( inputString.trim() );
+
                 return longValue;
             }
             catch ( Exception e )
@@ -715,9 +807,10 @@ public class NicInfoHelper
             && node.getOsPassword() != null )
         {
             Properties sessionConfig = new java.util.Properties();
-            sessionConfig.put( "StrictHostKeyChecking", "no" );
+            sessionConfig.put( InbandConstants.STRICT_HOST_KEY_CHECKING, InbandConstants.STRICT_HOST_KEY_CHECK_YES );
             Session session = EsxiSshUtil.getSessionObject( node.getOsUserName(), node.getOsPassword(),
                                                             node.getIbIpAddress(), node.getSshPort(), sessionConfig );
+
             try
             {
                 session.connect( 30000 );
@@ -773,21 +866,25 @@ public class NicInfoHelper
                                                                    PortInfo portInfo )
     {
         List<ServerComponentEvent> componentSensors = new ArrayList<ServerComponentEvent>();
+
         if ( statisticsInfo != null && portInfo != null )
         {
             Long rxPackets = statisticsInfo.getPacketsReceived();
             Long txPackets = statisticsInfo.getPacketsTransmitted();
             Long rxDropped = statisticsInfo.getReceivePacketDrops();
             Long txDropped = statisticsInfo.getTransmitPacketDrops();
+
             // Check if all are non null values and none of (received Packets +
             // receivePacket Drops) != 0, to prevent divide by zero exception
             if ( rxPackets != null && txPackets != null && rxDropped != null && txDropped != null )
             {
                 float receiveDropPercentage = calculatePercentageDrop( rxDropped, rxPackets );
                 float transmitDropPercentage = calculatePercentageDrop( txDropped, txPackets );
+
                 ServerComponentEvent componentSensor = new ServerComponentEvent();
                 componentSensor.setComponentId( componentId );
                 componentSensor.setUnit( EventUnitType.PERCENT );
+
                 if ( nicPacketDropThreshold < receiveDropPercentage )
                 {
                     componentSensor.setValue( receiveDropPercentage );
@@ -795,6 +892,7 @@ public class NicInfoHelper
                     componentSensor.setEventId( "Receive Packet Drop Percentage" );
                     componentSensors.add( componentSensor );
                 }
+
                 if ( nicPacketDropThreshold < transmitDropPercentage )
                 {
                     componentSensor.setValue( receiveDropPercentage );
@@ -809,6 +907,7 @@ public class NicInfoHelper
             logger.debug( "Unable to generate Packet Drop Events for nic [ "
                 + ( portInfo != null ? portInfo.getDeviceName() : null ) + " ]" );
         }
+
         return componentSensors;
     }
 
@@ -829,4 +928,5 @@ public class NicInfoHelper
         }
         return dropPercentage;
     }
+
 }

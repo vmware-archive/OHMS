@@ -27,11 +27,16 @@ import com.vmware.vrack.hms.common.notification.BaseResponse;
 public class HMSRestExceptionHandler
     implements ExceptionMapper<HMSRestException>
 {
+
     @Override
     public Response toResponse( HMSRestException exception )
     {
-        return Response.status( exception.getResponseErrorCode() ).entity( new BaseResponse( exception.getResponseErrorCode(),
+
+        return Response.status( exception.getResponseErrorCode() ).entity(
+
+                                                                           new BaseResponse( exception.getResponseErrorCode(),
                                                                                              exception.getMessage(),
                                                                                              exception.getReason() ) ).type( MediaType.APPLICATION_JSON ).build();
     }
+
 }

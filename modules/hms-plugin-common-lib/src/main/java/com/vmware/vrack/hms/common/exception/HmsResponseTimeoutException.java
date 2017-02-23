@@ -18,6 +18,7 @@ package com.vmware.vrack.hms.common.exception;
 public class HmsResponseTimeoutException
     extends HmsException
 {
+
     private static final long serialVersionUID = 459231249867630187L;
 
     public HmsResponseTimeoutException()

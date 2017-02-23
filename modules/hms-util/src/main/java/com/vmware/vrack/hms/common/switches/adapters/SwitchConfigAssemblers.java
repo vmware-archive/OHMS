@@ -24,16 +24,20 @@ import com.vmware.vrack.hms.common.switches.api.*;
 
 public final class SwitchConfigAssemblers
 {
+
     public static NBSwitchConfig toSwitchConfig( List<SwitchLacpGroup> lags, List<SwitchVlan> vlans,
                                                  SwitchOspfConfig ospf, SwitchBgpConfig bgp, SwitchMclagInfo mcLag,
                                                  SwitchInfo switchConfig )
     {
         NBSwitchConfig lConfig = new NBSwitchConfig();
+
         lConfig.setBgp( SwitchBgpConfigAssemblers.toSwitchBgpConfig( bgp ) );
         lConfig.setOspf( SwitchOspfv2ConfigAssemblers.toSwitchOspfv2Config( ospf ) );
         lConfig.setMcLag( SwitchMcLagConfigAssemblers.toSwitchMcLagConfig( mcLag ) );
         lConfig.setVlans( SwitchVlanConfigAssemblers.toSwitchVlanConfigs( vlans ) );
         lConfig.setBonds( SwitchLagConfigAssemblers.toSwitchLagConfigs( lags ) );
+
         return lConfig;
     }
+
 }

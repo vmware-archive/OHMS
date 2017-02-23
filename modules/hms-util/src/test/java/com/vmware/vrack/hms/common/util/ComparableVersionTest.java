@@ -26,6 +26,7 @@ import com.vmware.vrack.hms.common.util.ComparableVersion;
  */
 public class ComparableVersionTest
 {
+
     /**
      * Test versions.
      */
@@ -35,18 +36,23 @@ public class ComparableVersionTest
         ComparableVersion ver1 = new ComparableVersion( "0.0.1-SNAPSHOT-123456" );
         ComparableVersion ver2 = new ComparableVersion( "0.0.1-SNAPSHOT-123457" );
         this.testVersions( ver1, ver2 );
+
         ver1 = new ComparableVersion( "0.0.1-SNAPSHOT-123456" );
         ver2 = new ComparableVersion( "0.0.1-123456" );
         this.testVersions( ver1, ver2 );
+
         ver1 = new ComparableVersion( "0.0.1-123456" );
         ver2 = new ComparableVersion( "0.0.1-123457" );
         this.testVersions( ver1, ver2 );
+
         ver1 = new ComparableVersion( "0.0.1-123456" );
         ver2 = new ComparableVersion( "1.0.0-123456" );
         this.testVersions( ver1, ver2 );
+
         ver1 = new ComparableVersion( "0.0.1-123456" );
         ver2 = new ComparableVersion( "1.0.0-123457" );
         this.testVersions( ver1, ver2 );
+
         ver1 = new ComparableVersion( "0.0.1-123456" );
         ver2 = new ComparableVersion( "1.0.0-SNAPSHOT-123456" );
         this.testVersions( ver1, ver2 );

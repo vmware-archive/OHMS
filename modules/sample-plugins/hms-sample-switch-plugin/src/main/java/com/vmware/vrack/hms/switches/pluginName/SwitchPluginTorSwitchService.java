@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SwitchPluginTorSwitchService.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,10 +13,8 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
-package com.vmware.vrack.hms.switches.pluginName;
 
-import java.util.ArrayList;
-import java.util.List;
+package com.vmware.vrack.hms.switches.pluginName;
 
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -38,16 +36,21 @@ import com.vmware.vrack.hms.common.switches.api.SwitchPort.PortStatus;
 import com.vmware.vrack.hms.common.switches.api.SwitchSensorInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchServiceImplementation;
 import com.vmware.vrack.hms.common.switches.api.SwitchSession;
+import com.vmware.vrack.hms.common.switches.api.SwitchSnmpConfig;
 import com.vmware.vrack.hms.common.switches.api.SwitchType;
 import com.vmware.vrack.hms.common.switches.api.SwitchUpgradeInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchVlan;
 import com.vmware.vrack.hms.common.switches.api.SwitchVxlan;
 import com.vmware.vrack.hms.common.switches.model.bulk.PluginSwitchBulkConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SwitchServiceImplementation( name = "pluginName" )
 public class SwitchPluginTorSwitchService
     implements ISwitchService
 {
+
     @SuppressWarnings( "unused" )
     private final static String SWITCH_TYPE = "pluginName";
 
@@ -57,6 +60,7 @@ public class SwitchPluginTorSwitchService
         s1.setManufacturer( "Sample" );
         s1.setModel( ".*" );
         s1.setRegexMatching( true );
+
         ArrayList<SwitchType> retList = new ArrayList<SwitchType>();
         retList.add( s1 );
         return retList;
@@ -93,6 +97,12 @@ public class SwitchPluginTorSwitchService
     }
 
     public boolean updateSwitchIpAddress( SwitchNode switchNode, String ipAddress, String netmask, String gateway )
+        throws HmsException
+    {
+        return false;
+    }
+
+    public boolean setPassword( SwitchNode switchNode, String username, String newPassword )
         throws HmsException
     {
         return false;
@@ -199,6 +209,13 @@ public class SwitchPluginTorSwitchService
         return false;
     }
 
+    @Deprecated
+    public boolean applyNetworkConfiguration( SwitchNode switchNode, SwitchNetworkConfiguration networkConfiguration )
+        throws HmsException
+    {
+        return false;
+    }
+
     public List<SwitchVxlan> getSwitchVxlans( SwitchNode switchNode )
     {
         return null;
@@ -277,12 +294,28 @@ public class SwitchPluginTorSwitchService
         throws HmsOobNetworkException
     {
         // TODO Auto-generated method stub
+
     }
 
     public void deleteIpv4DefaultRoute( SwitchNode switchNode )
         throws HmsOobNetworkException
     {
         // TODO Auto-generated method stub
+
+    }
+
+    public void deletePortOrBondFromVlan( SwitchNode switchNode, String vlanId, String portOrBondName )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void deletePortFromLacpGroup( SwitchNode switchNode, String lacpGroupName, String portName )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
     }
 
     /**
@@ -315,9 +348,24 @@ public class SwitchPluginTorSwitchService
         return null;
     }
 
-	public boolean applyNetworkConfiguration(SwitchNode switchNode, SwitchNetworkConfiguration networkConfiguration)
-			throws HmsException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public void setSwitchTime( SwitchNode switchNode, long time )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void configureSnmp( SwitchNode switchNode, SwitchSnmpConfig config )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    public SwitchSnmpConfig getSnmp( SwitchNode switchNode )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

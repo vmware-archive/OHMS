@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.plugin.testlib;
 
 import org.junit.AssumptionViolatedException;
@@ -35,6 +36,7 @@ import org.junit.runners.parameterized.TestWithParameters;
 public class RetryRunner
     extends BlockJUnit4ClassRunnerWithParameters
 {
+
     private int retryCount = 3;
 
     private long sleepTime = 3000;
@@ -57,6 +59,7 @@ public class RetryRunner
         Statement statement = classBlock( notifier );
         try
         {
+
             statement.evaluate();
         }
         catch ( AssumptionViolatedException e )

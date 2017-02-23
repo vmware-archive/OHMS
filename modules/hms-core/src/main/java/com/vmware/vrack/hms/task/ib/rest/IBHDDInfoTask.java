@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * IBHDDInfoTask.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -34,6 +34,7 @@ import com.vmware.vrack.hms.utils.HttpClientService;
 public class IBHDDInfoTask
     extends IBRestTask
 {
+
     private static Logger logger = Logger.getLogger( IBHDDInfoTask.class );
 
     public IBHDDInfoTask( TaskResponse response )
@@ -45,6 +46,7 @@ public class IBHDDInfoTask
     public void executeTask()
         throws Exception
     {
+
         if ( getBaseUrl() != null )
         {
             try
@@ -60,26 +62,33 @@ public class IBHDDInfoTask
                                                                                              HddInfo.class ) );
                 this.node.setHddInfo( info );
             }
-            catch ( JsonParseException e )
+            catch ( JsonGenerationException e )
             {
+
                 logger.error( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
+
             }
             catch ( JsonMappingException e )
             {
+
                 logger.error( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
+
             }
             catch ( IOException e )
             {
+
                 logger.error( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
+
             }
             catch ( Exception e )
             {
                 logger.error( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band HDD Info for Node:" + node.getNodeID(), e );
             }
+
         }
         else
         {
@@ -88,5 +97,7 @@ public class IBHDDInfoTask
             throw new HmsException( "HMS InBand URL not available, Error while getting In Band HDD Info for Node:"
                 + node.getNodeID() );
         }
+
     }
+
 }

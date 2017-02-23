@@ -31,8 +31,10 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
  * 
  * @author Yagnesh Chawda
  */
+
 public class SensorUtil
 {
+
     private static Logger logger = Logger.getLogger( SensorUtil.class );
 
     // public synchronized static List<Map<String, String>> getSpecificSensorData(List<Map<String,String>> sensorData ,
@@ -40,7 +42,7 @@ public class SensorUtil
     public synchronized static List<Map<String, String>> getSpecificSensorData( List<Map<String, String>> sensorData,
                                                                                 EntityId entityId,
                                                                                 SensorType sensorType )
-                                                                                    throws Exception
+        throws Exception
     {
         List<Map<String, String>> filteredSensorDataList = new ArrayList<Map<String, String>>();
         try
@@ -75,6 +77,8 @@ public class SensorUtil
             logger.error( "Error while getting Filterd Sensor List", e );
             throw new HmsException( "Error while getting Filterd Sensor List", e );
         }
+
         return null;
+
     }
 }

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere;
 
 import java.util.ArrayList;
@@ -79,26 +80,33 @@ public class InventoryService
         PropertySpec propertySpec = new PropertySpec();
         propertySpec.setType( new TypeNameImpl( typeName ) );
         propertySpec.setAll( true );
+
         // PropertySpec networkPropertySpec = new PropertySpec();
         // networkPropertySpec.setType(new TypeNameImpl("Network"));
         // networkPropertySpec.setAll(true);
+
         // TraversalSpec traversalSpec = new TraversalSpec();
         // traversalSpec.setType(new TypeNameImpl("HostSystem"));
         // traversalSpec.setPath("network");
         // traversalSpec.setSkip(false);
         // traversalSpec.setSelectSet(null);
+
         TraversalSpec traversalSpec = new TraversalSpec();
         traversalSpec.setName( TRAVERSE_ENTITIES );
         traversalSpec.setPath( VIEW );
         traversalSpec.setSkip( false );
         traversalSpec.setType( new TypeNameImpl( CONTAINER_VIEW ) );
+
         ObjectSpec objectSpec = new ObjectSpec();
         objectSpec.setObj( containerView );
         objectSpec.setSelectSet( new SelectionSpec[] { traversalSpec } );
+
         FilterSpec filterSpec = new FilterSpec();
         filterSpec.setObjectSet( new ObjectSpec[] { objectSpec } );
         filterSpec.setPropSet( new PropertySpec[] { propertySpec } );
+
         RetrieveOptions retrieveOptions = new RetrieveOptions();
+
         RetrieveResult retrieveResult = null;
         try
         {
@@ -108,6 +116,7 @@ public class InventoryService
         {
             logger.error( "Invalid property", invalidProperty );
         }
+
         ObjectContent[] objects = null;
         if ( null != retrieveResult )
         {
@@ -135,6 +144,7 @@ public class InventoryService
                 }
             }
         }
+
         // logger.debug("RetrieveResult \n{}", retrieveResult);
         return targets;
     }
@@ -152,17 +162,21 @@ public class InventoryService
         PropertySpec propertySpec = new PropertySpec();
         propertySpec.setType( new TypeNameImpl( typeName ) );
         propertySpec.setAll( true );
+
         TraversalSpec traversalSpec = new TraversalSpec();
         traversalSpec.setName( TRAVERSE_ENTITIES );
         traversalSpec.setPath( VIEW );
         traversalSpec.setSkip( false );
         traversalSpec.setType( new TypeNameImpl( CONTAINER_VIEW ) );
+
         ObjectSpec objectSpec = new ObjectSpec();
         objectSpec.setObj( containerView );
         objectSpec.setSelectSet( new SelectionSpec[] { traversalSpec } );
+
         FilterSpec filterSpec = new FilterSpec();
         filterSpec.setObjectSet( new ObjectSpec[] { objectSpec } );
         filterSpec.setPropSet( new PropertySpec[] { propertySpec } );
+
         RetrieveResult retrieveResult = null;
         try
         {
@@ -174,18 +188,21 @@ public class InventoryService
             logger.error( "Invalid property", ex );
             return;
         }
+
         if ( retrieveResult == null )
         {
             logger.info( "No any result found for type {}", typeName );
             return;
         }
         // logger.debug("RetrieveResult \n{}", retrieveResult);
+
         ObjectContent[] objects = retrieveResult.getObjects();
         if ( ( objects == null ) || ( objects.length == 0 ) )
         {
             logger.info( "No any object found for type {}", typeName );
             return;
         }
+
         for ( ObjectContent object : objects )
         {
             action.handle( object );

@@ -21,6 +21,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class OemInfo
     extends MultiRecordInfo
 {
+
     private Integer manufacturerId;
 
     private byte[] oemData;
@@ -44,4 +45,5 @@ public class OemInfo
     {
         this.oemData = oemData;
     }
+
 }

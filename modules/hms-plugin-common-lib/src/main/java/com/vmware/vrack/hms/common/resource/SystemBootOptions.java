@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource;
 
 import com.vmware.vrack.hms.common.resource.chassis.BiosBootType;
@@ -98,4 +99,5 @@ public class SystemBootOptions
     {
         this.bootDeviceInstanceNumber = bootDeviceInstanceNumber;
     }
+
 }

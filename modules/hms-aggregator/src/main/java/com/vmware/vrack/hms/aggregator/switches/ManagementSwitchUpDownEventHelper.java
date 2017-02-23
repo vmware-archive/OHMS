@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.aggregator.switches;
 
 import java.io.IOException;
@@ -42,6 +43,7 @@ import com.vmware.vrack.hms.inventory.InventoryLoader;
  */
 public class ManagementSwitchUpDownEventHelper
 {
+
     /** The logger. */
     private static Logger logger = LoggerFactory.getLogger( ManagementSwitchUpDownEventHelper.class );
 
@@ -56,12 +58,15 @@ public class ManagementSwitchUpDownEventHelper
      */
     public static List<Event> getManagementSwitchUpDownEvent( String switchId )
     {
+
         if ( StringUtils.isBlank( switchId ) )
         {
             logger.debug( "Switch ID is either null or blank.", switchId );
             return null;
         }
+
         boolean reachable = false;
+
         String ipAddress = InventoryLoader.getInstance().getHmsIpAddr();
         try
         {
@@ -76,6 +81,7 @@ public class ManagementSwitchUpDownEventHelper
         {
             logger.error( "Error while trying to reach the host: {}.", ipAddress );
         }
+
         ServerComponentEvent serverComponentEvent = new ServerComponentEvent();
         serverComponentEvent.setComponentId( switchId );
         serverComponentEvent.setEventId( SwitchNode.SwitchRoleType.MANAGEMENT.toString() );
@@ -90,10 +96,13 @@ public class ManagementSwitchUpDownEventHelper
             serverComponentEvent.setEventName( NodeEvent.MANAGEMENT_SWITCH_DOWN );
             serverComponentEvent.setDiscreteValue( "Switch is Down" );
         }
+
         List<ServerComponentEvent> serverComponentEvents = new ArrayList<ServerComponentEvent>();
         serverComponentEvents.add( serverComponentEvent );
+
         HmsNode hmsNode = new HMSSwitchNode( switchId, ipAddress );
         hmsNode.addSwitchComponentSensorData( SwitchComponentEnum.SWITCH, serverComponentEvents );
+
         return EventMonitoringSubscriptionHolder.getSwitchEventList( hmsNode, SwitchComponentEnum.SWITCH );
     }
 }

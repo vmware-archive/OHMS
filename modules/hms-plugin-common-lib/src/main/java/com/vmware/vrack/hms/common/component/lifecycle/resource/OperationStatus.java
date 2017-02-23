@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.component.lifecycle.resource;
 
 /**
@@ -21,9 +22,14 @@ package com.vmware.vrack.hms.common.component.lifecycle.resource;
 public enum OperationStatus
 {
     /** The lifecycle operation has successfully completed. */
-    COMPLETED, /** The lifecycle operation is in-progress. */
-    INPROGRESS, /** The lifecycle operation has failed. */
+    COMPLETED,
+
+    /** The lifecycle operation is in-progress. */
+    INPROGRESS,
+
+    /** The lifecycle operation has failed. */
     FAILED;
+
     public static OperationStatus fromValue( String value )
     {
         return valueOf( value );

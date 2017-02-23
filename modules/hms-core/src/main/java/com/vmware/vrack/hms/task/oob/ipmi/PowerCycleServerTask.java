@@ -18,7 +18,6 @@ package com.vmware.vrack.hms.task.oob.ipmi;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -29,12 +28,14 @@ import com.vmware.vrack.hms.common.resource.PowerOperationAction;
 
 /**
  * Task to Power Cycle the Server Node
- * 
+ *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class PowerCycleServerTask
     extends IpmiTask
 {
+
     private static Logger logger = Logger.getLogger( PowerCycleServerTask.class );
 
     public PowerCycleServerTask( TaskResponse response )
@@ -52,9 +53,12 @@ public class PowerCycleServerTask
             if ( boardService != null )
             {
                 response.setStatus( NodeActionStatus.RUNNING );
-                Object[] paramsArray = new Object[] { serviceServerNode, PowerOperationAction.POWERCYCLE };
-                boolean status = HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                                     "powerOperations", paramsArray );
+                // Object[] paramsArray = new Object[] { serviceServerNode,
+                // PowerOperationAction.POWERCYCLE };
+                boolean status = boardService.powerOperations( serviceServerNode, PowerOperationAction.POWERCYCLE );
+                // boolean status =
+                // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                // serviceServerNode, "powerOperations", paramsArray);
                 if ( status )
                 {
                     for ( int retryCount = 0; retryCount < taskCompletionVerifyRetries; retryCount++ )
@@ -67,18 +71,21 @@ public class PowerCycleServerTask
                         }
                     }
                     response.setStatus( NodeActionStatus.FAILURE );
+
                 }
                 else
                 {
                     response.setStatus( NodeActionStatus.FAILURE );
                 }
+
             }
             else
             {
                 response.setStatus( NodeActionStatus.FAILURE );
-                throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
+                throw new Exception( "Board Service is NULL for node: " + node.getNodeID() );
             }
             return;
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -89,9 +96,8 @@ public class PowerCycleServerTask
         }
         catch ( Exception e )
         {
-            logger.error( "Error while triggering Power Cycle Server for Node:" + node.getNodeID(), e );
             response.setStatus( NodeActionStatus.FAILURE );
-            throw new HmsException( "Error while triggering Power Cycle Server for Node:" + node.getNodeID(), e );
+            throw new HmsException( "Error while triggering Power Cycle Server for Node: " + node.getNodeID(), e );
         }
     }
 }

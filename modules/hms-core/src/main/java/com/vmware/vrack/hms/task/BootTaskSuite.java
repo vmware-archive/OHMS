@@ -30,18 +30,21 @@ import com.vmware.vrack.hms.utils.NodeDiscoveryUtil;
 public class BootTaskSuite
     extends TaskSuite
 {
+
     private static Logger logger = Logger.getLogger( BootTaskSuite.class );
 
     public BootTaskSuite( ServerNode node )
     {
         super();
         this.node = node;
+
     }
 
     public BootTaskSuite( TaskResponse response )
     {
         super();
         this.response = response;
+
     }
 
     public void executeTask()
@@ -53,6 +56,7 @@ public class BootTaskSuite
             try
             {
                 boardService = BoardServiceProvider.getBoardService( serviceServerNode );
+
                 int attempts = 0;
                 do
                 {
@@ -95,8 +99,11 @@ public class BootTaskSuite
             NodeDiscoveryUtil.hostDiscoveryMap.put( node.getNodeID(), this.node.isDiscoverable()
                             ? NodeActionStatus.SUCCESS : NodeActionStatus.FAILURE );
         }
+
         /*
          * finally { if(boardService != null) { boardService.stopConnectionSharing(); } }
          */
+
     }
+
 }

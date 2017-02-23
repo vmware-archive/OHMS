@@ -179,6 +179,7 @@ public class StorageController
     public StorageController getStorageController( StorageControllerInfo serverNodeStorageControllerInfo,
                                                    String nodeID )
     {
+
         StorageController storageController = new StorageController();
         storageController.setId( serverNodeStorageControllerInfo.getId() );
         storageController.setDeviceName( serverNodeStorageControllerInfo.getDeviceName() );
@@ -188,11 +189,15 @@ public class StorageController
         storageController.setPciDeviceId( serverNodeStorageControllerInfo.getPciDeviceId() );
         storageController.setOperationalStatus( serverNodeStorageControllerInfo.getFruOperationalStatus().toString() );
         storageController.setHostId( nodeID );
+
         storageController.setLocation( serverNodeStorageControllerInfo.getLocation() );
+
         if ( serverNodeStorageControllerInfo.getComponentIdentifier() != null )
         {
             storageController.setComponentIdentifier( serverNodeStorageControllerInfo.getComponentIdentifier() );
         }
+
         return storageController;
     }
+
 }

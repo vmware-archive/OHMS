@@ -25,6 +25,7 @@ import com.vmware.vrack.hms.task.oob.OobTask;
 public abstract class IpmiTask
     extends OobTask
 {
+
     public ServerNode node;
 
     public TaskResponse response;
@@ -58,9 +59,11 @@ public abstract class IpmiTask
         {
             response.processTaskCompletion();
         }
+
         /*
          * if(connector != null) executeTask(); else { setupConnection(); executeTask(); destroy(); }
          */
+
         return response;
     }
 
@@ -85,4 +88,5 @@ public abstract class IpmiTask
          * "Exception while destroying Ipmi connector: ", e); } }
          */
     }
+
 }

@@ -19,9 +19,11 @@ import org.apache.log4j.Logger;
 
 public class NodeConnector
 {
+
     private static Logger logger = Logger.getLogger( NodeConnector.class );
 
     public int UDP_PORT = 20;
+
     /*
      * public HmsNode refreshNodeStatus(HmsNode node) { IpmiConnector connector = null; ConnectionHandle handle = null;
      * try { connector= IpmiConnectionFactory.getIpmiConnector(UDP_PORT); handle
@@ -42,4 +44,5 @@ public class NodeConnector
      * // IpmiConnectionFactory.closeHandle(connector, handle, node.ipAddress, "ADMIN"); // } catch (Exception e) { //
      * logger.error ("message", e); // } // } } } public void destroy() { }
      */
+
 }

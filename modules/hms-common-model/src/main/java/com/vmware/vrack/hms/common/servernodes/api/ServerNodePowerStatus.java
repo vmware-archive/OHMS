@@ -16,15 +16,18 @@
 package com.vmware.vrack.hms.common.servernodes.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class ServerNodePowerStatus
 {
+
     private boolean isPowered = false;
 
     private boolean isDiscoverable = false;
 
-    private String operationalStatus = "false";
+    // Setting NonOperational as default here, as previously this field was set as "false" by default
+    private String operationalStatus = FruOperationalStatus.NonOperational.toString();
 
     public boolean isDiscoverable()
     {
@@ -48,11 +51,19 @@ public class ServerNodePowerStatus
 
     public String getOperationalStatus()
     {
-        return operationalStatus;
+        if ( isPowered && isDiscoverable )
+        {
+            return FruOperationalStatus.Operational.name();
+        }
+        else
+        {
+            return FruOperationalStatus.NonOperational.name();
+        }
     }
 
     public void setOperationalStatus( String operationalStatus )
     {
         this.operationalStatus = operationalStatus;
     }
+
 }

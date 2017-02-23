@@ -26,16 +26,34 @@ public enum LowLevelComponent
      * LOW_LEVEL_SWITCH, LOW_LEVEL_HOST; TODO: HMS may needs to define subset of the types defined by LCM for Low Level
      * Upgrades.
      */
+
     /** The bios. */
-    BIOS( "BIOS" ), /** The bmc. */
-    BMC( "BMC" ), /** The cpu. */
-    CPU( "CPU" ), /** The hdd. */
-    HDD( "HDD" ), /** The nic. */
-    NIC( "NIC" ), /** The server. */
-    SERVER( "SERVER" ), /** The switch. */
-    SWITCH( "SWITCH" ), /** The system. */
-    SYSTEM( "SYSTEM" ), /** The storage controller. */
+    BIOS( "BIOS" ),
+
+    /** The bmc. */
+    BMC( "BMC" ),
+
+    /** The cpu. */
+    CPU( "CPU" ),
+
+    /** The hdd. */
+    HDD( "HDD" ),
+
+    /** The nic. */
+    NIC( "NIC" ),
+
+    /** The server. */
+    SERVER( "SERVER" ),
+
+    /** The switch. */
+    SWITCH( "SWITCH" ),
+
+    /** The system. */
+    SYSTEM( "SYSTEM" ),
+
+    /** The storage controller. */
     STORAGE_CONTROLLER( "STORAGE_CONTROLLER" );
+
     /** The component. */
     private String component;
 

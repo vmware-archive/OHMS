@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.monitoring;
 
 import java.util.List;
@@ -36,6 +37,7 @@ import com.vmware.vrack.hms.common.util.SwitchUpDownEventsHelper;
 public class MonitorSwitchTask
     implements Callable<MonitoringTaskResponse>
 {
+
     /**
      * @HMSSwitchNode switch node for which monitoring is to be done
      */
@@ -133,4 +135,5 @@ public class MonitorSwitchTask
         }
         return response;
     }
+
 }

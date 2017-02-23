@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.memory;
 
 /**
@@ -22,6 +23,7 @@ package com.vmware.vrack.hms.common.servernodes.api.memory;
  */
 public class MemoryTypeMapper
 {
+
     private static final String UNKNOWN = "Unknown";
 
     private static final String OTHER = "Other";
@@ -129,6 +131,8 @@ public class MemoryTypeMapper
             return DMTF_RESERVED;
         if ( memoryTypeCode >= 32568 && memoryTypeCode <= 65535 )
             return VENDOR_RESERVED;
+
         return null;
+
     }
 }

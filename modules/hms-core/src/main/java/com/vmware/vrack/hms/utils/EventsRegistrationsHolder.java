@@ -35,6 +35,7 @@ public class EventsRegistrationsHolder
 
     private EventsRegistrationsHolder()
     {
+
     }
 
     static EventsRegistrationsHolder registerEventUtil = null;
@@ -72,6 +73,7 @@ public class EventsRegistrationsHolder
             eventRegistrationMap.put( eventHolder.getRequester().getAppType(), eventHolder );
         }
         // return (EventHolder) eventRegistrationMap.get(eventHolder.getRequester().getAppType());
+
     }
 
     public EventHolder getEventDetails( String AppType )
@@ -97,18 +99,24 @@ public class EventsRegistrationsHolder
     public List<EventHolder> getEventsHolders( Map<String, Object> filters )
     {
         List<EventHolder> eventHolderList = new ArrayList<EventHolder>();
+
         // Loop through each Keys in the EventRegistrationHolder
+
         if ( filters != null )
         {
             Set<String> appTypes = eventRegistrationMap.keySet();
+
             for ( String appType : appTypes )
             {
+
                 EventHolder resultantEventHolder = new EventHolder();
                 boolean addEventHolder = false;
+
                 // Check if filter contains the appType filter or not
                 String filterAppType = (String) filters.get( APP_TYPE );
                 if ( appType != null )
                 {
+
                     if ( ( filters == null ) || ( filterAppType == null )
                         || ( filterAppType != null && appType.equals( filterAppType ) ) )
                     {
@@ -119,32 +127,42 @@ public class EventsRegistrationsHolder
                             filterEventType = EventType.valueOf( filters.get( EVENT_TYPE ).toString() );
                         }
                         EventHolder eventHolder = (EventHolder) eventRegistrationMap.get( appType );
+
                         // Iterate through Events in the evenHolder of current appType\
                         if ( eventHolder != null && eventHolder.getEvents() != null )
                         {
                             List<Event> resultantEvents = new ArrayList<Event>();
+
                             List<Event> originalEvents = eventHolder.getEvents();
+
                             int eventsCount = originalEvents.size();
+
                             for ( int i = 0; i < eventsCount; i++ )
                             {
+
                                 Event event = originalEvents.get( i );
+
                                 if ( event != null )
                                 {
                                     EventType eventType = event.getEventType();
+
                                     if ( ( filterEventType == null )
                                         || ( filterEventType != null && filterEventType.equals( eventType ) ) )
                                     {
                                         String filterTargetId = (String) filters.get( TARGET_ID );
                                         String targetId = event.getTargetId();
+
                                         if ( ( targetId == null ) || ( filterTargetId == null )
                                             || ( filterTargetId != null && filterTargetId.equals( targetId ) ) )
                                         {
                                             resultantEvents.add( event );
                                             addEventHolder = true;
                                         }
+
                                     }
                                 }
                             }
+
                             if ( addEventHolder )
                             {
                                 resultantEventHolder.setEvents( resultantEvents );
@@ -153,6 +171,7 @@ public class EventsRegistrationsHolder
                             }
                         }
                     }
+
                 }
                 else
                 {
@@ -163,6 +182,7 @@ public class EventsRegistrationsHolder
         else
         {
             Set<String> appTypes = eventRegistrationMap.keySet();
+
             for ( String appType : appTypes )
             {
                 EventHolder eventHolder = (EventHolder) eventRegistrationMap.get( appType );
@@ -171,7 +191,9 @@ public class EventsRegistrationsHolder
                     eventHolderList.add( eventHolder );
                 }
             }
+
         }
         return eventHolderList;
     }
+
 }

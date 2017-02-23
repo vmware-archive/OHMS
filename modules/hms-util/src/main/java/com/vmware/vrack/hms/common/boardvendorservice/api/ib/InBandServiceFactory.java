@@ -35,6 +35,7 @@ import com.vmware.vrack.hms.common.componentscan.ClassScanner;
  */
 public class InBandServiceFactory
 {
+
     private static Logger logger = Logger.getLogger( InBandServiceFactory.class );
 
     private volatile static InBandServiceFactory boardServicefactory = null;
@@ -94,6 +95,7 @@ public class InBandServiceFactory
         {
             boardServicefactory = new InBandServiceFactory();
         }
+
         return boardServicefactory;
     }
 
@@ -105,27 +107,33 @@ public class InBandServiceFactory
     public static void initialize()
     {
         InBandServiceFactory boardServiceFactory = getBoardServiceFactory();
+
         // TODO Suppose that the properties file has been read.
         String serverBoardBasePackage = HmsConfigHolder.getHMSConfigProperty( IN_BAND_SERVICE_BASE_PACKAGES_PROP );
+
         if ( serverBoardBasePackage == null || "".equals( serverBoardBasePackage.trim() ) )
         {
             serverBoardBasePackage = "com.vmware";
         }
+
         boardServiceFactory.prepareBoardServiceImplementationClassesList( serverBoardBasePackage );
+
         // Prepare Map for BoardServiceProvider with key=[Vendor]-[BoardProductName] and value=[Board Class].
         boardServiceFactory.prepareBoardServiceMap();
         /*
          * boardServiceFactory.prepareHmsComponentUpgradePluginAnnotationClassesList(serverBoardBasePackage);
          * boardServiceFactory.prepareHmsComponentUpgradeClasssMap();
          */
+
         // Initilaize
+
     }
 
     /**
      * Prepares list of all classes in the class path which are in the package/subpackage as mentioned in
      * serverBoardBasePackage and having annotation as mentioned in the hmsComponentUpgradePluginAnnotations and stores
      * it in hmsComponentUpgradePluginAnnotationClasses
-     *
+     * 
      * @param basePackage
      */
     public void prepareHmsComponentUpgradePluginAnnotationClassesList( String basePackage )
@@ -135,6 +143,7 @@ public class InBandServiceFactory
         {
             classScanner.withAnnotationFilter( annotation );
         }
+
         hmsComponentUpgradePluginAnnotatedClasses = classScanner.findClasses();
         logger.info( "Available Hms Component Upgrade classes:" + hmsComponentUpgradePluginAnnotatedClasses );
     }
@@ -154,9 +163,11 @@ public class InBandServiceFactory
                 Annotation[] annotations = hmsComponentUpgradeClass.getAnnotations();
                 for ( Annotation annotation : annotations )
                 {
+
                     if ( annotation != null
                         && HmsComponentUpgradePlugin.class.isAssignableFrom( annotation.getClass() ) )
                     {
+
                         SupportsUpgrade[] supportedBoardCombinations =
                             ( (HmsComponentUpgradePlugin) annotation ).supportsUpgradeFor();
                         for ( SupportsUpgrade supportedBoardCombination : supportedBoardCombinations )
@@ -187,6 +198,7 @@ public class InBandServiceFactory
                                                           String hypervisorName, String hypervisorProvider )
     {
         String key = null;
+
         if ( boardManufacturer != null && !boardManufacturer.isEmpty() && boardModel != null && !boardModel.isEmpty()
             && hypervisorName != null && !hypervisorName.isEmpty() && hypervisorProvider != null
             && !hypervisorProvider.isEmpty() )
@@ -194,7 +206,9 @@ public class InBandServiceFactory
             key = ( "[" + boardManufacturer + "]-[" + boardModel + "]-[" + hypervisorName + "]-[" + hypervisorProvider
                 + "]" ).toLowerCase();
         }
+
         return key;
+
     }
 
     /**
@@ -211,7 +225,7 @@ public class InBandServiceFactory
      * Prepares list of all classes in the class path which are in the package/subpackage as mentioned in
      * serverBoardBasePackage and having annotation as mentioned in the boardServiceImplementationAnnotations and stores
      * it in boardServiceImplementationClasses
-     *
+     * 
      * @param basePackage
      */
     public void prepareBoardServiceImplementationClassesList( String basePackage )
@@ -221,6 +235,7 @@ public class InBandServiceFactory
         {
             classScanner.withAnnotationFilter( annotation );
         }
+
         boardServiceImplementationClasses = classScanner.findClasses();
         logger.info( "Available Board Service classes:" + boardServiceImplementationClasses );
     }
@@ -267,6 +282,7 @@ public class InBandServiceFactory
                 logger.error( "Exception during creating new Instance of class:" + boardServiceClass, e );
             }
         }
+
     }
 
     /**
@@ -276,6 +292,7 @@ public class InBandServiceFactory
     public static String getBoardServiceKey( HypervisorInfo boardInfo )
     {
         String key = null;
+
         // We can keep key as vendorName and Product Name, but for now we are keeping it as Product name only.
         if ( boardInfo != null )
         {
@@ -283,7 +300,9 @@ public class InBandServiceFactory
             // "]").toLowerCase();
             key = ( "[" + boardInfo.getName() + "]" ).toLowerCase();
         }
+
         return key;
+
     }
 
     /**
@@ -296,4 +315,5 @@ public class InBandServiceFactory
     {
         return boardServiceMap.get( key );
     }
+
 }

@@ -13,12 +13,14 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.notification;
 
 import java.util.List;
 
 public class NodeDiscoveryResult
 {
+
     private List<NodeDiscoveryStatus> completed;
 
     private List<NodeDiscoveryStatus> inProgress;
@@ -42,4 +44,5 @@ public class NodeDiscoveryResult
     {
         this.inProgress = inProgress;
     }
+
 }

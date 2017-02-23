@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.hms.common.boardvendorservice.api.ib.HypervisorInfo;
 import com.vmware.vrack.hms.common.boardvendorservice.api.ib.IInbandService;
@@ -38,7 +40,7 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
  */
 public class InBandServiceProvider
 {
-    private static Logger logger = Logger.getLogger( InBandServiceProvider.class );
+    private static Logger logger = LoggerFactory.getLogger( InBandServiceProvider.class );
 
     // Key = Node Id, Value = IBoardService
     private static Map<String, IInbandService> cachedBoardServices = new HashMap<String, IInbandService>();
@@ -101,17 +103,20 @@ public class InBandServiceProvider
      */
     public static boolean addBoardService( ServiceHmsNode serviceHmsNode, IInbandService boardService,
                                            boolean overwrite )
-                                               throws HmsException
+        throws HmsException
     {
         if ( serviceHmsNode == null )
         {
             throw new HmsException( "Service Hms Node can Not be Null" );
         }
+
         if ( boardService == null )
         {
             throw new HmsException( "IInBandService can Not be Null" );
         }
+
         String nodeId = serviceHmsNode.getNodeID();
+
         if ( nodeId != null )
         {
             if ( overwrite || cachedBoardServices.get( nodeId ) == null )
@@ -123,6 +128,7 @@ public class InBandServiceProvider
         {
             throw new HmsException( "Node Id should NOT be null while adding in cached InBand service" );
         }
+
         return true;
     }
 
@@ -138,6 +144,7 @@ public class InBandServiceProvider
      * boardServiceFactory.getBoardServiceImplementationClasses(); prepareBoardServiceForNodes(serviceHmsNodes,
      * boardServices); return true; }
      */
+
     /**
      * Prepare mapping of Node to Board Service Implementation in the cache, for only given list of BoardService
      * Implementations
@@ -161,6 +168,7 @@ public class InBandServiceProvider
     public static boolean prepareBoardServiceForNodes( Collection<ServerNode> hmsNodes, boolean overwrite )
     {
         InBandServiceFactory boardServiceFactory = InBandServiceFactory.getBoardServiceFactory();
+
         if ( hmsNodes != null )
         {
             for ( ServerNode hmsNode : hmsNodes )
@@ -171,6 +179,7 @@ public class InBandServiceProvider
                     HypervisorInfo boardInfo = new HypervisorInfo();
                     boardInfo.setName( serverNode.getHypervisorName() );
                     boardInfo.setProvider( serverNode.getHypervisorProvider() );
+
                     String boardServiceKey = InBandServiceFactory.getBoardServiceKey( boardInfo );
                     Class<?> boardServiceClass = boardServiceFactory.getBoardServiceClass( boardServiceKey );
                     if ( boardServiceClass != null )
@@ -180,9 +189,11 @@ public class InBandServiceProvider
                             ServiceHmsNode serviceHmsNode = serverNode.getServiceObject();
                             IInbandService boardService = (IInbandService) boardServiceClass.newInstance();
                             InBandServiceProvider.addBoardService( serviceHmsNode, boardService, overwrite );
+
                             // Getting boardService from InBandServiceProvider, because, local copy we got just now,
                             // might not have got over-written if overwrite = false.
                             boardService = InBandServiceProvider.getBoardService( serviceHmsNode );
+
                             if ( boardService != null )
                             {
                                 boardService.init( serviceHmsNode );
@@ -192,6 +203,7 @@ public class InBandServiceProvider
                                 logger.error( "Unable to reinitialize Inband Service for node: "
                                     + serverNode.getNodeID() );
                             }
+
                             if ( componentLifecycleManagerClass.isAssignableFrom( boardServiceClass ) )
                             {
                                 componentLifecycleManagerInstanceMap.put( serviceHmsNode.getNodeID(),
@@ -215,6 +227,7 @@ public class InBandServiceProvider
                 }
             }
         }
+
         return true;
     }
 
@@ -243,5 +256,30 @@ public class InBandServiceProvider
             return instances;
         }
         return null;
+    }
+
+    /**
+     * Removes the board service.
+     *
+     * @param nodeId the node id
+     * @return true, if successful
+     * @throws HmsException When nodeId is null or blank or BaordService not found for the given nodeId.
+     */
+    public static void removeBoardService( final String nodeId )
+        throws HmsException
+    {
+        if ( StringUtils.isBlank( nodeId ) )
+        {
+            throw new HmsException( "NodeID is either null or blank." );
+        }
+        if ( cachedBoardServices.containsKey( nodeId ) )
+        {
+            cachedBoardServices.remove( nodeId );
+            logger.debug( "In removeBoardService, Removed IInbandService for nodeId: '{}'.", nodeId );
+        }
+        else
+        {
+            throw new HmsException( String.format( "BaordService not found for nodeId: '%s'", nodeId ) );
+        }
     }
 }

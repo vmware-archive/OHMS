@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import org.apache.log4j.Logger;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class SwitchCacheUpdateListener
     implements ApplicationListener<SwitchDataChangeMessage>
 {
+
     @Autowired
     private HmsDataCache hmsDataCache;
 
@@ -41,6 +43,7 @@ public class SwitchCacheUpdateListener
     public void onApplicationEvent( SwitchDataChangeMessage event )
     {
         // read event and update the cache.
+
         try
         {
             hmsDataCache.updateHmsSwitchDataCache( event.getSwitchInfo().getSwitchId(), event.getComponent(),
@@ -50,6 +53,7 @@ public class SwitchCacheUpdateListener
         {
             logger.error( "Error in the HMS Switch FRU cache update listener ", e );
         }
+
     }
 
     public HmsDataCache getHmsDataCache()

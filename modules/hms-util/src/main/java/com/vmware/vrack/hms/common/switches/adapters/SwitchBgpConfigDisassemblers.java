@@ -26,14 +26,17 @@ public class SwitchBgpConfigDisassemblers
     public static SwitchBgpConfig fromSwitchBgpConfig( NBSwitchBgpConfig config )
     {
         SwitchBgpConfig lConfig = new SwitchBgpConfig();
+
         if ( config == null )
             return null;
+
         lConfig.setLocalAsn( config.getLocalAsn() );
         lConfig.setLocalIpAddress( config.getLocalIpAddress() );
         lConfig.setPeerAsn( config.getPeerAsn() );
         lConfig.setPeerIpAddress( config.getPeerIpAddress() );
         lConfig.setExportedNetworks( new ArrayList<String>() );
         lConfig.setEnabled( true );
+
         if ( config.getExportedNetworks() != null )
         {
             for ( NBSwitchNetworkPrefix prefix : config.getExportedNetworks() )
@@ -41,6 +44,7 @@ public class SwitchBgpConfigDisassemblers
                 lConfig.getExportedNetworks().add( SwitchNetworkPrefixDisassemblers.fromSwitchNetworkPrefix( prefix ) );
             }
         }
+
         return lConfig;
     }
 }

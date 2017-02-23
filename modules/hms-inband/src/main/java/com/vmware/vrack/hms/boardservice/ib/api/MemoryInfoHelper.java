@@ -49,6 +49,7 @@ public class MemoryInfoHelper
             // memory.setBankLabel("Aggregated");
             memory.setCapacityInBytes( BigInteger.valueOf( hardwareInfo.getMemorySize() ) );
             physicalMemoryList.add( memory );
+
             return physicalMemoryList;
         }
         else
@@ -68,10 +69,11 @@ public class MemoryInfoHelper
      */
     public static List<ServerComponentEvent> getMemorySensor( ServiceHmsNode serviceNode, ServerComponent component,
                                                               InbandServiceImpl inbandServiceImpl )
-                                                                  throws HmsException
+        throws HmsException
     {
         List<PhysicalMemory> memories = null;
         List<ServerComponentEvent> componentSensors = new ArrayList<ServerComponentEvent>();
+
         try
         {
             if ( inbandServiceImpl != null )

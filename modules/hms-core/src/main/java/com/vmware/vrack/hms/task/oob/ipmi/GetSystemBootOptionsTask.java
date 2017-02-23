@@ -18,7 +18,6 @@ package com.vmware.vrack.hms.task.oob.ipmi;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -29,12 +28,14 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 /**
  * Task to Get System Boot Options
- * 
+ *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class GetSystemBootOptionsTask
     extends IpmiTask
 {
+
     private static Logger logger = Logger.getLogger( GetSystemBootOptionsTask.class );
 
     public ServerNode node;
@@ -57,16 +58,18 @@ public class GetSystemBootOptionsTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramsArray = new Object[] { serviceServerNode };
-                SystemBootOptions bootOptions =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                        "getBootOptions", paramsArray );
+                // Object[] paramsArray = new Object[] { serviceServerNode };
+                SystemBootOptions bootOptions = boardService.getBootOptions( serviceServerNode );
+                // SystemBootOptions bootOptions =
+                // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                // serviceServerNode, "getBootOptions",paramsArray);
                 this.node.setSytemBootOptions( bootOptions );
             }
             else
             {
                 throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -77,7 +80,6 @@ public class GetSystemBootOptionsTask
         }
         catch ( Exception e )
         {
-            logger.error( "Error while getting System Boot Options forNode:" + node.getNodeID(), e );
             throw new HmsException( "Error while getting System Boot Options for Node:" + node.getNodeID(), e );
         }
     }

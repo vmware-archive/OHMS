@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HMSLocalSubscriberRestService.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -22,7 +22,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -45,22 +46,16 @@ import com.vmware.vrack.hms.common.util.HmsMessages;
 import com.vmware.vrack.hms.common.util.NetworkInterfaceUtil;
 
 /**
- * Events Subscription Rest Endpoints for Hms-Local. Subscribers will Subscribe only to Hms-local. Hms-local will take
- * care of the events notification by passing the request to hms-core
- *
+ * Events Subscription Rest Endpoints for Hms-aggregator. Subscribers will Subscribe only to Hms-aggregator.
+ * Hms-aggregator will take care of the events notification by passing the request to hms-core
+ * 
  * @author Yagnesh Chawda
  */
 @Controller
 @RequestMapping( "/events" )
 public class HMSLocalSubscriberRestService
 {
-    private static Logger logger = Logger.getLogger( HMSLocalSubscriberRestService.class );
-
-    @Value( "${hms.switch.host}" )
-    private String hmsIpAddr;
-
-    @Value( "${hms.switch.port}" )
-    private int hmsPort;
+    private static Logger logger = LoggerFactory.getLogger( HMSLocalSubscriberRestService.class );
 
     @Value( "${hms.local.port}" )
     private String hmsLocalPort;
@@ -86,7 +81,7 @@ public class HMSLocalSubscriberRestService
     }
 
     /**
-     * Gets the Hms-local Ip address by defined Network Interface Name
+     * Gets the Hms-aggregator Ip address by defined Network Interface Name
      */
     public String getHmsLocalIP()
         throws SocketException
@@ -108,15 +103,18 @@ public class HMSLocalSubscriberRestService
     {
         List<BaseEventMonitoringSubscription> baseEventMonitoringSubscriptions =
             new ArrayList<BaseEventMonitoringSubscription>();
+
         for ( BaseEventMonitoringSubscription subscription : EventMonitoringSubscriptionHolder.getNmeMonitoringSubscriptionMap().values() )
         {
             baseEventMonitoringSubscriptions.add( subscription );
         }
+
         if ( baseEventMonitoringSubscriptions.isEmpty() )
         {
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), HmsMessages.NO_DATA_FOUND,
                                         "No subscription for Non maskable events so far." );
         }
+
         return baseEventMonitoringSubscriptions;
     }
 
@@ -130,10 +128,12 @@ public class HMSLocalSubscriberRestService
      */
     @RequestMapping( value = "/register", method = RequestMethod.POST )
     @ResponseBody
-    public BaseResponse nme( @RequestBody String eventRegistrationJson, HttpMethod method, HttpServletRequest request )
+    public BaseResponse nme( @RequestBody( required = false ) String eventRegistrationJson, HttpMethod method,
+                             HttpServletRequest request )
         throws HMSRestException
     {
         BaseResponse response = new BaseResponse();
+
         ObjectMapper mapper = new ObjectMapper();
         List<BaseEventMonitoringSubscription> baseEventMonitoringSubscriptions = null;
         try
@@ -151,7 +151,9 @@ public class HMSLocalSubscriberRestService
                 + " Please check the field names in Json provided. " + "Error Message: " + e.getMessage() );
             return response;
         }
+
         List<BaseEventMonitoringSubscription> failedRegistrations = new ArrayList<BaseEventMonitoringSubscription>();
+
         if ( baseEventMonitoringSubscriptions != null && !baseEventMonitoringSubscriptions.isEmpty() )
         {
             response.setStatusCode( Status.ACCEPTED.getStatusCode() );
@@ -172,8 +174,10 @@ public class HMSLocalSubscriberRestService
                     response.setErrorMessage( HmsMessages.NME_SUBSCRIPTION_ERROR );
                 }
             }
+
             logger.debug( "Subscribed NME Events. Final NME subscriptions: "
                 + EventMonitoringSubscriptionHolder.getNmeMonitoringSubscriptionMap() );
+
             if ( failedRegistrations.isEmpty() )
             {
                 response.setStatusMessage( HmsMessages.NME_SUBSCRIPTION_SUCCESS );
@@ -183,23 +187,25 @@ public class HMSLocalSubscriberRestService
                 response.setStatusMessage( HmsMessages.NME_SUBSCRIPTION_SUCCESS_WITH_ERRORS );
             }
         }
+
         return response;
     }
 
     /**
      * Method to be called for Subscribing any Events by Subscriber for any Nodes, on a particular component instances
      * Subscriber can register for multiple nodes/component's instances in one single request though.
-     *
+     * 
      * @param eventRegistrations
      * @return
      * @throws HMSRestException
      */
     @RequestMapping( value = "/subscribe", method = RequestMethod.POST )
     @ResponseBody
-    public BaseResponse subscribe( @RequestBody String eventRegistrationJson )
+    public BaseResponse subscribe( @RequestBody( required = false ) String eventRegistrationJson )
         throws HMSRestException
     {
         BaseResponse response = new BaseResponse();
+
         ObjectMapper mapper = new ObjectMapper();
         List<EventMonitoringSubscription> eventRegistrations = null;
         try
@@ -217,7 +223,9 @@ public class HMSLocalSubscriberRestService
                 + "Error Message: " + e.getMessage() );
             return response;
         }
+
         List<EventMonitoringSubscription> failedRegistrations = new ArrayList<EventMonitoringSubscription>();
+
         if ( eventRegistrations != null && !eventRegistrations.isEmpty() )
         {
             response.setStatusCode( Status.ACCEPTED.getStatusCode() );
@@ -237,8 +245,10 @@ public class HMSLocalSubscriberRestService
                     response.setErrorMessage( HmsMessages.SUBSCRIPTION_ERROR );
                 }
             }
+
             logger.debug( "Registered Events. Final subscribed events: "
                 + EventMonitoringSubscriptionHolder.getEventMonitoringSubscriptionMap().keySet() );
+
             if ( failedRegistrations.isEmpty() )
             {
                 response.setStatusMessage( HmsMessages.SUBSCRIPTION_SUCCESS );
@@ -248,6 +258,7 @@ public class HMSLocalSubscriberRestService
                 response.setStatusMessage( HmsMessages.SUBSCRIPTION_SUCCESS_WITH_ERRORS );
             }
         }
+
         return response;
     }
 
@@ -261,11 +272,12 @@ public class HMSLocalSubscriberRestService
      */
     @RequestMapping( value = "/unsubscribe", method = RequestMethod.POST )
     @ResponseBody
-    public BaseResponse unsubscribe( @RequestBody List<EventMonitoringSubscription> eventRegistrations )
+    public BaseResponse unsubscribe( @RequestBody( required = false ) List<EventMonitoringSubscription> eventRegistrations )
         throws HMSRestException
     {
         BaseResponse response = new BaseResponse();
         List<EventMonitoringSubscription> failedRegistrations = new ArrayList<EventMonitoringSubscription>();
+
         if ( eventRegistrations != null && !eventRegistrations.isEmpty() )
         {
             response.setStatusCode( Status.ACCEPTED.getStatusCode() );
@@ -286,8 +298,10 @@ public class HMSLocalSubscriberRestService
                     response.setErrorMessage( HmsMessages.UNSUBSCRIPTION_ERROR );
                 }
             }
+
             logger.debug( "Unsubscribed Events. Final subscriptions: "
                 + EventMonitoringSubscriptionHolder.getEventMonitoringSubscriptionMap().keySet() );
+
             if ( failedRegistrations.isEmpty() )
             {
                 response.setStatusMessage( HmsMessages.SUCCESS_MSG );
@@ -297,6 +311,7 @@ public class HMSLocalSubscriberRestService
                 response.setStatusMessage( HmsMessages.ONE_OR_MORE_ITEMS_IN_REQ_FAILED );
             }
         }
+
         return response;
     }
 
@@ -309,10 +324,11 @@ public class HMSLocalSubscriberRestService
      */
     @RequestMapping( value = "/{subscriber_id}", method = RequestMethod.GET )
     @ResponseBody
-    public List<EventMonitoringSubscription> getEventSubscriptionDetails( @PathVariable( "subscriber_id" ) String subscriberId)
+    public List<EventMonitoringSubscription> getEventSubscriptionDetails( @PathVariable( "subscriber_id" ) String subscriberId )
         throws HMSRestException
     {
         List<EventMonitoringSubscription> eventRegistrations = new ArrayList<EventMonitoringSubscription>();
+
         for ( EventMonitoringSubscription eventMonitoringSubscription : EventMonitoringSubscriptionHolder.getEventMonitoringSubscriptionMap().values() )
         {
             String subsId = eventMonitoringSubscription.getSubscriberId();
@@ -321,21 +337,24 @@ public class HMSLocalSubscriberRestService
                 eventRegistrations.add( eventMonitoringSubscription );
             }
         }
+
         if ( eventRegistrations.isEmpty() )
         {
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), HmsMessages.FAILED_MSG,
                                         "Can't find subscriber with id:" + subscriberId );
         }
+
         return eventRegistrations;
     }
 
     /**
-     * Subscribe to Hms-core for non maskable events during hms-local bootup. To be notified at specified url in
-     * hms-local
+     * Subscribe to Hms-core for non maskable events during Hms-aggregator bootup. To be notified at specified url in
+     * Hms-aggregator
      */
     public void registerWithHmsCore()
     {
         logger.debug( "Preparing to register with Hms-core. HmsLocalSubscriberRestService Instance: " + this );
         monitoringUtil.registerWithHmsCore();
     }
+
 }

@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.vmware.vrack.hms.aggregator.switches.HmsSwitchManager;
 import com.vmware.vrack.hms.common.exception.HMSRestException;
@@ -37,6 +37,7 @@ import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchMcLagConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchOspfv2Config;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchPortConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchPortInfo;
+import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchSnmpConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchVlanConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.bulk.NBSwitchBulkConfig;
 import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
@@ -46,6 +47,7 @@ import com.vmware.vrack.hms.inventory.SwitchDataChangeMessage;
 @RequestMapping( "/napi/switches" )
 public class HmsSwitchRestService
 {
+
     @Autowired
     private HmsSwitchManager hmsSwitchManager;
 
@@ -78,6 +80,14 @@ public class HmsSwitchRestService
         return hmsSwitchManager.getSwitchBgpConfig( switch_id );
     }
 
+    @RequestMapping( value = "/{switch_id}/snmp", method = RequestMethod.GET )
+    @ResponseBody
+    public NBSwitchSnmpConfig getSwitchSnmpConfig( @PathVariable String switch_id )
+        throws HMSRestException
+    {
+        return hmsSwitchManager.getSwitchSnmpConfig( switch_id );
+    }
+
     @RequestMapping( value = "/{switch_id}/bgp", method = RequestMethod.DELETE )
     @ResponseBody
     public BaseResponse deleteSwitchBgpConfig( @PathVariable String switch_id )
@@ -89,14 +99,37 @@ public class HmsSwitchRestService
         return response;
     }
 
+    @RequestMapping( value = "/{switch_id}/snmp", method = RequestMethod.DELETE )
+    @ResponseBody
+    public BaseResponse disableSwitchSnmp( @PathVariable String switch_id )
+        throws HMSRestException
+    {
+        BaseResponse response = null;
+        response = hmsSwitchManager.disableSwitchSnmp( switch_id );
+        hmsSwitchManager.sendEventToUpdateSwitchCache( response, switch_id );
+        return response;
+    }
+
     @RequestMapping( value = "/{switch_id}/bgp", method = RequestMethod.PUT )
     @ResponseBody
     public BaseResponse createOrUpdateSwitchBgpConfig( @PathVariable String switch_id,
-                                                       @RequestBody NBSwitchBgpConfig config )
-                                                           throws HMSRestException
+                                                       @RequestBody( required = false ) NBSwitchBgpConfig config )
+        throws HMSRestException
     {
         BaseResponse response = null;
         response = hmsSwitchManager.createOrUpdateSwitchBgpConfig( switch_id, config );
+        hmsSwitchManager.sendEventToUpdateSwitchCache( response, switch_id );
+        return response;
+    }
+
+    @RequestMapping( value = "/{switch_id}/snmp", method = RequestMethod.PUT )
+    @ResponseBody
+    public BaseResponse configureSwitchSnmp( @PathVariable String switch_id,
+                                             @RequestBody( required = false ) NBSwitchSnmpConfig config )
+        throws HMSRestException
+    {
+        BaseResponse response = null;
+        response = hmsSwitchManager.configureSnmp( switch_id, config );
         hmsSwitchManager.sendEventToUpdateSwitchCache( response, switch_id );
         return response;
     }
@@ -123,8 +156,8 @@ public class HmsSwitchRestService
     @RequestMapping( value = "/{switch_id}/ospfv2", method = RequestMethod.PUT )
     @ResponseBody
     public BaseResponse createOrUpdateSwitchOspfv2Config( @PathVariable String switch_id,
-                                                          @RequestBody NBSwitchOspfv2Config config )
-                                                              throws HMSRestException
+                                                          @RequestBody( required = false ) NBSwitchOspfv2Config config )
+        throws HMSRestException
     {
         BaseResponse response = null;
         response = hmsSwitchManager.createOrUpdateSwitchOspfv2Config( switch_id, config );
@@ -154,8 +187,8 @@ public class HmsSwitchRestService
     @RequestMapping( value = "/{switch_id}/mclag", method = RequestMethod.PUT )
     @ResponseBody
     public BaseResponse createOrUpdateSwitchMcLagConfig( @PathVariable String switch_id,
-                                                         @RequestBody NBSwitchMcLagConfig config )
-                                                             throws HMSRestException
+                                                         @RequestBody( required = false ) NBSwitchMcLagConfig config )
+        throws HMSRestException
     {
         BaseResponse response = null;
         response = hmsSwitchManager.createOrUpdateSwitchMcLagConfig( switch_id, config );
@@ -185,8 +218,8 @@ public class HmsSwitchRestService
     @RequestMapping( value = "/{switch_id}/lags", method = RequestMethod.PUT )
     @ResponseBody
     public BaseResponse createOrUpdateSwitchLagConfig( @PathVariable String switch_id,
-                                                       @RequestBody NBSwitchLagConfig config )
-                                                           throws HMSRestException
+                                                       @RequestBody( required = false ) NBSwitchLagConfig config )
+        throws HMSRestException
     {
         BaseResponse response = null;
         response = hmsSwitchManager.createOrUpdateSwitchLagConfig( switch_id, config );
@@ -224,8 +257,8 @@ public class HmsSwitchRestService
     @RequestMapping( value = "/{switch_id}/vlans", method = RequestMethod.PUT )
     @ResponseBody
     public BaseResponse createOrUpdateSwitchVlanConfig( @PathVariable String switch_id,
-                                                        @RequestBody NBSwitchVlanConfig config )
-                                                            throws HMSRestException
+                                                        @RequestBody( required = false ) NBSwitchVlanConfig config )
+        throws HMSRestException
     {
         BaseResponse response = null;
         response = hmsSwitchManager.createOrUpdateSwitchVlanConfig( switch_id, config );
@@ -252,11 +285,23 @@ public class HmsSwitchRestService
     @RequestMapping( value = "/{switch_id}/ports/{port_id}", method = RequestMethod.PUT )
     @ResponseBody
     public BaseResponse updateSwitchPortConfig( @PathVariable String switch_id, @PathVariable String port_id,
-                                                @RequestBody NBSwitchPortConfig config )
-                                                    throws HMSRestException
+                                                @RequestBody( required = false ) NBSwitchPortConfig config )
+        throws HMSRestException
     {
         BaseResponse response = null;
         response = hmsSwitchManager.updateSwitchPortConfig( switch_id, port_id, config );
+        hmsSwitchManager.sendEventToUpdateSwitchCache( response, switch_id );
+        return response;
+    }
+
+    @RequestMapping( value = "/{switch_id}/ports/{port_id}/{isEnabled}", method = RequestMethod.PUT )
+    @ResponseBody
+    public BaseResponse switchPortEnable( @PathVariable String switch_id, @PathVariable String port_id,
+                                          @PathVariable boolean isEnabled )
+        throws HMSRestException
+    {
+        BaseResponse response = null;
+        response = hmsSwitchManager.switchPortEnable( switch_id, port_id, isEnabled );
         hmsSwitchManager.sendEventToUpdateSwitchCache( response, switch_id );
         return response;
     }
@@ -272,8 +317,8 @@ public class HmsSwitchRestService
     @RequestMapping( value = "/{switch_id}/bulkconfigs", method = RequestMethod.PUT )
     @ResponseBody
     public BaseResponse applyBulkConfigs( @PathVariable String switch_id,
-                                          @RequestBody List<NBSwitchBulkConfig> configs )
-                                              throws HMSRestException
+                                          @RequestBody( required = false ) List<NBSwitchBulkConfig> configs )
+        throws HMSRestException
     {
         BaseResponse response = null;
         response = hmsSwitchManager.applyBulkConfigs( switch_id, configs );
@@ -287,10 +332,19 @@ public class HmsSwitchRestService
     @ResponseBody
     public BaseResponse configureIpv4DefaultRoute( @PathVariable String switch_id,
                                                    @RequestParam( value = "gateway" ) String gateway,
-                                                   @RequestParam( value = "port" ) String port)
-                                                       throws HMSRestException
+                                                   @RequestParam( value = "port" ) String port )
+        throws HMSRestException
     {
         return hmsSwitchManager.configureIpv4DefaultRoute( switch_id, gateway, port );
+    }
+
+    @RequestMapping( value = "/{switch_id}/time", params = { "value" }, method = RequestMethod.PUT )
+    @ResponseBody
+    public BaseResponse configureSwitchTime( @PathVariable String switch_id,
+                                             @RequestParam( value = "value" ) long time )
+        throws HMSRestException
+    {
+        return hmsSwitchManager.configureSwitchTime( switch_id, time );
     }
 
     @RequestMapping( value = "/{switch_id}/ipv4defaultroute", method = RequestMethod.DELETE )
@@ -300,4 +354,29 @@ public class HmsSwitchRestService
     {
         return hmsSwitchManager.deleteIpv4DefaultRoute( switch_id );
     }
+
+    @RequestMapping( value = "/{switch_id}/vlans/{vlan_id}/{port_or_bond_id}", method = RequestMethod.DELETE )
+    @ResponseBody
+    public BaseResponse deletePortOrBondFromVlan( @PathVariable String switch_id, @PathVariable String vlan_id,
+                                                  @PathVariable String port_or_bond_id )
+        throws HMSRestException
+    {
+        BaseResponse response = null;
+        response = hmsSwitchManager.deletePortOrBondFromVlan( switch_id, vlan_id, port_or_bond_id );
+        hmsSwitchManager.sendEventToUpdateSwitchCache( response, switch_id );
+        return response;
+    }
+
+    @RequestMapping( value = "/{switch_id}/lags/{lag_id}/{port_id}", method = RequestMethod.DELETE )
+    @ResponseBody
+    public BaseResponse deletePortFromLag( @PathVariable String switch_id, @PathVariable String lag_id,
+                                           @PathVariable String port_id )
+        throws HMSRestException
+    {
+        BaseResponse response = null;
+        response = hmsSwitchManager.deletePortFromLag( switch_id, lag_id, port_id );
+        hmsSwitchManager.sendEventToUpdateSwitchCache( response, switch_id );
+        return response;
+    }
+
 }

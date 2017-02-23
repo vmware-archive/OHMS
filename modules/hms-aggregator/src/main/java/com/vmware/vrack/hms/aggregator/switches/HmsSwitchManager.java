@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HmsSwitchManager.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -31,7 +31,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.vmware.vrack.hms.common.exception.HMSRestException;
 import com.vmware.vrack.hms.common.notification.BaseResponse;
 import com.vmware.vrack.hms.common.resource.SwitchList;
-import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 import com.vmware.vrack.hms.common.rest.model.SwitchInfo;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchBgpConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchConfig;
@@ -43,9 +42,9 @@ import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchOspfv2Config;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchPortConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchPortInfo;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchSensorInfo;
+import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchSnmpConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.NBSwitchVlanConfig;
 import com.vmware.vrack.hms.common.rest.model.switches.bulk.NBSwitchBulkConfig;
-import com.vmware.vrack.hms.common.servernodes.api.NodeAdminStatus;
 import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 import com.vmware.vrack.hms.common.switches.adapters.SwitchBgpConfigDisassemblers;
 import com.vmware.vrack.hms.common.switches.adapters.SwitchBulkConfigDisassemblers;
@@ -57,6 +56,8 @@ import com.vmware.vrack.hms.common.switches.adapters.SwitchOspfv2ConfigAssembler
 import com.vmware.vrack.hms.common.switches.adapters.SwitchOspfv2ConfigDisassemblers;
 import com.vmware.vrack.hms.common.switches.adapters.SwitchPortConfigDisassemblers;
 import com.vmware.vrack.hms.common.switches.adapters.SwitchPortInfoAssemblers;
+import com.vmware.vrack.hms.common.switches.adapters.SwitchSnmpConfigAssemblers;
+import com.vmware.vrack.hms.common.switches.adapters.SwitchSnmpConfigDisassemblers;
 import com.vmware.vrack.hms.common.switches.adapters.SwitchVlanConfigAssemblers;
 import com.vmware.vrack.hms.common.switches.adapters.SwitchVlanConfigDisassemblers;
 import com.vmware.vrack.hms.common.switches.api.SwitchBgpConfig;
@@ -64,6 +65,7 @@ import com.vmware.vrack.hms.common.switches.api.SwitchLacpGroup;
 import com.vmware.vrack.hms.common.switches.api.SwitchMclagInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchOspfConfig;
 import com.vmware.vrack.hms.common.switches.api.SwitchPort;
+import com.vmware.vrack.hms.common.switches.api.SwitchSnmpConfig;
 import com.vmware.vrack.hms.common.switches.api.SwitchVlan;
 import com.vmware.vrack.hms.inventory.SwitchDataChangeMessage;
 import com.vmware.vrack.hms.inventory.SwitchPortsConfigChangeMessage;
@@ -71,6 +73,7 @@ import com.vmware.vrack.hms.inventory.SwitchPortsConfigChangeMessage;
 @Component( "com.vmware.vrack.hms.aggregator.switches.HmsSwitchManager" )
 public class HmsSwitchManager
 {
+
     private static Logger logger = Logger.getLogger( HmsSwitchManager.class );
 
     @Autowired
@@ -89,25 +92,24 @@ public class HmsSwitchManager
         SwitchInfo info = hmsSwitchOobManager.parseGetResponse( new TypeReference<SwitchInfo>()
         {
         }, String.format( "/%s", switchId ) );
+
+        lInfo = SwitchInfoAssemblers.toSwitchInfo( info );
+
         /* get first level of values */
         if ( info.isPowered() )
         {
-            lInfo = SwitchInfoAssemblers.toSwitchInfo( info );
             lInfo.setPorts( getSwitchAllPortInfos( switchId ) );
             lInfo.setSensors( getSwitchSensorInfo( switchId ) );
+
             lConfig.setOspf( getSwitchOspfv2Config( switchId ) );
             lConfig.setBonds( getSwitchAllLagsConfigs( switchId ) );
             lConfig.setVlans( getSwitchAllVlansConfigs( switchId ) );
             lConfig.setBgp( getSwitchBgpConfig( switchId ) );
+            lConfig.setSnmp( getSwitchSnmpConfig( switchId ) );
+
             lInfo.setConfig( lConfig );
         }
-        else
-        {
-            lInfo = new NBSwitchInfo();
-            lInfo.setAdminStatus( NodeAdminStatus.OPERATIONAL );
-            lInfo.setOperationalStatus( FruOperationalStatus.NonOperational );
-            lInfo.setSwitchId( switchId );
-        }
+
         return lInfo;
     }
 
@@ -125,6 +127,16 @@ public class HmsSwitchManager
         // controller
     }
 
+    public NBSwitchSnmpConfig getSwitchSnmpConfig( String switchId )
+        throws HMSRestException
+    {
+        SwitchSnmpConfig snmp = hmsSwitchOobManager.parseGetResponse( new TypeReference<SwitchSnmpConfig>()
+        {
+        }, String.format( "/%s/snmp", switchId ) );
+
+        return SwitchSnmpConfigAssemblers.toSwitchSnmpConfig( snmp );
+    }
+
     public BaseResponse createOrUpdateSwitchBgpConfig( String switchId, NBSwitchBgpConfig config )
         throws HMSRestException
     {
@@ -133,9 +145,24 @@ public class HmsSwitchManager
             throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
                                         "Cannot perform operation with NULL object" );
         }
+
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, SwitchBgpConfigDisassemblers.fromSwitchBgpConfig( config ), String.format( "/%s/bgp", switchId ) );
+    }
+
+    public BaseResponse configureSnmp( String switchId, NBSwitchSnmpConfig config )
+        throws HMSRestException
+    {
+        if ( config == null )
+        {
+            throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
+                                        "Cannot perform operation with NULL object" );
+        }
+
+        return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
+        {
+        }, SwitchSnmpConfigDisassemblers.fromSwitchSnmpConfig( config ), String.format( "/%s/snmp", switchId ) );
     }
 
     public BaseResponse deleteSwitchBgpConfig( String switchId )
@@ -143,11 +170,14 @@ public class HmsSwitchManager
     {
         SwitchBgpConfig config = new SwitchBgpConfig();
         BaseResponse response = null;
+
         /* We do not support delete on BGP on OOB agent hence the hack */
         config.setEnabled( false );
+
         response = hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, config, String.format( "/%s/bgp", switchId ) );
+
         if ( response.getStatusCode() == HttpStatus.OK.value() )
         {
             response.setStatusMessage( String.format( "Deleted BGP Configuration on switch %s successfully",
@@ -157,6 +187,32 @@ public class HmsSwitchManager
         {
             response.setErrorMessage( String.format( "Failed to delete BGP Configuration on switch %s", switchId ) );
         }
+
+        return response;
+    }
+
+    public BaseResponse disableSwitchSnmp( String switchId )
+        throws HMSRestException
+    {
+        SwitchSnmpConfig config = new SwitchSnmpConfig();
+        BaseResponse response = null;
+
+        /* When we disable we retain the existing configuration */
+        config.setEnabled( false );
+
+        response = hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
+        {
+        }, config, String.format( "/%s/snmp", switchId ) );
+
+        if ( response.getStatusCode() == HttpStatus.OK.value() )
+        {
+            response.setStatusMessage( String.format( "Disabled SNMP on switch %s successfully", switchId ) );
+        }
+        else
+        {
+            response.setErrorMessage( String.format( "Failed to disable SNMP on switch %s", switchId ) );
+        }
+
         return response;
     }
 
@@ -166,6 +222,7 @@ public class HmsSwitchManager
         SwitchOspfConfig ospf = hmsSwitchOobManager.parseGetResponse( new TypeReference<SwitchOspfConfig>()
         {
         }, String.format( "/%s/ospf", switchId ) );
+
         return SwitchOspfv2ConfigAssemblers.toSwitchOspfv2Config( ospf );
     }
 
@@ -177,6 +234,7 @@ public class HmsSwitchManager
             throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
                                         "Cannot perform operation with NULL object" );
         }
+
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, SwitchOspfv2ConfigDisassemblers.fromSwitchOspfv2Config( config ), String.format( "/%s/ospf", switchId ) );
@@ -187,11 +245,14 @@ public class HmsSwitchManager
     {
         SwitchOspfConfig config = new SwitchOspfConfig();
         BaseResponse response = null;
+
         /* We do not support delete on OSPFv2 on OOB agent hence the hack */
         config.setEnabled( false );
+
         response = hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, config, String.format( "/%s/ospf", switchId ) );
+
         if ( response.getStatusCode() == HttpStatus.OK.value() )
         {
             response.setStatusMessage( String.format( "Deleted OSPFv2 Configuration on switch %s successfully",
@@ -201,6 +262,7 @@ public class HmsSwitchManager
         {
             response.setErrorMessage( String.format( "Failed to delete OSPFv2 Configuration on switch %s", switchId ) );
         }
+
         return response;
     }
 
@@ -218,6 +280,7 @@ public class HmsSwitchManager
             throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
                                         "Cannot perform operation with NULL object" );
         }
+
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, SwitchMcLagConfigDisassemblers.fromSwitchMcLagConfig( config ), String.format( "/%s/mclag", switchId ) );
@@ -228,11 +291,14 @@ public class HmsSwitchManager
     {
         BaseResponse response = null;
         SwitchMclagInfo config = new SwitchMclagInfo();
+
         /* We do not support delete on MC-LAG on OOB agent hence the hack */
         config.setEnabled( false );
+
         response = hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, config, String.format( "/%s/mclag", switchId ) );
+
         if ( response.getStatusCode() == HttpStatus.OK.value() )
         {
             response.setStatusMessage( String.format( "Deleted MC-LAG Configuration on switch %s successfully",
@@ -242,6 +308,7 @@ public class HmsSwitchManager
         {
             response.setErrorMessage( String.format( "Failed to delete MC-LAG Configuration on switch %s", switchId ) );
         }
+
         return response;
     }
 
@@ -251,6 +318,7 @@ public class HmsSwitchManager
         SwitchLacpGroup lag = hmsSwitchOobManager.parseGetResponse( new TypeReference<SwitchLacpGroup>()
         {
         }, String.format( "/%s/lacpgroups/%s", switchId, lagId ) );
+
         return SwitchLagConfigAssemblers.toSwitchLagConfig( lag );
     }
 
@@ -262,6 +330,7 @@ public class HmsSwitchManager
             throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
                                         "Cannot perform operation with NULL object" );
         }
+
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, SwitchLagConfigDisassemblers.fromSwitchLagConfig( config ), String.format( "/%s/lacpgroups", switchId ) );
@@ -280,8 +349,10 @@ public class HmsSwitchManager
     {
         List<String> lagIds = null;
         List<SwitchLacpGroup> lags = new ArrayList<SwitchLacpGroup>();
+
         /* Retrieve multiple element array responses */
         lagIds = hmsSwitchOobManager.parseGetListResponse( String.format( "/%s/lacpgroups", switchId ), String.class );
+
         /* Get all LAG details for all LAG IDs retrieved earlier */
         if ( lagIds != null )
         {
@@ -293,6 +364,7 @@ public class HmsSwitchManager
                 lags.add( lag );
             }
         }
+
         return SwitchLagConfigAssemblers.toSwitchLagConfigs( lags );
     }
 
@@ -302,6 +374,7 @@ public class HmsSwitchManager
         SwitchVlan vlan = hmsSwitchOobManager.parseGetResponse( new TypeReference<SwitchVlan>()
         {
         }, String.format( "/%s/vlans/%s", switchId, vlanId ) );
+
         return SwitchVlanConfigAssemblers.toSwitchVlanConfig( vlan );
     }
 
@@ -313,6 +386,7 @@ public class HmsSwitchManager
             throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
                                         "Cannot perform operation with NULL object" );
         }
+
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, SwitchVlanConfigDisassemblers.fromSwitchVlanConfig( config ), String.format( "/%s/vlans", switchId ) );
@@ -340,6 +414,16 @@ public class HmsSwitchManager
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, null, String.format( "/%s/ipv4defaultroute?gateway=%s&port=%s", switchId, gateway, port ) );
+
+    }
+
+    public BaseResponse configureSwitchTime( String switchId, long time )
+        throws HMSRestException
+    {
+        return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
+        {
+        }, null, String.format( "/%s/time?value=%s", switchId, time ) );
+
     }
 
     public BaseResponse deleteIpv4DefaultRoute( String switchId )
@@ -348,6 +432,7 @@ public class HmsSwitchManager
         return hmsSwitchOobManager.parseDeleteResponse( new TypeReference<BaseResponse>()
         {
         }, String.format( "/%s/ipv4defaultroute", switchId ) );
+
     }
 
     public NBSwitchPortInfo getSwitchPortInfo( String switchId, String portId )
@@ -356,6 +441,7 @@ public class HmsSwitchManager
         SwitchPort port = hmsSwitchOobManager.parseGetResponse( new TypeReference<SwitchPort>()
         {
         }, String.format( "/%s/ports/%s", switchId, portId ) );
+
         return SwitchPortInfoAssemblers.toSwitchPortInfo( port );
     }
 
@@ -367,10 +453,25 @@ public class HmsSwitchManager
             throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
                                         "Cannot perform operation with NULL object/port name" );
         }
+
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, SwitchPortConfigDisassemblers.fromSwitchPortConfig( config ),
                                                      String.format( "/%s/ports/%s", switchId, portname ) );
+    }
+
+    public BaseResponse switchPortEnable( String switchId, String portname, boolean isEnabled )
+        throws HMSRestException
+    {
+        if ( portname == null )
+        {
+            throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
+                                        "Cannot perform operation with NULL port name" );
+        }
+
+        return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
+        {
+        }, null, String.format( "/%s/ports/%s/%s", switchId, portname, isEnabled ) );
     }
 
     public BaseResponse applyBulkConfigs( String switchId, List<NBSwitchBulkConfig> configs )
@@ -381,6 +482,7 @@ public class HmsSwitchManager
             throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
                                         "Cannot perform operation with NULL object/port name" );
         }
+
         return hmsSwitchOobManager.parsePutResponse( new TypeReference<BaseResponse>()
         {
         }, SwitchBulkConfigDisassemblers.toSwitchBulkConfigs( configs ),
@@ -393,6 +495,34 @@ public class HmsSwitchManager
         return SwitchPortInfoAssemblers.toSwitchPortInfos( hmsSwitchOobManager.parseGetListResponse( String.format( "/%s/portsbulk",
                                                                                                                     switchId ),
                                                                                                      SwitchPort.class ) );
+    }
+
+    public BaseResponse deletePortOrBondFromVlan( String switchId, String vlanId, String portOrBondName )
+        throws HMSRestException
+    {
+        if ( vlanId == null || portOrBondName == null )
+        {
+            throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
+                                        "Cannot perform operation with NULL object/port name" );
+        }
+
+        return hmsSwitchOobManager.parseDeleteResponse( new TypeReference<BaseResponse>()
+        {
+        }, String.format( "/%s/vlans/%s/%s", switchId, vlanId, portOrBondName ) );
+    }
+
+    public BaseResponse deletePortFromLag( String switchId, String lagId, String portName )
+        throws HMSRestException
+    {
+        if ( lagId == null || portName == null )
+        {
+            throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Syntax Error",
+                                        "Cannot perform operation with NULL object/port name" );
+        }
+
+        return hmsSwitchOobManager.parseDeleteResponse( new TypeReference<BaseResponse>()
+        {
+        }, String.format( "/%s/lacpgroups/%s/%s", switchId, lagId, portName ) );
     }
 
     /**
@@ -409,7 +539,9 @@ public class HmsSwitchManager
             SwitchPortInfoAssemblers.toSwitchPortInfos( hmsSwitchOobManager.parseGetListResponse( String.format( "/%s/portsbulk",
                                                                                                                  switchId ),
                                                                                                   SwitchPort.class ) );
+
         context.publishEvent( new SwitchPortsConfigChangeMessage( NBSwitchPortInfoList, switchId ) );
+
         return NBSwitchPortInfoList;
     }
 
@@ -418,10 +550,12 @@ public class HmsSwitchManager
     {
         List<NBSwitchInfo> switches = new ArrayList<NBSwitchInfo>();
         List<String> switchIds = getAllSwitchIds();
+
         for ( String switchId : switchIds )
         {
             switches.add( getSwitchInfo( switchId ) );
         }
+
         return switches;
     }
 
@@ -444,10 +578,12 @@ public class HmsSwitchManager
         {
             return null;
         }
+
         for ( SwitchList switchList : switches.getSwitchList() )
         {
             ids.add( switchList.getName() );
         }
+
         return ids;
     }
 
@@ -462,6 +598,7 @@ public class HmsSwitchManager
         if ( baseResponse != null && ( baseResponse.getStatusCode() == HttpStatus.OK.value()
             || baseResponse.getStatusCode() == HttpStatus.ACCEPTED.value() ) )
         {
+
             // Perform update Switch Cache in a separate thread
             Runnable run = new Runnable()
             {

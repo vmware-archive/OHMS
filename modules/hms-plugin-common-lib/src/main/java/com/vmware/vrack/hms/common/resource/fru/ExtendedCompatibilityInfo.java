@@ -22,4 +22,5 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class ExtendedCompatibilityInfo
     extends BaseCompatibilityInfo
 {
+
 }

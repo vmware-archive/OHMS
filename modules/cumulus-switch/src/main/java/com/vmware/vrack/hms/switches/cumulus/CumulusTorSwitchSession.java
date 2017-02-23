@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * CumulusTorSwitchSession.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -16,11 +16,12 @@
 package com.vmware.vrack.hms.switches.cumulus;
 
 import com.vmware.vrack.hms.common.switches.SshTorSwitchSession;
+
 /**
- * CumulusTorSwitchSession
- * 
- * Wrapper class for the entire Cumulus Switch Service. 
+ * CumulusTorSwitchSession Wrapper class for the entire Cumulus Switch Service.
  */
-public class CumulusTorSwitchSession extends SshTorSwitchSession {
-	
+public class CumulusTorSwitchSession
+    extends SshTorSwitchSession
+{
+
 }

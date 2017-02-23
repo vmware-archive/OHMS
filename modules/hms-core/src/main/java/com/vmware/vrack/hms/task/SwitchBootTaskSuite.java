@@ -23,18 +23,21 @@ import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
 public class SwitchBootTaskSuite
     extends SwitchTaskSuite
 {
+
     private static Logger logger = Logger.getLogger( SwitchBootTaskSuite.class );
 
     public SwitchBootTaskSuite( HMSSwitchNode node )
     {
         super();
         this.node = node;
+
     }
 
     public SwitchBootTaskSuite( TaskResponse response )
     {
         super();
         this.response = response;
+
     }
 
     public void executeTask()
@@ -42,4 +45,5 @@ public class SwitchBootTaskSuite
         // nothing required as of now. power and discovery implemented in abstract class
         return;
     }
+
 }

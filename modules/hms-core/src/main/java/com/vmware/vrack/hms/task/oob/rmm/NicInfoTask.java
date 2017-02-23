@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -35,6 +34,7 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 public class NicInfoTask
     extends RmmTask
 {
+
     private static Logger logger = Logger.getLogger( NicInfoTask.class );
 
     public NicInfoTask( TaskResponse response )
@@ -53,16 +53,19 @@ public class NicInfoTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramsArray = new Object[] { serviceServerNode };
+                // Object[] paramsArray = new Object[] { serviceServerNode };
                 List<EthernetController> ethernetControllers =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                        "getEthernetControllersInfo", paramsArray );
+                    boardService.getEthernetControllersInfo( serviceServerNode );
+                // List<EthernetController> ethernetControllers =
+                // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService, serviceServerNode,
+                // "getEthernetControllersInfo", paramsArray);
                 this.node.setEthernetControllerList( ethernetControllers );
             }
             else
             {
                 throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -77,4 +80,5 @@ public class NicInfoTask
             throw new HmsException( "Error while getting NIC Info for Node:" + node.getNodeID(), e );
         }
     }
+
 }

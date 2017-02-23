@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere.vmkping;
 
 import java.io.Serializable;
@@ -113,18 +114,23 @@ public class VmkPingOutputSpec
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
+
         builder.append( String.format( PING, summary.getHostAddr() ) );
+
         if ( null != traces )
             for ( VmkPingTrace trace : traces )
             {
                 builder.append( trace );
             }
+
         builder.append( "\n" );
         builder.append( summary );
+
         if ( null != noReplyHostInfos )
             builder.append( "\n" ).append( noReplyHostInfos );
         if ( null != fault )
             builder.append( "\n" ).append( fault );
+
         return builder.toString();
     }
 }

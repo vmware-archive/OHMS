@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.boardservice;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,6 +31,7 @@ import com.vmware.vrack.hms.common.exception.HmsException;
 public class HmsCommonInvokerTask
     implements Callable<Object>
 {
+
     private IHmsComponentService service;
 
     private String methodName;
@@ -53,7 +55,7 @@ public class HmsCommonInvokerTask
 
     /**
      * Call the method on the object via reflection
-     *
+     * 
      * @param serviceObject
      * @param methodName
      * @param params
@@ -87,6 +89,7 @@ public class HmsCommonInvokerTask
             {
                 continue;
             }
+
             boolean foundMethod = true;
             for ( int i = 0; i < params.length; ++i )
             {
@@ -96,6 +99,7 @@ public class HmsCommonInvokerTask
                     break;
                 }
             }
+
             if ( foundMethod )
             {
                 toBeInvokedMethod = method;
@@ -105,6 +109,7 @@ public class HmsCommonInvokerTask
                 continue;
             }
         }
+
         if ( toBeInvokedMethod != null )
         {
             try
@@ -116,6 +121,7 @@ public class HmsCommonInvokerTask
                 String err = String.format( "Unable to invoke method[%s] on object[%s]", methodName,
                                             serviceObject.getClass().getName() );
                 logger.error( err, e );
+
                 Throwable cause = e.getCause();
                 if ( cause instanceof HmsException )
                 {
@@ -137,4 +143,5 @@ public class HmsCommonInvokerTask
         throw new HmsException( String.format( "Could NOT call method[%s] on object[%s]", methodName,
                                                serviceObject.getClass().getName() ) );
     }
+
 }

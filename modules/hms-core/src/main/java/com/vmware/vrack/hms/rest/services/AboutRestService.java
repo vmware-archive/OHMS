@@ -32,6 +32,7 @@ import com.vmware.vrack.hms.common.resource.AboutResponse;
 @Path( "/about" )
 public class AboutRestService
 {
+
     @GET
     @Path( "/" )
     @Produces( "application/json" )
@@ -41,18 +42,21 @@ public class AboutRestService
         AboutResponse response = new AboutResponse();
         Class<AboutRestService> clazz = AboutRestService.class;
         String className = clazz.getSimpleName() + ".class";
+
         String classPath = clazz.getResource( className ).toString();
-        logger.debug( "Found AboutRestService.class from " + classPath );
+
         if ( !classPath.startsWith( "jar" ) )
         {
             logger.warn( "AboutRestService.class not found in a jar, therefore no manifest information available." );
             return response;
         }
+
         String manifestPath = classPath.substring( 0, classPath.lastIndexOf( "!" ) + 1 ) + "/META-INF/MANIFEST.MF";
         try
         {
             Manifest mf = new Manifest( new URL( manifestPath ).openStream() );
             Attributes attributes = mf.getMainAttributes();
+
             if ( attributes != null )
             {
                 response.setBuildVersion( attributes.getValue( BUILD_VERSION ) );
@@ -65,6 +69,7 @@ public class AboutRestService
         {
             logger.warn( "Exception received while parsing MANIFEST.MF file.", e );
         }
+
         return response;
     }
 

@@ -16,6 +16,7 @@
 
 package com.vmware.vrack.hms.plugin.boardservice;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +55,7 @@ import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
 import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 import com.vmware.vrack.hms.plugin.ServerPluginConstants;
+import com.vmware.vrack.hms.plugin.command.chassis.ChassisControl;
 
 /*
  * This is a sample code which services the OOB agent requests with dummy data.
@@ -64,6 +66,8 @@ import com.vmware.vrack.hms.plugin.ServerPluginConstants;
 public class BoardService_Dummy
     implements IBoardService
 {
+    private String command;
+
     private List<BoardInfo> supportedBoards;
 
     private static Logger logger = Logger.getLogger( BoardService_Dummy.class );
@@ -75,6 +79,13 @@ public class BoardService_Dummy
     public BoardService_Dummy()
     {
         super();
+
+        String osName = System.getProperty( "os.name" );
+        if ( osName.contains( "Windows" ) )
+            command = System.getProperty( "user.home" ) + "\\VMware\\vRack\\Win-ipmiutil\\ipmiutil";
+        else if ( osName.contains( "Linux" ) )
+            command = "ipmiutil";
+
         BoardInfo boardInfo = new BoardInfo();
         boardInfo.setBoardManufacturer( ServerPluginConstants.BOARD_MANUFACTURER );
         boardInfo.setBoardProductName( ServerPluginConstants.BOARD_NAME );
@@ -94,6 +105,16 @@ public class BoardService_Dummy
     public List<BoardInfo> getSupportedBoard()
     {
         return supportedBoards;
+    }
+
+    public String getCommand()
+    {
+        return command;
+    }
+
+    public void setCommand( String command )
+    {
+        this.command = command;
     }
 
     @Override
@@ -139,39 +160,50 @@ public class BoardService_Dummy
     public boolean getServerPowerStatus( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
-        return power_status;
+        try
+        {
+            return ChassisControl.getChassisPowerStatus( serviceHmsNode, this.getCommand() );
+        }
+        catch ( IOException e )
+        {
+            throw new HmsException( e );
+        }
     }
 
     @Override
     public boolean powerOperations( ServiceHmsNode serviceHmsNode, PowerOperationAction powerOperationAction )
         throws HmsException
     {
-        switch ( powerOperationAction )
+        try
         {
-            case COLDRESET:
-                power_status = true;
-                host_manageable = true;
-                break;
-            case HARDRESET:
-                power_status = true;
-                host_manageable = true;
-                break;
-            case POWERCYCLE:
-                power_status = true;
-                host_manageable = true;
-                break;
-            case POWERDOWN:
-                power_status = false;
-                host_manageable = false;
-                break;
-            case POWERUP:
-                power_status = true;
-                host_manageable = true;
-                break;
-            default:
-                break;
+            switch ( powerOperationAction )
+            {
+                case COLDRESET:
+                    host_manageable = true;
+                    return ChassisControl.coldResetChassis( serviceHmsNode, command );
+                case HARDRESET:
+                    host_manageable = true;
+                    return ChassisControl.hardResetChassis( serviceHmsNode, command );
+                case POWERCYCLE:
+                    host_manageable = true;
+                    if ( ChassisControl.getChassisPowerStatus( serviceHmsNode, command ) )
+                        return ChassisControl.powerCycleChassis( serviceHmsNode, command );
+                    return ChassisControl.powerUpChassis( serviceHmsNode, command );
+                case POWERDOWN:
+                    host_manageable = false;
+                    return ChassisControl.powerDownChassis( serviceHmsNode, command );
+                case POWERUP:
+                    host_manageable = true;
+                    return ChassisControl.powerUpChassis( serviceHmsNode, command );
+                default:
+                    break;
+            }
+            return false;
         }
-        return true;
+        catch ( IOException e )
+        {
+            throw new HmsException( e );
+        }
     }
 
     @Override
@@ -334,6 +366,13 @@ public class BoardService_Dummy
         throws HmsException
     {
         return null;
+    }
+
+    @Override
+    public boolean setBmcPassword( ServiceHmsNode serviceHmsNode, String username, String newPassword )
+        throws HmsException
+    {
+        return false;
     }
 
 }

@@ -24,9 +24,12 @@ public final class SwitchNetworkPrefixAssemblers
         NBSwitchNetworkPrefix lPrefix = new NBSwitchNetworkPrefix();
         String tokens[] = null;
         Integer prefixLen = 0;
+
         if ( prefix == null )
             return null;
+
         tokens = prefix.split( "/" );
+
         if ( tokens.length != 2 )
         {
             prefixLen = 32; // host only IP when prefix length is not specified
@@ -36,18 +39,21 @@ public final class SwitchNetworkPrefixAssemblers
             try
             {
                 prefixLen = Integer.parseInt( tokens[1] ); // if present then has
-                // to be a valid prefix
-                // length
+                                                           // to be a valid prefix
+                                                           // length
             }
             catch ( NumberFormatException e )
             {
                 return null;
             }
         }
+
         if ( prefixLen < 1 || prefixLen > 32 )
             return null;
+
         lPrefix.setPrefix( tokens[0] );
         lPrefix.setPrefixLen( prefixLen );
+
         return lPrefix;
     }
 }

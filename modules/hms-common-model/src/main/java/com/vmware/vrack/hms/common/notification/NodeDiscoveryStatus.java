@@ -19,7 +19,7 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNodePowerStatus;
 
 /**
  * Node discovery status for serverNode
- *
+ * 
  * @author VMware Inc.
  */
 public class NodeDiscoveryStatus
@@ -47,4 +47,5 @@ public class NodeDiscoveryStatus
     {
         this.status = status;
     }
+
 }

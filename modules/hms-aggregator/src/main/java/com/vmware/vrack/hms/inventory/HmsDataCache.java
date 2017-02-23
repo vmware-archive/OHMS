@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HmsDataCache.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,8 +13,10 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +25,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
+import org.codehaus.plexus.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -44,12 +48,13 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 
 /**
- * HMS Data Cache
+ * HMS Data Cache.
  */
 @Component
 public class HmsDataCache
 {
-    private static Logger logger = Logger.getLogger( HmsDataCache.class );
+
+    private static Logger logger = LoggerFactory.getLogger( HmsDataCache.class );
 
     @Autowired
     private HostDataAggregator aggregator;
@@ -61,7 +66,7 @@ public class HmsDataCache
 
     private Map<String, NBSwitchInfo> switchInfoMap = new HashMap<String, NBSwitchInfo>();
 
-    private ReentrantLock switchCacheUpdateLock = new ReentrantLock();
+    private static final ReentrantLock switchCacheUpdateLock = new ReentrantLock();
 
     /**
      * Create the HMS cache data when HMS Aggregator bootsup. hms.cache.flag by default set to false, meaning HMS will
@@ -71,10 +76,13 @@ public class HmsDataCache
     @PostConstruct
     public void createHMScache()
     {
-        // Construct a HMS cache data when HMS Aggregator bootsup, if hmsCacheFlag set to true
+        // Construct a HMS cache data when HMS Aggregator bootsup, if
+        // hmsCacheFlag set to true
         if ( hmsCacheFlag == true )
         {
+
             Map<String, ServerNode> serverNodeMap = InventoryLoader.getInstance().getNodeMap();
+
             Iterator<Map.Entry<String, ServerNode>> entries = serverNodeMap.entrySet().iterator();
             while ( entries.hasNext() )
             {
@@ -92,7 +100,7 @@ public class HmsDataCache
     }
 
     /**
-     * Get the HMS server cache
+     * Get the HMS server cache.
      *
      * @return Map<String, ServerInfo>
      */
@@ -102,17 +110,20 @@ public class HmsDataCache
     }
 
     /**
-     * Set the HMS server cache
+     * Set the HMS server cache.
      *
-     * @param serverInfoMap
+     * @param serverInfoMap the server info map
      */
     public void setServerInfoMap( Map<String, ServerInfo> serverInfoMap )
     {
-        this.serverInfoMap = serverInfoMap;
+        if ( serverInfoMap != null )
+        {
+            this.serverInfoMap = serverInfoMap;
+        }
     }
 
     /**
-     * Get the HMS switch cache
+     * Get the HMS switch cache.
      *
      * @return Map<String, NBSwitchInfo>
      */
@@ -122,24 +133,27 @@ public class HmsDataCache
     }
 
     /**
-     * Set the HMS switch cache
+     * Set the HMS switch cache.
      *
-     * @param switchInfoMap
+     * @param switchInfoMap the switch info map
      */
     public void setSwitchInfoMap( Map<String, NBSwitchInfo> switchInfoMap )
     {
-        this.switchInfoMap = switchInfoMap;
+        if ( switchInfoMap != null )
+        {
+            this.switchInfoMap = switchInfoMap;
+        }
     }
 
     /**
-     * Update the HMS Switch cache
+     * Update the HMS Switch cache.
      *
-     * @param node_id
-     * @param component
-     * @param fruComponent
-     * @throws Exception
+     * @param nodeId the node id
+     * @param component the component
+     * @param fruComponent the fru component
+     * @throws Exception the exception
      */
-    public void updateHmsDataCache( String node_id, ServerComponent component, FruComponent fruComponent )
+    public void updateHmsDataCache( String nodeId, ServerComponent component, FruComponent fruComponent )
         throws Exception
     {
         try
@@ -148,7 +162,9 @@ public class HmsDataCache
             {
                 case SERVER:
                     if ( fruComponent instanceof ServerInfo )
-                        serverInfoMap.put( node_id, (ServerInfo) fruComponent );
+                    {
+                        serverInfoMap.put( nodeId, (ServerInfo) fruComponent );
+                    }
                     break;
                 default:
                     break;
@@ -156,17 +172,17 @@ public class HmsDataCache
         }
         catch ( Exception e )
         {
-            logger.error( "Error while updating the HMS Switch cache for Node: " + node_id, e );
+            logger.error( "Error while updating the HMS Switch cache for Node: {}", nodeId, e );
         }
     }
 
     /**
-     * Update the HMS Switch cache
+     * Update the HMS Switch cache.
      *
-     * @param switchId
-     * @param component
-     * @param fruComponent
-     * @throws Exception
+     * @param switchId the switch id
+     * @param component the component
+     * @param fruComponent the fru component
+     * @throws Exception the exception
      */
     public void updateHmsSwitchDataCache( String switchId, SwitchComponentEnum component, FruComponent fruComponent )
         throws Exception
@@ -188,7 +204,7 @@ public class HmsDataCache
         }
         catch ( Exception e )
         {
-            logger.error( "Error while updating the HMS Switch cache for Switch Node: " + switchId, e );
+            logger.error( "Error while updating the HMS Switch cache for Switch Node: {}", switchId, e );
         }
         finally
         {
@@ -199,15 +215,16 @@ public class HmsDataCache
     }
 
     /**
-     * Update the HMS Switch cache - Switch Port Information
+     * Update the HMS Switch cache - Switch Port Information.
      *
-     * @param switchID
-     * @param portsList
-     * @throws Exception
+     * @param switchID the switch id
+     * @param portsList the ports list
+     * @throws Exception the exception
      */
     public void updateHmsSwitchDataCachePortsConfig( String switchID, List<NBSwitchPortInfo> portsList )
         throws Exception
     {
+
         try
         {
             if ( switchInfoMap.get( switchID ) != null )
@@ -215,22 +232,24 @@ public class HmsDataCache
         }
         catch ( Exception e )
         {
-            logger.error( "Error while updating the HMS Switch cache for switch Node for Switch Port Information: "
-                + switchID, e );
+            logger.error( "Error while updating the HMS Switch cache for switch Node for Switch Port Information: {}",
+                          switchID, e );
         }
     }
 
     /**
-     * Update the HMS Server FRU cache
+     * Update the HMS Server FRU cache.
      *
-     * @param node_id
-     * @param component
-     * @param fruComponent
-     * @throws Exception
+     * @param node_id the node_id
+     * @param component the component
+     * @param fruComponent the fru component
+     * @throws Exception the exception
      */
+    @SuppressWarnings( { "unchecked", "deprecation" } )
     public void updateServerFruCache( String node_id, ServerComponent component, List<FruComponent> fruComponent )
         throws Exception
     {
+
         try
         {
             switch ( component )
@@ -266,77 +285,138 @@ public class HmsDataCache
     }
 
     /**
-     * HMS Server Cash validation
+     * HMS Server Cash validation.
      *
-     * @param hosts
+     * @param serverNodes the serverNode
      * @return HmsCacheValidateEnum
-     * @throws Exception
+     * @throws Exception the exception
      */
-    public HmsCacheValidateEnum validateHostCache( Object[] hosts )
+    public HmsCacheValidateEnum validateHostCache( Collection<ServerNode> serverNodes )
         throws Exception
     {
+
         try
         {
-            for ( int i = 0; i < hosts.length; i++ )
+            if ( serverNodes != null && serverNodes.size() > 0 )
             {
-                ServerNode serverNode = (ServerNode) hosts[i];
-                if ( getServerInfoMap().get( serverNode.getNodeID() ) != null )
+                for ( ServerNode serverNode : serverNodes )
                 {
-                    ServerInfo serverInfo = getServerInfoMap().get( serverNode.getNodeID() );
-                    if ( serverInfo == null )
+
+                    if ( getServerInfoMap().get( serverNode.getNodeID() ) != null )
                     {
+                        ServerInfo serverInfo = getServerInfoMap().get( serverNode.getNodeID() );
+                        if ( serverInfo == null )
+                        {
+                            logger.debug( "Server Info is null for node {}, In memory Host cache data has not been built for it.",
+                                          serverNode.getNodeID() );
+                            return HmsCacheValidateEnum.INVALID;
+                        }
+                    }
+                    else
+                    {
+                        logger.warn( "Couldn't get the HMS In memory host cache data for the node: {} cache has not built",
+                                     serverNode.getNodeID() );
                         return HmsCacheValidateEnum.INVALID;
                     }
                 }
-                else
-                {
-                    return HmsCacheValidateEnum.INVALID;
-                }
-            }
-            if ( hosts != null )
+
+                logger.debug( "HmsDataCache: HMS In memory Host cache has built for all the nodes in the inventory for {} ServerNodes",
+                              serverNodes.size() );
                 return HmsCacheValidateEnum.VALID;
+
+            }
+            else
+            {
+                logger.warn( "HmsDataCache: Failed to validate as the serverNodes are NULL or the size is zero. Returning HMS cache for ServerNodes as invalid." );
+                return HmsCacheValidateEnum.INVALID;
+            }
         }
         catch ( Exception e )
         {
             logger.error( "Error while validating the HMS server cache", e );
+            throw e;
         }
-        return null;
     }
 
     /**
-     * HMS Switch Cash validation
+     * HMS Switch Cash validation.
      *
-     * @param switches
+     * @param switches the switches
      * @return HmsCacheValidateEnum
-     * @throws Exception
+     * @throws Exception the exception
      */
     public HmsCacheValidateEnum validateSwitchCache( Object[] switches )
         throws Exception
     {
+
         try
         {
-            for ( int i = 0; i < switches.length; i++ )
+            if ( switches != null && switches.length > 0 )
             {
-                Map<String, String> switchMap = (Map<String, String>) switches[i];
-                if ( getSwitchInfoMap().get( switchMap.get( "switchId" ) ) != null )
+                for ( int i = 0; i < switches.length; i++ )
                 {
-                    NBSwitchInfo switchInfo = getSwitchInfoMap().get( switchMap.get( "switchId" ) );
-                    if ( switchInfo == null )
+                    Map<String, String> switchMap = (Map<String, String>) switches[i];
+
+                    if ( getSwitchInfoMap().get( switchMap.get( "switchId" ) ) != null )
                     {
+                        NBSwitchInfo switchInfo = getSwitchInfoMap().get( switchMap.get( "switchId" ) );
+                        if ( switchInfo == null )
+                        {
+                            logger.debug( "Switch Info is null for the switch node: {}. HMS In memory Switch cache data has not built for it.",
+                                          switchMap.get( "switchId" ) );
+                            return HmsCacheValidateEnum.INVALID;
+                        }
+                    }
+                    else
+                    {
+                        logger.debug( "Couldn't get the HMS In memory Switch cache data for the switch node: {}. Cache has not built",
+                                      switchMap.get( "switchId" ) );
                         return HmsCacheValidateEnum.INVALID;
                     }
                 }
-                else
-                {
-                    return HmsCacheValidateEnum.INVALID;
-                }
-            }
-            if ( switches != null )
+
+                logger.debug( "HmsDataCache: HMS In memory Switch cache has built for all the switch nodes in the inventory. Returning HMS cache for Switches as Valid." );
                 return HmsCacheValidateEnum.VALID;
+
+            }
+            else
+            {
+                logger.warn( "HmsDataCache: Failed to validate as the switches list is NULL or the size is zero. Returning HMS cache for Switches as Invalid." );
+                return HmsCacheValidateEnum.INVALID;
+            }
         }
         catch ( Exception e )
         {
             logger.error( "Error while validating the HMS Switch cache", e );
+            throw e;
+        }
+    }
+
+    /**
+     * Remover server.
+     *
+     * @param hostId the host id
+     * @return the server info
+     */
+    public ServerInfo removerServer( final String hostId )
+    {
+        if ( hostId != null && this.serverInfoMap.containsKey( hostId ) )
+        {
+            ServerInfo serverInfo = this.serverInfoMap.remove( hostId );
+            if ( serverInfo != null && StringUtils.equals( hostId, serverInfo.getNodeId() ) )
+            {
+                logger.info( "In removerServer, removed host with hostId '{}' from cache.", hostId );
+                return serverInfo;
+            }
+            else
+            {
+                logger.warn( "In removerServer, Server Info Map contains key with hostId '{}', "
+                    + "but contains a ServerInfo object with NodeId '{}'.", hostId, serverInfo.getNodeId() );
+            }
+        }
+        else
+        {
+            logger.error( "In removerServer, host with hostId '{}' not found in cache.", hostId );
         }
         return null;
     }

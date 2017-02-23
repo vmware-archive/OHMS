@@ -33,6 +33,7 @@ import com.vmware.vrack.hms.task.TaskType;
 @Deprecated
 public class TaskRequestHandler
 {
+
     private static Logger logger = Logger.getLogger( TaskRequestHandler.class );
 
     private int THREAD_POOL_SIZE;
@@ -53,8 +54,10 @@ public class TaskRequestHandler
 
     private TaskRequestHandler()
     {
+
         try
         {
+
             THREAD_POOL_SIZE =
                 Integer.parseInt( HmsConfigHolder.getProperty( HmsConfigHolder.HMS_CONFIG_PROPS, "THREAD_POOL_SIZE" ) );
             MONITORING_THREAD_POOL_SIZE =
@@ -79,6 +82,7 @@ public class TaskRequestHandler
     {
         executor = Executors.newFixedThreadPool( THREAD_POOL_SIZE );
         taskCompService = new ExecutorCompletionService<TaskResponse>( executor );
+
     }
 
     public void initailizeMonitoringThreadPool()
@@ -91,22 +95,26 @@ public class TaskRequestHandler
     public void executeServerTask( TaskType type, TaskResponse node )
         throws Exception
     {
+
         IHmsTask task = TaskFactory.getTask( type, node );
         if ( task != null )
         {
             taskCompService.submit( task );
         }
+
     }
 
     public void executeMonitorTask( TaskType type, TaskResponse node )
         throws Exception
     {
+
         IHmsTask task = TaskFactory.getTask( type, node );
         if ( task != null )
         {
             monitorCompService.submit( task );
             monitoringTasks.add( task );
         }
+
     }
 
     public void shutMonitoring()
@@ -118,6 +126,7 @@ public class TaskRequestHandler
             monitor_executor = null;
             monitorCompService = null;
         }
+
     }
 
     public void restratMonitoring()
@@ -135,4 +144,5 @@ public class TaskRequestHandler
     {
         executor.shutdownNow();
     }
+
 }

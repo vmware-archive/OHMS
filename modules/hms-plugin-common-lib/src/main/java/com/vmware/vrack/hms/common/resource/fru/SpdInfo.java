@@ -21,6 +21,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class SpdInfo
     extends FruRecord
 {
+
     public SpdInfo( byte[] fruData, int offset )
     {
         super();

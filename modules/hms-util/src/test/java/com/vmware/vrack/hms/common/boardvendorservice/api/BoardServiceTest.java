@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * BoardServiceTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -50,6 +50,7 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 public class BoardServiceTest
     implements IBoardService
 {
+
     private List<BoardInfo> supportedBoards;
 
     public BoardServiceTest()
@@ -67,13 +68,16 @@ public class BoardServiceTest
         {
             supportedBoards = new ArrayList<BoardInfo>();
         }
+
         return supportedBoards.add( boardInfo );
     }
 
     @Override
     public List<BoardInfo> getSupportedBoard()
     {
+
         return supportedBoards;
+
     }
 
     @Override
@@ -81,6 +85,7 @@ public class BoardServiceTest
         throws HmsException
     {
         List<ServerComponentEvent> events = new ArrayList<ServerComponentEvent>();
+
         switch ( component )
         {
             case CPU:
@@ -91,6 +96,7 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DEGREES_CELSIUS );
                 cpuEvent.setValue( 78.0f );
                 events.add( cpuEvent );
+
                 cpuEvent = new ServerComponentEvent();
                 cpuEvent.setEventName( NodeEvent.CPU_TEMP_BELOW_THRESHHOLD );
                 cpuEvent.setEventId( "CPU 1 Temp" );
@@ -98,6 +104,7 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DEGREES_CELSIUS );
                 cpuEvent.setValue( 18.0f );
                 events.add( cpuEvent );
+
                 cpuEvent = new ServerComponentEvent();
                 cpuEvent.setEventName( NodeEvent.CPU_MACHINE_CHECK_ERROR );
                 cpuEvent.setEventId( "CPU 1 machine check Error" );
@@ -105,6 +112,7 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DISCRETE );
                 cpuEvent.setDiscreteValue( "CPU Machine Check Error" );
                 events.add( cpuEvent );
+
                 cpuEvent = new ServerComponentEvent();
                 cpuEvent.setEventName( NodeEvent.CPU_INIT_ERROR );
                 cpuEvent.setEventId( "CPU 1 Init Error" );
@@ -112,6 +120,7 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DISCRETE );
                 cpuEvent.setDiscreteValue( "CPU Init Error" );
                 events.add( cpuEvent );
+
                 cpuEvent = new ServerComponentEvent();
                 cpuEvent.setEventName( NodeEvent.CPU_THERMAL_TRIP );
                 cpuEvent.setEventId( "CPU 1 Thermal trip" );
@@ -119,6 +128,7 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DISCRETE );
                 cpuEvent.setDiscreteValue( "CPU 1 Thermal Trip" );
                 events.add( cpuEvent );
+
                 cpuEvent = new ServerComponentEvent();
                 cpuEvent.setEventName( NodeEvent.CPU_POST_FAILURE );
                 cpuEvent.setEventId( "CPU 1 POST failure" );
@@ -126,6 +136,7 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DISCRETE );
                 cpuEvent.setDiscreteValue( "CPU 1 POST failure" );
                 events.add( cpuEvent );
+
                 cpuEvent = new ServerComponentEvent();
                 cpuEvent.setEventName( NodeEvent.CPU_CAT_ERROR );
                 cpuEvent.setEventId( "CPU 1 Catastrophic error" );
@@ -133,6 +144,7 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DISCRETE );
                 cpuEvent.setDiscreteValue( "CPU 1 Catastrophic error" );
                 events.add( cpuEvent );
+
                 cpuEvent = new ServerComponentEvent();
                 cpuEvent.setEventName( NodeEvent.PCH_TEMP_ABOVE_THRESHOLD );
                 cpuEvent.setEventId( "PCH temperature above threshold" );
@@ -140,7 +152,9 @@ public class BoardServiceTest
                 cpuEvent.setUnit( EventUnitType.DEGREES_CELSIUS );
                 cpuEvent.setValue( 79.3f );
                 events.add( cpuEvent );
+
                 break;
+
             case MEMORY:
                 ServerComponentEvent memoryEvent = new ServerComponentEvent();
                 memoryEvent.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
@@ -149,6 +163,7 @@ public class BoardServiceTest
                 memoryEvent.setUnit( EventUnitType.DEGREES_CELSIUS );
                 memoryEvent.setValue( 78.0f );
                 events.add( memoryEvent );
+
                 memoryEvent = new ServerComponentEvent();
                 memoryEvent.setEventName( NodeEvent.MEMORY_ECC_ERROR );
                 memoryEvent.setEventId( "Dimm 1 ECC error" );
@@ -156,6 +171,7 @@ public class BoardServiceTest
                 memoryEvent.setUnit( EventUnitType.DISCRETE );
                 memoryEvent.setDiscreteValue( "Dimm 1 ECC error" );
                 events.add( memoryEvent );
+
                 break;
             case STORAGE:
                 ServerComponentEvent hddEvent = new ServerComponentEvent();
@@ -165,6 +181,7 @@ public class BoardServiceTest
                 hddEvent.setUnit( EventUnitType.DISCRETE );
                 hddEvent.setDiscreteValue( "Hdd 1 DOWN" );
                 events.add( hddEvent );
+
                 hddEvent = new ServerComponentEvent();
                 hddEvent.setEventName( NodeEvent.HDD_READ_ERROR );
                 hddEvent.setEventId( "HDD 1 Excessive Read Error" );
@@ -172,6 +189,7 @@ public class BoardServiceTest
                 hddEvent.setUnit( EventUnitType.DISCRETE );
                 hddEvent.setDiscreteValue( "HDD 1 Excessive Read Error" );
                 events.add( hddEvent );
+
                 hddEvent = new ServerComponentEvent();
                 hddEvent.setEventName( NodeEvent.HDD_WRITE_ERROR );
                 hddEvent.setEventId( "HDD 1 Excessive write Error" );
@@ -179,6 +197,7 @@ public class BoardServiceTest
                 hddEvent.setUnit( EventUnitType.DISCRETE );
                 hddEvent.setDiscreteValue( "HDD 1 Excessive write Error" );
                 events.add( hddEvent );
+
                 hddEvent = new ServerComponentEvent();
                 hddEvent.setEventName( NodeEvent.HDD_TEMP_ABOVE_THRESHOLD );
                 hddEvent.setEventId( "HDD 1 temp above threshold" );
@@ -186,6 +205,7 @@ public class BoardServiceTest
                 hddEvent.setUnit( EventUnitType.DEGREES_CELSIUS );
                 hddEvent.setValue( 55.0f );
                 events.add( hddEvent );
+
                 hddEvent = new ServerComponentEvent();
                 hddEvent.setEventName( NodeEvent.HDD_WEAROUT_ABOVE_THRESHOLD );
                 hddEvent.setEventId( "HDD 1 wearout above threshold" );
@@ -193,6 +213,7 @@ public class BoardServiceTest
                 hddEvent.setUnit( EventUnitType.DISCRETE );
                 hddEvent.setDiscreteValue( "HDD 1 wearout above threshold" );
                 events.add( hddEvent );
+
                 hddEvent = new ServerComponentEvent();
                 hddEvent.setEventName( NodeEvent.HDD_SLOT_FULL );
                 hddEvent.setEventId( "HDD 1 " );
@@ -209,6 +230,7 @@ public class BoardServiceTest
                 nicEvent.setUnit( EventUnitType.DEGREES_CELSIUS );
                 nicEvent.setValue( 66.0f );
                 events.add( nicEvent );
+
                 nicEvent = new ServerComponentEvent();
                 nicEvent.setEventName( NodeEvent.NIC_LINK_DOWN );
                 nicEvent.setEventId( "NIC 1 link down" );
@@ -216,6 +238,7 @@ public class BoardServiceTest
                 nicEvent.setUnit( EventUnitType.DISCRETE );
                 nicEvent.setDiscreteValue( "NIC 1 link down" );
                 events.add( nicEvent );
+
                 nicEvent = new ServerComponentEvent();
                 nicEvent.setEventName( NodeEvent.NIC_PORT_DOWN );
                 nicEvent.setEventId( "NIC 1 port down" );
@@ -223,6 +246,7 @@ public class BoardServiceTest
                 nicEvent.setUnit( EventUnitType.DISCRETE );
                 nicEvent.setDiscreteValue( "NIC 1 port down" );
                 events.add( nicEvent );
+
                 nicEvent = new ServerComponentEvent();
                 nicEvent.setEventName( NodeEvent.NIC_PACKET_DROP_ABOVE_THRESHHOLD );
                 nicEvent.setEventId( "NIC 1 packet above threshold" );
@@ -230,6 +254,7 @@ public class BoardServiceTest
                 nicEvent.setUnit( EventUnitType.PERCENT );
                 nicEvent.setValue( 23.0f );
                 events.add( nicEvent );
+
                 nicEvent = new ServerComponentEvent();
                 nicEvent.setEventName( NodeEvent.HDD_TEMP_ABOVE_THRESHOLD );
                 nicEvent.setEventId( "HDD 1 temp above threshold" );
@@ -237,6 +262,7 @@ public class BoardServiceTest
                 nicEvent.setUnit( EventUnitType.DEGREES_CELSIUS );
                 nicEvent.setValue( 55.0f );
                 events.add( nicEvent );
+
                 nicEvent = new ServerComponentEvent();
                 nicEvent.setEventName( NodeEvent.HDD_WEAROUT_ABOVE_THRESHOLD );
                 nicEvent.setEventId( "HDD 1 wearout above threshold" );
@@ -253,6 +279,7 @@ public class BoardServiceTest
                 bmcEvent.setUnit( EventUnitType.DISCRETE );
                 bmcEvent.setDiscreteValue( "BMC not reachable" );
                 events.add( bmcEvent );
+
                 bmcEvent = new ServerComponentEvent();
                 bmcEvent.setEventName( NodeEvent.BMC_AUTHENTICATION_FAILURE );
                 bmcEvent.setEventId( "BMC authentication failure" );
@@ -260,6 +287,7 @@ public class BoardServiceTest
                 bmcEvent.setUnit( EventUnitType.DISCRETE );
                 bmcEvent.setDiscreteValue( "BMC authentication failure" );
                 events.add( bmcEvent );
+
                 bmcEvent = new ServerComponentEvent();
                 bmcEvent.setEventName( NodeEvent.BMC_FAILURE );
                 bmcEvent.setEventId( "BMC management failure" );
@@ -276,6 +304,7 @@ public class BoardServiceTest
                 systemEvent.setUnit( EventUnitType.DISCRETE );
                 systemEvent.setDiscreteValue( "Server PCIe error" );
                 events.add( systemEvent );
+
                 systemEvent = new ServerComponentEvent();
                 systemEvent.setEventName( NodeEvent.SYSTEM_POST_ERROR );
                 systemEvent.setEventId( "Server POST error" );
@@ -283,6 +312,7 @@ public class BoardServiceTest
                 systemEvent.setUnit( EventUnitType.DISCRETE );
                 systemEvent.setDiscreteValue( "Server POST error" );
                 events.add( systemEvent );
+
                 systemEvent = new ServerComponentEvent();
                 systemEvent.setEventName( NodeEvent.SYSTEM_POST_ERROR );
                 systemEvent.setEventId( "Server POST error" );
@@ -299,6 +329,7 @@ public class BoardServiceTest
                 hmsEvent.setUnit( EventUnitType.DISCRETE );
                 hmsEvent.setDiscreteValue( "Hms Agent responsive" );
                 events.add( hmsEvent );
+
                 break;
             case SERVER:
                 ServerComponentEvent serverEvent = new ServerComponentEvent();
@@ -308,6 +339,7 @@ public class BoardServiceTest
                 serverEvent.setUnit( EventUnitType.DISCRETE );
                 serverEvent.setDiscreteValue( "Host OS not responsive" );
                 events.add( serverEvent );
+
                 serverEvent = new ServerComponentEvent();
                 serverEvent.setEventName( NodeEvent.HOST_DOWN );
                 serverEvent.setEventId( "Host Down" );
@@ -315,6 +347,7 @@ public class BoardServiceTest
                 serverEvent.setUnit( EventUnitType.DISCRETE );
                 serverEvent.setDiscreteValue( "Host Down" );
                 events.add( serverEvent );
+
                 serverEvent = new ServerComponentEvent();
                 serverEvent.setEventName( NodeEvent.HOST_UP );
                 serverEvent.setEventId( "Host up" );
@@ -323,6 +356,7 @@ public class BoardServiceTest
                 serverEvent.setDiscreteValue( "Host up" );
                 events.add( serverEvent );
                 break;
+
             default:
                 throw new HmsException( "Not supported yet" );
         }
@@ -334,6 +368,7 @@ public class BoardServiceTest
     {
         // TODO: Remove
         BoardServiceTest test = new BoardServiceTest();
+
         List<ServerComponentEvent> events = test.getComponentEventList( null, ServerComponent.CPU );
         System.out.println( "Total events:" + events.size() );
         for ( ServerComponentEvent event : events )
@@ -379,9 +414,11 @@ public class BoardServiceTest
         BmcUser user = new BmcUser();
         user.setUserId( 1 );
         user.setUserName( "test" );
+
         BmcUser user2 = new BmcUser();
         user.setUserId( 2 );
         user.setUserName( "test2" );
+
         List<BmcUser> users = new ArrayList<BmcUser>();
         users.add( user );
         users.add( user2 );
@@ -477,6 +514,13 @@ public class BoardServiceTest
     }
 
     @Override
+    public boolean setBmcPassword( ServiceHmsNode serviceHmsNode, String username, String newPassword )
+        throws HmsException
+    {
+        return false;
+    }
+
+    @Override
     public boolean createManagementUser( ServiceHmsNode serviceHmsNode, BmcUser bmcUser )
         throws HmsException
     {
@@ -515,4 +559,5 @@ public class BoardServiceTest
         // TODO Auto-generated method stub
         return null;
     }
+
 }
