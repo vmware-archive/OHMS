@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * Class used to marshall-unmarshall HMS notifications JSON request between modules.
- *
+ * 
  * @author ambi
  */
 @Deprecated

@@ -27,6 +27,7 @@ import com.vmware.vrack.hms.utils.EventsRegistrationsHolder;
 public abstract class IBRestTask
     extends IBTask
 {
+
     public ServerNode node;
 
     public TaskResponse response;
@@ -43,6 +44,7 @@ public abstract class IBRestTask
     public IBRestTask( TaskResponse response )
     {
         node = (ServerNode) response.getNode();
+
         EventHolder holder =
             EventsRegistrationsHolder.getInstance().getEventDetails( HmsConfigHolder.getProperty( HmsConfigHolder.HMS_CONFIG_PROPS,
                                                                                                   "hms_inband_module_app_id" ) );
@@ -55,8 +57,11 @@ public abstract class IBRestTask
         throws Exception
     {
         // TODO Auto-generated method stub
+
         executeTask();
+
         return response;
+
     }
 
     @Override
@@ -64,6 +69,7 @@ public abstract class IBRestTask
         throws Exception
     {
         // TODO Auto-generated method stub
+
     }
 
     public String getBaseUrl()
@@ -75,4 +81,5 @@ public abstract class IBRestTask
     {
         this.baseUrl = baseUrl;
     }
+
 }

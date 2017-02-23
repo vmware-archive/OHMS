@@ -13,13 +13,17 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api;
+
+import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 
 /**
  * @author VMware, Inc.
  */
 public class AbstractServerComponent
 {
+
     /**
      * @String id to hold the id for a component, which should be uniquely identify component among similar type
      *         components Example On a server with 2 CPU, CPU_0 can be identifier for one CPU
@@ -43,9 +47,15 @@ public class AbstractServerComponent
     protected String location;
 
     /**
+     * @operationalStatus - Operational status of the FRU
+     */
+    private FruOperationalStatus fruOperationalStatus;
+
+    /**
      * @List<ServerComponentSensor> componentSensors will hold all the sensors available for the component Example CPU_0
      *                              can hold list of sensors [CPU_TEMP,CPU_THERMAL_TRIP,CPU_VOLTS.. etc]
      */
+
     public String getId()
     {
         return id;
@@ -86,18 +96,31 @@ public class AbstractServerComponent
         this.location = location;
     }
 
+    public FruOperationalStatus getFruOperationalStatus()
+    {
+        return fruOperationalStatus;
+    }
+
+    public void setFruOperationalStatus( FruOperationalStatus fruOperationalStatus )
+    {
+        this.fruOperationalStatus = fruOperationalStatus;
+    }
+
     @Override
     public int hashCode()
     {
         int hash = 1;
+
         if ( id != null )
         {
             hash = 31 * hash + id.hashCode();
         }
+
         if ( component != null )
         {
             hash = 31 * hash + component.hashCode();
         }
+
         return hash;
     }
 
@@ -105,6 +128,7 @@ public class AbstractServerComponent
     public boolean equals( Object object )
     {
         boolean result = false;
+
         if ( object == null || !( object.getClass().equals( getClass() ) ) )
         {
             result = false;
@@ -122,4 +146,5 @@ public class AbstractServerComponent
         }
         return result;
     }
+
 }

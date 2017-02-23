@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.aggregator.util;
 
 import java.util.ArrayList;
@@ -37,7 +38,13 @@ import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
 public class HmsLocalSwitchMonitorTask
     extends MonitorSwitchTask
 {
+
     private static Logger logger = Logger.getLogger( HmsLocalSwitchMonitorTask.class );
+
+    /**
+     * Flag for switch Monitoring
+     */
+    private boolean switchMonitoring;
 
     public HmsLocalSwitchMonitorTask()
     {
@@ -54,11 +61,18 @@ public class HmsLocalSwitchMonitorTask
         super( response );
     }
 
+    public HmsLocalSwitchMonitorTask( MonitoringTaskResponse response, SwitchComponentEnum component,
+                                      boolean switchMonitoring )
+    {
+        super( response, component );
+        this.switchMonitoring = switchMonitoring;
+    }
+
     /**
-     * Retrieves Sensor data using specified Provide to get Switch Component Sensor List. HMS-local always give
+     * Retrieves Sensor data using specified Provide to get Switch Component Sensor List. HMS-aggregator always give
      * preference of getting events data from HMS OOB agent for each components. if HMS OOB agent, can NOT provide that
-     * info, in that case HMS-local falls back and tries to get the sensor info from InBandApi. But for Switch all the
-     * Events data coming from the HMS OOB agent
+     * info, in that case HMS-aggregator falls back and tries to get the sensor info from InBandApi. But for Switch all
+     * the Events data coming from the HMS OOB agent
      */
     @Override
     public MonitoringTaskResponse executeTask()
@@ -71,10 +85,13 @@ public class HmsLocalSwitchMonitorTask
                 if ( node.getNodeID() != null && node.getNodeID() != "" )
                 {
                     HMSSwitchNode switchNode = (HMSSwitchNode) node;
+
                     IEventAggregatorTask eventAggregatorTask = new EventGeneratorTask();
-                    List<Event> events =
-                        eventAggregatorTask.getAggregatedSwitchEvents( switchNode.getNodeID(), component );
+
+                    List<Event> events = eventAggregatorTask.getAggregatedSwitchEvents( switchNode.getNodeID(),
+                                                                                        component, switchMonitoring );
                     List<Event> monitoringTaskRespEvents = response.getEvents();
+
                     if ( monitoringTaskRespEvents == null )
                     {
                         monitoringTaskRespEvents = new ArrayList<Event>();
@@ -96,4 +113,5 @@ public class HmsLocalSwitchMonitorTask
         }
         return response;
     }
+
 }

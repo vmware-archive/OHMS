@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.common.event.Event;
 import com.vmware.vrack.hms.aggregator.switches.ManagementSwitchUpDownEventHelper;
@@ -53,10 +54,12 @@ import com.vmware.vrack.hms.service.provider.InBandServiceProvider;
  *         arrays are aggregated then to return [HDD_STATUS,HDD_FAILURE,HDD_EXCESIVE_WRITE_ERRORS
  *         ,HDD_HEALTH_STATUS_CRITICAL,HDD_TEMP_ABOVE_THRESHOLD].
  */
+@SuppressWarnings( "deprecation" )
 public class EventGeneratorTask
     implements IEventAggregatorTask
 {
-    private static Logger logger = Logger.getLogger( EventGeneratorTask.class );
+
+    private static Logger logger = LoggerFactory.getLogger( EventGeneratorTask.class );
 
     /**
      * Get OOB Events for given node and Component
@@ -69,15 +72,25 @@ public class EventGeneratorTask
     {
         try
         {
-            if ( InventoryLoader.getInstance().getOOBSupportedServerComponents( serverNode.getNodeID() ) != null
-                && InventoryLoader.getInstance().getOOBSupportedServerComponents( serverNode.getNodeID() ).contains( component.getComponentSensorAPI() ) )
-                return MonitoringUtil.getOnDemandEventsOOB( serverNode.getNodeID(), component );
+            if ( serverNode != null )
+            {
+                if ( InventoryLoader.getInstance().getOOBSupportedServerComponents( serverNode.getNodeID() ) != null
+                    && InventoryLoader.getInstance().getOOBSupportedServerComponents( serverNode.getNodeID() ).contains( component.getComponentSensorAPI() ) )
+                    return MonitoringUtil.getOnDemandEventsOOB( serverNode.getNodeID(), component );
+            }
+            else
+            {
+                logger.warn( "Not calling OOB for On Demand Events as Server Node is null, returning null" );
+            }
         }
         catch ( Exception e )
         {
-            logger.debug( "Error getting OOB Events for component " + component, e );
+            logger.error( String.format( "Error getting OOB Events for component : %s for node : %s", component,
+                                         serverNode.getNodeID() ),
+                          e );
         }
         return null;
+
     }
 
     /**
@@ -95,6 +108,7 @@ public class EventGeneratorTask
             {
                 IComponentEventInfoProvider boardService =
                     InBandServiceProvider.getBoardService( serverNode.getServiceObject() );
+
                 if ( boardService.getSupportedHmsApi( serverNode.getServiceObject() ) != null
                     && boardService.getSupportedHmsApi( serverNode.getServiceObject() ).contains( component.getComponentSensorAPI() ) )
                 {
@@ -107,7 +121,9 @@ public class EventGeneratorTask
         }
         catch ( Exception e )
         {
-            logger.debug( "Error getting IB Events for component " + component, e );
+            logger.error( String.format( "Error getting IB Events for component : %s for node : %s ", component,
+                                         serverNode.getNodeID() ),
+                          e );
         }
         return null;
     }
@@ -120,49 +136,92 @@ public class EventGeneratorTask
      * @return List<Event>
      */
     @Override
-    public List<Event> getAggregatedEvents( ServerNode node, ServerComponent component )
+    public List<Event> getAggregatedEvents( ServerNode node, ServerComponent component, boolean oobMonitoring,
+                                            boolean ibMonitoring )
         throws HMSRestException
     {
+
         List<Event> aggregatedEvents = new ArrayList<Event>();
-        List<Event> tempEvents = getIBEvents( node, component );
-        if ( tempEvents != null )
+        List<Event> tempEvents;
+
+        // If oobMonitoring is true
+        if ( oobMonitoring )
         {
-            aggregatedEvents.addAll( tempEvents );
+            logger.debug( "Getting Events from HMS OOB agent for Server component : {} Node : {} ", component,
+                          node.getNodeID() );
+            tempEvents = getOOBEvents( node, component );
+            if ( tempEvents != null && tempEvents.size() > 0 )
+            {
+                logger.debug( "Got Events from HMS OOB agent for Server component : {} Node : {} ", component,
+                              node.getNodeID() );
+                aggregatedEvents.addAll( tempEvents );
+            }
         }
-        tempEvents = getOOBEvents( node, component );
-        if ( tempEvents != null )
+        else
         {
-            aggregatedEvents.addAll( tempEvents );
+            logger.error( "Out-Of-Band Monitoring is not enabled for Server component : {} as Node : {} OOB communication is failed.",
+                          component, node.getNodeID() );
         }
+
+        // If ibMonitoring is true
+        if ( ibMonitoring )
+        {
+            logger.debug( "Getting Events from HMS IB agent for Server component : {} Node : {} ", component,
+                          node.getNodeID() );
+            tempEvents = getIBEvents( node, component );
+            if ( tempEvents != null && tempEvents.size() > 0 )
+            {
+                logger.debug( "Got Events from HMS IB agent for Server component : {} Node : {} ", component,
+                              node.getNodeID() );
+                aggregatedEvents.addAll( tempEvents );
+            }
+        }
+        else
+        {
+            logger.error( "Ignore this log if Server Component is BMC. In-Band Monitoring is not enabled for Server component : {} as Node : {} is not operational",
+                          component, node.getNodeID() );
+        }
+
         try
         {
-            aggregatedEvents =
-                EventFilterService.filterOrMassageEvents( node.getNodeID(), component, aggregatedEvents );
+            if ( aggregatedEvents != null && aggregatedEvents.size() > 0 )
+            {
+                aggregatedEvents =
+                    EventFilterService.filterOrMassageEvents( node.getNodeID(), component, aggregatedEvents );
+            }
         }
         catch ( Exception e )
         {
             // Ignore
-            logger.warn( "Error filtering events for Node:" + node.getNodeID() + ", for Component:" + component, e );
+            logger.warn( "Error filtering events for Node :" + node.getNodeID() + ", for Component :" + component, e );
         }
+
         // TODO: Get Host UP/DOWN events too in EventFilterService
         // Generate the Host Up or Down event
         if ( component == ServerComponent.SERVER )
         {
-            HostUpDownEventAggregator hostUpDownEventAggregator = new HostUpDownEventAggregator();
-            List<Event> hostUpDownEvents = hostUpDownEventAggregator.getHostUpDownEvent( node );
-            if ( hostUpDownEvents != null )
+            // If oobMonitoring is true
+            if ( oobMonitoring )
             {
-                aggregatedEvents.addAll( hostUpDownEvents );
+                HostUpDownEventAggregator hostUpDownEventAggregator = new HostUpDownEventAggregator();
+                List<Event> hostUpDownEvents = hostUpDownEventAggregator.getHostUpDownEvent( node );
+                if ( hostUpDownEvents != null && hostUpDownEvents.size() > 0 )
+                {
+                    logger.debug( "Got Events for HMS Server node UP or DOWN for Server component : {} Node : {} ",
+                                  component, node.getNodeID() );
+                    aggregatedEvents.addAll( hostUpDownEvents );
+                }
             }
         }
-        if ( aggregatedEvents != null )
+
+        if ( aggregatedEvents != null && aggregatedEvents.size() > 0 )
         {
             // Add FRU ID to Events
             try
             {
                 List<Event> events =
                     FruIdEventsHelperUtil.addFruIDtoEvents( aggregatedEvents, node.getNodeID(), component );
-                if ( events != null )
+                if ( events != null && events.size() > 0 )
                 {
                     aggregatedEvents = new ArrayList<Event>();
                     aggregatedEvents.addAll( events );
@@ -173,10 +232,14 @@ public class EventGeneratorTask
                 logger.error( "HMS Get Aggregated Events error in adding FRU ID to Events", e );
             }
         }
+
         // Publish event and refresh the HMS In memory Cache on HMS event
-        if ( aggregatedEvents != null )
+        if ( aggregatedEvents != null && aggregatedEvents.size() > 0 )
+        {
             SpringContextHelper.getApplicationContext().publishEvent( new FruEventStateChangeMessage( aggregatedEvents,
                                                                                                       component ) );
+        }
+
         return aggregatedEvents;
     }
 
@@ -198,6 +261,7 @@ public class EventGeneratorTask
             logger.debug( "Error getting OOB Switch Events for component " + component, e );
         }
         return null;
+
     }
 
     /**
@@ -209,39 +273,60 @@ public class EventGeneratorTask
      * @throws HMSRestException
      */
     @Override
-    public List<Event> getAggregatedSwitchEvents( String switchId, SwitchComponentEnum component )
+    public List<Event> getAggregatedSwitchEvents( String switchId, SwitchComponentEnum component,
+                                                  boolean switchMonitoring )
         throws HMSRestException
     {
-        List<Event> aggregatedSwitchEvents = getOOBSwitchEvents( switchId, component );
-        // Generate the MANAGEMENT switch Up or Down event.
-        if ( component == SwitchComponentEnum.SWITCH
-            && StringUtils.equalsIgnoreCase( switchId, Constants.HMS_MANAGEMENT_SWITCH_ID ) )
+
+        List<Event> aggregatedSwitchEvents = new ArrayList<Event>();
+
+        // If the switchMonitoring is enabled go head and generate the switch events.
+        if ( switchMonitoring )
         {
-            List<Event> managementSwitchUpDownEvents =
-                ManagementSwitchUpDownEventHelper.getManagementSwitchUpDownEvent( switchId );
-            if ( managementSwitchUpDownEvents != null )
+            aggregatedSwitchEvents = getOOBSwitchEvents( switchId, component );
+
+            // Generate the MANAGEMENT switch Up or Down event.
+            if ( component == SwitchComponentEnum.SWITCH
+                && StringUtils.equalsIgnoreCase( switchId, Constants.HMS_MANAGEMENT_SWITCH_ID ) )
             {
-                if ( aggregatedSwitchEvents == null )
-                    aggregatedSwitchEvents = new ArrayList<Event>();
-                aggregatedSwitchEvents.addAll( managementSwitchUpDownEvents );
+                List<Event> managementSwitchUpDownEvents =
+                    ManagementSwitchUpDownEventHelper.getManagementSwitchUpDownEvent( switchId );
+                if ( managementSwitchUpDownEvents != null && managementSwitchUpDownEvents.size() > 0 )
+                {
+                    if ( aggregatedSwitchEvents == null )
+                        aggregatedSwitchEvents = new ArrayList<Event>();
+                    aggregatedSwitchEvents.addAll( managementSwitchUpDownEvents );
+                }
             }
         }
+        else
+        {
+            logger.error( "Switch Monitoring is not enabled for Switch component: {} as the Switch Node: {} is down or not reachable.",
+                          component, switchId );
+        }
+
+        // Filtering or Massage switch events
         try
         {
-            aggregatedSwitchEvents =
-                EventFilterService.filterOrMassageSwitchEvents( switchId, component, aggregatedSwitchEvents );
+            if ( aggregatedSwitchEvents != null && aggregatedSwitchEvents.size() > 0 )
+            {
+                aggregatedSwitchEvents =
+                    EventFilterService.filterOrMassageSwitchEvents( switchId, component, aggregatedSwitchEvents );
+            }
         }
         catch ( Exception e )
         {
-            logger.warn( "Error filtering events for Switch Node:" + switchId + ", for Component:" + component, e );
+            logger.warn( "Error filtering events for Switch Node: {} for Component: {}", switchId, component, e );
         }
-        if ( aggregatedSwitchEvents != null )
+
+        // Add FRU ID to switch Events
+        if ( aggregatedSwitchEvents != null && aggregatedSwitchEvents.size() > 0 )
         {
             try
             {
                 List<Event> switchEventListWithFruID =
                     FruIdEventsHelperUtil.addFruIDtoSwitchEventsHelper( aggregatedSwitchEvents, switchId );
-                if ( switchEventListWithFruID != null )
+                if ( switchEventListWithFruID != null && switchEventListWithFruID.size() > 0 )
                 {
                     aggregatedSwitchEvents = new ArrayList<Event>();
                     aggregatedSwitchEvents.addAll( switchEventListWithFruID );
@@ -252,10 +337,73 @@ public class EventGeneratorTask
                 logger.error( "HMS Get Aggregated Switch Events error in adding FRU ID to Events", e );
             }
         }
+
         // Publish event to refresh the HMS In memory data/Cache on switch event
-        if ( aggregatedSwitchEvents != null )
+        if ( aggregatedSwitchEvents != null && aggregatedSwitchEvents.size() > 0 )
+        {
             SpringContextHelper.getApplicationContext().publishEvent( new FruEventStateChangeMessage( aggregatedSwitchEvents,
                                                                                                       component ) );
+        }
+
         return aggregatedSwitchEvents;
+    }
+
+    @Override
+    public List<Event> getAggregatedSwitchEvents( String switchId, SwitchComponentEnum component )
+        throws HMSRestException
+    {
+
+        List<Event> aggregatedSwitchEvents = getOOBSwitchEvents( switchId, component );
+
+        // Generate the MANAGEMENT switch Up or Down event.
+        if ( component == SwitchComponentEnum.SWITCH
+            && StringUtils.equalsIgnoreCase( switchId, Constants.HMS_MANAGEMENT_SWITCH_ID ) )
+        {
+            List<Event> managementSwitchUpDownEvents =
+                ManagementSwitchUpDownEventHelper.getManagementSwitchUpDownEvent( switchId );
+            if ( managementSwitchUpDownEvents != null && managementSwitchUpDownEvents.size() > 0 )
+            {
+                if ( aggregatedSwitchEvents == null )
+                    aggregatedSwitchEvents = new ArrayList<Event>();
+                aggregatedSwitchEvents.addAll( managementSwitchUpDownEvents );
+            }
+        }
+
+        // Add FRU ID to switch Events
+        if ( aggregatedSwitchEvents != null && aggregatedSwitchEvents.size() > 0 )
+        {
+            try
+            {
+                List<Event> switchEventListWithFruID =
+                    FruIdEventsHelperUtil.addFruIDtoSwitchEventsHelper( aggregatedSwitchEvents, switchId );
+                if ( switchEventListWithFruID != null && switchEventListWithFruID.size() > 0 )
+                {
+                    aggregatedSwitchEvents = new ArrayList<Event>();
+                    aggregatedSwitchEvents.addAll( switchEventListWithFruID );
+                }
+            }
+            catch ( HmsException e )
+            {
+                logger.error( "HMS Get Aggregated Switch Events error in adding FRU ID to Events", e );
+            }
+        }
+
+        return aggregatedSwitchEvents;
+    }
+
+    @Override
+    public List<Event> getAggregatedEvents( ServerNode node, ServerComponent component )
+        throws HMSRestException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Event> processEvents( ServerNode node, ServerComponent component )
+        throws HMSRestException
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

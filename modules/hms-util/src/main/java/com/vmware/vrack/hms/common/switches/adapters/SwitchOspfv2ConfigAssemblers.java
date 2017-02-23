@@ -26,67 +26,85 @@ import com.vmware.vrack.hms.common.switches.api.SwitchOspfNetworkConfig;
 
 public final class SwitchOspfv2ConfigAssemblers
 {
+
     public static NBSwitchOspfv2Config toSwitchOspfv2Config( SwitchOspfConfig config )
     {
         NBSwitchOspfv2Config lConfig = new NBSwitchOspfv2Config();
+
         if ( config == null || config.isEnabled() == false )
             return null;
+
         lConfig.setDefaultMode( toOspfMode( config.getGlobal().getDefaultMode() ) );
         lConfig.setInterfaces( toInterfaces( config.getGlobal().getInterfaces() ) );
         lConfig.setNetworks( toNetworks( config.getGlobal().getNetworks() ) );
         lConfig.setRouterId( config.getGlobal().getRouterId() );
+
         return lConfig;
     }
 
     private static NBSwitchOspfv2Config.Network toNetwork( SwitchOspfNetworkConfig config )
     {
         NBSwitchOspfv2Config.Network lConfig = new NBSwitchOspfv2Config.Network();
+
         if ( config == null )
             return null;
+
         lConfig.setAreaId( config.getArea() );
         lConfig.setNetwork( SwitchNetworkPrefixAssemblers.toSwitchNetworkPrefix( config.getNetwork() ) );
+
         return lConfig;
     }
 
     private static List<NBSwitchOspfv2Config.Network> toNetworks( List<SwitchOspfNetworkConfig> configs )
     {
         List<NBSwitchOspfv2Config.Network> lNetworks = new ArrayList<NBSwitchOspfv2Config.Network>();
+
         if ( configs == null )
             return null;
+
         for ( SwitchOspfNetworkConfig config : configs )
         {
             lNetworks.add( toNetwork( config ) );
         }
+
         return lNetworks;
     }
 
     private static NBSwitchOspfv2Config.Interface toInterface( SwitchOspfInterfaceConfig config )
     {
         NBSwitchOspfv2Config.Interface lConfig = new NBSwitchOspfv2Config.Interface();
+
         if ( config == null )
             return null;
+
         lConfig.setMode( toInterfaceMode( config.getMode() ) );
         lConfig.setName( config.getName() );
+
         return lConfig;
     }
 
     private static List<NBSwitchOspfv2Config.Interface> toInterfaces( List<SwitchOspfInterfaceConfig> configs )
     {
         List<NBSwitchOspfv2Config.Interface> lInterfaces = new ArrayList<NBSwitchOspfv2Config.Interface>();
+
         if ( configs == null )
             return null;
+
         for ( SwitchOspfInterfaceConfig config : configs )
         {
             lInterfaces.add( toInterface( config ) );
         }
+
         return lInterfaces;
     }
 
     private static NBSwitchOspfv2Config.Mode toOspfMode( SwitchOspfGlobalConfig.OspfMode mode )
     {
         NBSwitchOspfv2Config.Mode lMode = null;
+
         if ( mode == null )
             return null;
+
         switch ( mode )
         {
             case ACTIVE:
@@ -98,14 +116,17 @@ public final class SwitchOspfv2ConfigAssemblers
             default:
                 break;
         }
+
         return lMode;
     }
 
     private static NBSwitchOspfv2Config.Mode toInterfaceMode( SwitchOspfInterfaceConfig.InterfaceMode mode )
     {
         NBSwitchOspfv2Config.Mode lMode = null;
+
         if ( mode == null )
             return null;
+
         switch ( mode )
         {
             case ACTIVE:
@@ -117,6 +138,7 @@ public final class SwitchOspfv2ConfigAssemblers
             default:
                 break;
         }
+
         return lMode;
     }
 }

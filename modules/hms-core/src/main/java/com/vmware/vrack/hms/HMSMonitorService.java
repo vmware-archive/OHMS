@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HMSMonitorService.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -38,14 +38,17 @@ import com.vmware.vrack.hms.utils.HttpClientService;
 public class HMSMonitorService
     implements Observer
 {
+
     private static Logger logger = Logger.getLogger( HMSMonitorService.class );
 
+    @Override
     public void update( Observable node, Object arg )
     {
         if ( node instanceof HmsNode )
         {
             HmsNode hmsNode = (HmsNode) node;
             HMSNotificationRequest notification = (HMSNotificationRequest) arg;
+
             EventsRegistrationsHolder eventHolder = EventsRegistrationsHolder.getInstance();
             Map<String, Object> eventFilters = new HashMap<String, Object>();
             // eventFilters.put(EventsRegistrationsHolder.TARGET_ID, hmsNode.getNodeID());
@@ -67,7 +70,9 @@ public class HMSMonitorService
                         + " , and TargetId=" + notification.getTargetId(), e );
                 }
             }
+
             return;
+
         }
     }
 
@@ -93,6 +98,7 @@ public class HMSMonitorService
                         List<String> urlParts = new ArrayList<String>();
                         urlParts.add( holder.getRequester().getBaseUrl() );
                         urlParts.add( event.getNotificationUrl() );
+
                         String url = HttpUtil.buildUrl( urlParts );// "http://10.113.225.133:8080/vrm-ui/rest/notifications/";//
                         // String url = holder.getRequester().getBaseUrl()+event.getNotificationUrl();
                         logger.debug( "Triggered notification callback for event " + notification.getEventType()
@@ -100,6 +106,7 @@ public class HMSMonitorService
                         hmsNode.setMonitorExecutionLog( "TRIGGER HTTP CALLBACK FOR EVENT : "
                             + notification.getEventType() + " URL : " + url + " THREAD : "
                             + Thread.currentThread().getId() + " TIME :" + ( new Date() ).toString(), true );
+
                         switch ( event.getEventType() )
                         {
                             case SWITCH_FAILURE:
@@ -141,6 +148,7 @@ public class HMSMonitorService
                                 event.setLastUpdatedTime( ( new Date() ).getTime() );
                                 break;
                         }
+
                         logger.debug( "Callback completed for event " + notification.getEventType() + " to URL "
                             + url );
                         hmsNode.setMonitorExecutionLog( "HTTP CALLBACK COMPLETE FOR EVENT : "
@@ -156,4 +164,5 @@ public class HMSMonitorService
             }
         }
     }
+
 }

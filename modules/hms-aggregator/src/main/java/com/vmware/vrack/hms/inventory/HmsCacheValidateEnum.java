@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 /**
@@ -20,11 +21,14 @@ package com.vmware.vrack.hms.inventory;
  */
 public enum HmsCacheValidateEnum
 {
+
     /**
      * valid HMS cache
      */
-    VALID, /**
-            * Invalid HMS cache
-            */
+    VALID,
+
+    /**
+     * Invalid HMS cache
+     */
     INVALID;
 }

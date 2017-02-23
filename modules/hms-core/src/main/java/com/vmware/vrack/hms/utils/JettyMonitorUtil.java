@@ -30,6 +30,7 @@ import com.vmware.vrack.hms.common.util.Constants;
 
 public class JettyMonitorUtil
 {
+
     private static ConnectorStatistics stats =
         ServerNodeConnector.getInstance().getServer().getBean( ConnectorStatistics.class );
 
@@ -40,7 +41,9 @@ public class JettyMonitorUtil
     @SuppressWarnings( "deprecation" )
     public static ServerComponentEvent getServerStartedDuration()
     {
+
         ServerComponentEvent sensor = new ServerComponentEvent();
+
         sensor.setComponentId( "HMS_OOB_AGENT_RESTHANDLER" );
         sensor.setUnit( EventUnitType.DISCRETE );
         if ( stats != null )
@@ -49,15 +52,20 @@ public class JettyMonitorUtil
             int seconds = (int) ( milliseconds / 1000 ) % 60;
             int minutes = (int) ( ( milliseconds / ( 1000 * 60 ) ) % 60 );
             int hours = (int) ( ( milliseconds / ( 1000 * 60 * 60 ) ) % 24 );
+
             sensor.setDiscreteValue( hours + " hrs " + minutes + " mins " + seconds + " secs" );
         }
+
         sensor.setEventName( NodeEvent.HMS_OOB_AGENT_RESTHANDLER_STARTED_DURATION );
+
         return sensor;
     }
 
     public static ServerComponentEvent getServerState()
     {
+
         ServerComponentEvent sensor = new ServerComponentEvent();
+
         sensor.setComponentId( EventComponent.RACK.name() );
         sensor.setUnit( EventUnitType.DISCRETE );
         String eventText = null;
@@ -74,20 +82,25 @@ public class JettyMonitorUtil
         sensor.setEventId( Constants.HMS_OOBAGENT_STATUS );
         String descreteValue = StringUtils.substringBefore( eventText, HMS_AGENT_STATUS_DESC_SEPARATOR );
         sensor.setDiscreteValue( descreteValue );
+
         return sensor;
     }
 
     @SuppressWarnings( "deprecation" )
     public static ServerComponentEvent getServerMeanResponseTime()
     {
+
         ServerComponentEvent sensor = new ServerComponentEvent();
+
         sensor.setComponentId( "HMS_OOB_AGENT_RESTHANDLER" );
         sensor.setUnit( EventUnitType.DISCRETE );
         if ( statHandler != null && statHandler instanceof StatisticsHandler )
         {
             sensor.setDiscreteValue( String.valueOf( ( (StatisticsHandler) statHandler ).getDispatchedTimeMean() ) );
         }
+
         sensor.setEventName( NodeEvent.HMS_OOB_AGENT_RESTHANDLER_MEAN_RESPONSETIME );
+
         return sensor;
     }
 
@@ -95,13 +108,16 @@ public class JettyMonitorUtil
     public static ServerComponentEvent getIncomingMessagesCount()
     {
         ServerComponentEvent sensor = new ServerComponentEvent();
+
         sensor.setComponentId( "HMS_OOB_AGENT_RESTHANDLER" );
         sensor.setUnit( EventUnitType.OTHER );
         if ( statHandler != null && statHandler instanceof StatisticsHandler )
         {
             sensor.setValue( ( (StatisticsHandler) statHandler ).getRequests() );
         }
+
         sensor.setEventName( NodeEvent.HMS_OOB_AGENT_RESTHANDLER_MESSAGE_IN_COUNT );
+
         return sensor;
     }
 
@@ -109,6 +125,7 @@ public class JettyMonitorUtil
     public static ServerComponentEvent getOutgoingMessagesCount()
     {
         ServerComponentEvent sensor = new ServerComponentEvent();
+
         sensor.setComponentId( "HMS_OOB_AGENT_RESTHANDLER" );
         sensor.setUnit( EventUnitType.OTHER );
         if ( statHandler != null && statHandler instanceof StatisticsHandler )
@@ -118,15 +135,20 @@ public class JettyMonitorUtil
                 + handler.getResponses4xx() + handler.getResponses5xx();
             sensor.setValue( responseCount );
         }
+
         sensor.setEventName( NodeEvent.HMS_OOB_AGENT_RESTHANDLER_MESSAGE_OUT_COUNT );
+
         return sensor;
     }
 
     public static int getActiveRequestsCount()
     {
+
         int count = -1;
+
         if ( statHandler != null && statHandler instanceof StatisticsHandler )
         {
+
             StatisticsHandler handler = (StatisticsHandler) statHandler;
             count = handler.getRequestsActive();
         }

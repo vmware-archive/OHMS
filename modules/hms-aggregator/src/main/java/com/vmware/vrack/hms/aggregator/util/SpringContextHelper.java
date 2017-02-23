@@ -13,9 +13,11 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.aggregator.util;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -27,17 +29,31 @@ import org.springframework.stereotype.Component;
 public class SpringContextHelper
     implements ApplicationContextAware
 {
+
     private static ApplicationContext context;
+
+    private static String ibInventoryLocaiton;
 
     @Override
     public void setApplicationContext( ApplicationContext context )
         throws BeansException
     {
-        this.context = context;
+        SpringContextHelper.context = context;
     }
 
     public static ApplicationContext getApplicationContext()
     {
         return context;
+    }
+
+    public static String getIbInventoryLocaiton()
+    {
+        return ibInventoryLocaiton;
+    }
+
+    @Value( "${hms.ib.inventory.location}" )
+    public void setIbInventoryLocaiton( String ibInventoryLocaiton )
+    {
+        SpringContextHelper.ibInventoryLocaiton = ibInventoryLocaiton;
     }
 }

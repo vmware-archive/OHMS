@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- /* ********************************************************************************
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
@@ -16,7 +17,7 @@
 <parent>
         <groupId>com.vmware.vrack</groupId>
         <artifactId>hms</artifactId>
-        <version>1.0.0</version>
+        <version>2.0.0-RELEASE</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -28,8 +29,8 @@
         <resteasy-jackson-provider.version>3.0.8.Final</resteasy-jackson-provider.version>
         <junit.version>4.12</junit.version>
         <log4j.version>1.2.17</log4j.version>
-        <hms.version>1.0.0</hms.version>
-        <event-catalogue.version>1.0.0</event-catalogue.version>
+        <hms.version>2.0.0-RELEASE</hms.version>
+        <event-catalogue.version>1.2.0-RELEASE</event-catalogue.version>
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>

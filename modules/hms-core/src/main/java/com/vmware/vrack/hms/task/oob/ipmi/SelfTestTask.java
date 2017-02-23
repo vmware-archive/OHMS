@@ -18,7 +18,6 @@ package com.vmware.vrack.hms.task.oob.ipmi;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -29,9 +28,10 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 /**
  * Performs a Self Test and returns the Status
- * 
+ *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class SelfTestTask
     extends IpmiTask
 {
@@ -57,16 +57,18 @@ public class SelfTestTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramsArray = new Object[] { serviceServerNode };
-                SelfTestResults selfTestResults =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode, "runSelfTest",
-                                                                        paramsArray );
+                // Object[] paramsArray = new Object[] { serviceServerNode };
+                SelfTestResults selfTestResults = boardService.runSelfTest( serviceServerNode );
+                // SelfTestResults selfTestResults =
+                // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                // serviceServerNode, "runSelfTest", paramsArray);
                 this.node.setSelfTestResults( selfTestResults );
             }
             else
             {
-                throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
+                throw new Exception( "Board Service is NULL for node: " + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -77,8 +79,7 @@ public class SelfTestTask
         }
         catch ( Exception e )
         {
-            logger.error( "Error while getting SelfTest Results for Node:" + node.getNodeID(), e );
-            throw new HmsException( "Error while getting SelfTest Results for Node:" + node.getNodeID(), e );
+            throw new HmsException( "Error while getting SelfTest Results for Node: " + node.getNodeID(), e );
         }
     }
 }

@@ -21,6 +21,7 @@ import com.vmware.vrack.hms.common.servernodes.api.NodeAdminStatus;
 
 public class NBSwitchConfig
 {
+
     private List<NBSwitchVlanConfig> vlans;
 
     private NBSwitchBgpConfig bgp;
@@ -30,6 +31,8 @@ public class NBSwitchConfig
     private List<NBSwitchLagConfig> bonds;
 
     private NBSwitchMcLagConfig mcLag;
+
+    private NBSwitchSnmpConfig snmp;
 
     /**
      * @return the vlans
@@ -110,4 +113,21 @@ public class NBSwitchConfig
     {
         this.mcLag = mcLag;
     }
+
+    /**
+     * @return the snmp
+     */
+    public NBSwitchSnmpConfig getSnmp()
+    {
+        return snmp;
+    }
+
+    /**
+     * @param snmp the snmp to set
+     */
+    public void setSnmp( NBSwitchSnmpConfig snmp )
+    {
+        this.snmp = snmp;
+    }
+
 }

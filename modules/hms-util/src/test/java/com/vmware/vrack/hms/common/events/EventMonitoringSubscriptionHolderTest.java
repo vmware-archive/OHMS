@@ -38,91 +38,122 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 
 public class EventMonitoringSubscriptionHolderTest
 {
+
     private static Logger logger = Logger.getLogger( EventMonitoringSubscriptionHolderTest.class );
 
     @Test
     public void test()
     {
+
         logger.info( "Testing EventMonitoringSubscriptionHolderTest" );
+
         try
         {
             EventMonitoringSubscription eventMonitoringSubscription;
+
             ServerNode node = new ServerNode();
             node.setManagementIp( "xx.xx.xx.xx" );
             node.setManagementUserName( "test" );
             node.setManagementUserPassword( "test" );
             HmsNode hmsnode = node;
+
             EventMonitoringSubscriptionHolder eventMonitoringSubscriptionHolder = null;
+
             eventMonitoringSubscription = new EventMonitoringSubscription();
             eventMonitoringSubscription.setNodeId( "testnode" );
             eventMonitoringSubscription.setSubscriberId( "123" );
             eventMonitoringSubscription.setComponent( EventComponent.CPU );
+
             eventMonitoringSubscriptionHolder = EventMonitoringSubscriptionHolder.getInstance();
+
             // Add the event monitoring subscription
             eventMonitoringSubscriptionHolder.addEventMonitoringSubscription( eventMonitoringSubscription );
+
             // Adds Entry in Nme monitoring
             eventMonitoringSubscriptionHolder.addNmeMonitoringSubscription( eventMonitoringSubscription );
+
             String key =
                 EventMonitoringSubscriptionHolder.getEventMonitoringSubscriptionKey( eventMonitoringSubscription.getSubscriberId(),
                                                                                      eventMonitoringSubscription.getNodeId(),
                                                                                      eventMonitoringSubscription.getComponent() );
+
             assertNotNull( key );
+
             eventMonitoringSubscription = new EventMonitoringSubscription();
             eventMonitoringSubscription = eventMonitoringSubscriptionHolder.getEventMonitoringSubscription( key );
+
             assertNotNull( eventMonitoringSubscription.getNodeId() );
             assertNotNull( eventMonitoringSubscription.getComponent() );
             assertNotNull( eventMonitoringSubscription.getSubscriberId() );
+
             List<EventMonitoringSubscription> list;
+
             list =
                 EventMonitoringSubscriptionHolder.getEventSubscriberList( eventMonitoringSubscription.getNodeId(),
                                                                           eventMonitoringSubscription.getComponent() );
+
             for ( int i = 0; i < list.size(); i++ )
             {
                 assertNotNull( list.get( i ).getNodeId() );
                 assertNotNull( list.get( i ).getComponent() );
                 assertNotNull( list.get( i ).getSubscriberId() );
             }
+
             List<Event> listEvent = new ArrayList<Event>();
+
             listEvent = EventMonitoringSubscriptionHolder.getEventList( hmsnode, ServerComponent.CPU );
+
             for ( int j = 0; j < listEvent.size(); j++ )
             {
                 assertNotNull( listEvent.get( j ).getBody().getDescription() );
                 assertNotNull( listEvent.get( j ).getHeader().getEventName() );
             }
+
             listEvent = EventMonitoringSubscriptionHolder.getSwitchEventList( hmsnode, SwitchComponentEnum.SWITCH );
+
             for ( int j = 0; j < listEvent.size(); j++ )
             {
                 assertNotNull( listEvent.get( j ).getBody().getDescription() );
                 assertNotNull( listEvent.get( j ).getHeader().getEventName() );
             }
+
             List<Event> events = new ArrayList<Event>();
             Event event = new Event();
             Body body = new Body();
             Header header = new Header();
+
             // Adding dummy Event 1
             body.setDescription( "CPU for rack EVO:RACK node N5 and CPU processor 1 has shutdown due to POST Failure." );
             header.setAgent( "HMS" );
             header.setEventName( EventCatalog.CPU_POST_FAILURE );
             header.setSeverity( EventSeverity.CRITICAL );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
+
             events.add( event );
+
             event = new Event();
             body = new Body();
             header = new Header();
+
             // Adding dummy Event 2
             body.setDescription( "Memory for rack EVO:RACK node N6 and Memory Bank Label A slot 1 has uncorrectable ECC error detected" );
             header.setAgent( "HMS" );
             header.setEventName( EventCatalog.DIMM_ECC_ERROR );
             header.setSeverity( EventSeverity.ERROR );
             header.setVersion( "1.0" );
+
             event.setBody( body );
             event.setHeader( header );
+
             events.add( event );
+
             // Get the critical events only
             List<Event> eventsCritical = new ArrayList<Event>();
             eventsCritical = EventMonitoringSubscriptionHolder.getCriticalEventsOnly( events );
+
             for ( int i = 0; i < eventsCritical.size(); i++ )
             {
                 assertNotNull( eventsCritical.get( i ).getBody().getDescription() );
@@ -130,22 +161,26 @@ public class EventMonitoringSubscriptionHolderTest
                 assertNotNull( eventsCritical.get( i ).getHeader().getEventName() );
                 assertNotNull( eventsCritical.get( i ).getHeader().getSeverity() );
             }
+
             // Get list of subscribers
             List<EventMonitoringSubscription> subscribedEvents = new ArrayList<EventMonitoringSubscription>();
             subscribedEvents =
                 EventMonitoringSubscriptionHolder.getSubscribers( eventMonitoringSubscription.getNodeId(),
                                                                   EventComponent.CPU, "CPU" );
+
             for ( int i = 0; i < subscribedEvents.size(); i++ )
             {
                 assertNotNull( subscribedEvents.get( i ).getComponent() );
                 assertNotNull( subscribedEvents.get( i ).getNodeId() );
                 assertNotNull( subscribedEvents.get( i ).getSubscriberId() );
             }
+
             // Filters the given list of events, and group all events that to be sent at same
             List<Event> listEvents = new ArrayList<Event>();
             Event singleEvent = new Event();
             Body eventBody = new Body();
             Header eventHeader = new Header();
+
             // Adding dummy Event 1
             Map<EventComponent, String> newComponent = new HashMap<EventComponent, String>();
             newComponent.put( EventComponent.CPU, "CPU1" );
@@ -155,13 +190,18 @@ public class EventMonitoringSubscriptionHolderTest
             eventHeader.setSeverity( EventSeverity.CRITICAL );
             eventHeader.setVersion( "1.0" );
             eventHeader.addComponentIdentifier( newComponent );
+
             singleEvent.setBody( eventBody );
             singleEvent.setHeader( eventHeader );
+
             listEvents.add( singleEvent );
+
             Map<BaseEventMonitoringSubscription, List<Event>> mapListEvents =
                 new HashMap<BaseEventMonitoringSubscription, List<Event>>();
+
             mapListEvents = EventMonitoringSubscriptionHolder.getFilteredEvents( listEvents );
             assertNotNull( mapListEvents );
+
             // Delete the event monitoring subscription
             eventMonitoringSubscriptionHolder.removeEventMonitoringSubscription( eventMonitoringSubscription );
         }
@@ -170,5 +210,7 @@ public class EventMonitoringSubscriptionHolderTest
             logger.info( "Test EventMonitoringSubscriptionHolderTest Failed!" );
             e.printStackTrace();
         }
+
     }
+
 }

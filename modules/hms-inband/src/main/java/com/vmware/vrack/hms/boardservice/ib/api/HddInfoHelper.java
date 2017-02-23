@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.vmware.vim.binding.vim.HostSystem;
@@ -39,6 +42,7 @@ import com.vmware.vim.binding.vim.host.ScsiDisk;
 import com.vmware.vim.binding.vim.host.ScsiLun;
 import com.vmware.vim.binding.vim.host.StorageSystem;
 import com.vmware.vim.binding.vmodl.ManagedObjectReference;
+import com.vmware.vrack.hms.boardservice.ib.InbandConstants;
 import com.vmware.vrack.hms.boardservice.ib.InbandServiceImpl;
 import com.vmware.vrack.hms.common.StatusEnum;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
@@ -66,101 +70,182 @@ public class HddInfoHelper
 
     private static final String UNAVAILABLE = "unavailable";
 
+    private static final String COLON = ":";
+
+    private static final String CHANNEL = "Channel ";
+
+    private static final String TARGET = "Target ";
+
+    private static final String LUN = "LUN ";
+
+    private static final String DEVICE_CHANNEL = "C";
+
+    private static final String DEVICE_TARGET = "T";
+
+    private static final String DEVICE_LUN = "L";
+
+    private static final String IS_CAPACITY_FLASH = "IsCapacityFlash";
+
+    // Maintaining a list of Operational States for storage devices.
+    private static final List<StatusEnum> opStates =
+        new ArrayList<StatusEnum>( Arrays.asList( StatusEnum.OK, StatusEnum.DEGRADED, StatusEnum.UNKNOWNSTATE ) );
+
     public static List<HddInfo> getHddInfo( HostSystem hostSystem, VsphereClient client, ServiceServerNode node )
         throws Exception
     {
         if ( hostSystem != null && hostSystem.getConfigManager() != null )
         {
             List<HddInfo> hddInfos = new ArrayList<>();
+            Session session = null;
             ConfigManager configManager = hostSystem.getConfigManager();
+
             ManagedObjectReference ssmor = configManager.getStorageSystem();
-            if ( ssmor != null )
+            try
             {
-                StorageSystem ss = client.createStub( StorageSystem.class, ssmor );
-                if ( ss != null && ss.getStorageDeviceInfo() != null )
+                try
                 {
-                    Map<String, Path> plugStoreTopologyPathMap = new HashMap<>();
-                    PlugStoreTopology plugStoreTopology = ss.getStorageDeviceInfo().getPlugStoreTopology();
-                    if ( plugStoreTopology != null )
+                    logger.debug( "At HddInfoHelper Trying to logon to ssh termninal for node:"
+                        + ( node != null ? node.getNodeID() : null ) );
+                    session = getSession( node );
+                }
+                catch ( HmsException | JSchException e )
+                {
+                    logger.error( "Cannot create ssh session Object for node : "
+                        + ( node != null ? node.getNodeID() : null ), e );
+                }
+                if ( ssmor != null )
+                {
+                    StorageSystem ss = client.createStub( StorageSystem.class, ssmor );
+                    if ( ss != null && ss.getStorageDeviceInfo() != null )
                     {
-                        for ( Path path : plugStoreTopology.getPath() )
+
+                        Map<String, Path> plugStoreTopologyPathMap = new HashMap<>();
+                        PlugStoreTopology plugStoreTopology = ss.getStorageDeviceInfo().getPlugStoreTopology();
+                        if ( plugStoreTopology != null )
                         {
-                            String key = path.getDevice();
-                            if ( key != null )
+                            for ( Path path : plugStoreTopology.getPath() )
                             {
-                                plugStoreTopologyPathMap.put( key, path );
+                                String key = path.getDevice();
+                                if ( key != null )
+                                {
+                                    plugStoreTopologyPathMap.put( key, path );
+                                }
                             }
                         }
-                    }
-                    for ( ScsiLun lun : ss.getStorageDeviceInfo().getScsiLun() )
-                    {
-                        HddInfo hddInfo = new HddInfo();
-                        ComponentIdentifier hddComponentIdentifier = new ComponentIdentifier();
-                        ScsiDisk sd = null;
-                        // Because we are getting some data which are NOT truely speaking Drives in this listing being
-                        // it can be some caching storage devices.
-                        // So filtering them out.
-                        if ( "disk".equalsIgnoreCase( lun.getDeviceType() ) )
+
+                        for ( ScsiLun lun : ss.getStorageDeviceInfo().getScsiLun() )
                         {
-                            if ( lun instanceof ScsiDisk )
+                            HddInfo hddInfo = new HddInfo();
+                            ComponentIdentifier hddComponentIdentifier = new ComponentIdentifier();
+                            ScsiDisk sd = null;
+
+                            // Because we are getting some data which are NOT truly speaking Drives in this listing
+                            // being it
+                            // can be some caching storage devices. So filtering them out.
+                            if ( "disk".equalsIgnoreCase( lun.getDeviceType() ) )
                             {
-                                sd = (ScsiDisk) lun;
-                                if ( sd.getSsd() )
+                                if ( lun instanceof ScsiDisk )
                                 {
-                                    hddInfo.setType( "SSD" );
-                                }
-                                else
-                                {
-                                    hddInfo.setType( "HDD" );
-                                }
-                                if ( sd.getCapacity() != null )
-                                {
-                                    long size = sd.getCapacity().getBlock() * sd.getCapacity().getBlockSize();
-                                    long sizeInMB = ( size / ( 1024 * 1024 ) );
-                                    hddInfo.setDiskCapacityInMB( sizeInMB );
-                                }
-                                if ( sd.getOperationalState() != null && sd.getOperationalState().length > 0 )
-                                {
-                                    hddInfo.setState( StatusEnum.getHddState( sd.getOperationalState()[( sd.getOperationalState().length )
-                                        - 1] ) );
-                                }
-                                if ( sd.getUuid() != null )
-                                {
-                                    for ( String pathKey : plugStoreTopologyPathMap.keySet() )
+                                    sd = (ScsiDisk) lun;
+
+                                    if ( sd.getSsd() )
                                     {
-                                        if ( pathKey.contains( sd.getUuid() ) )
+                                        hddInfo.setType( "SSD" );
+                                    }
+                                    else
+                                    {
+                                        hddInfo.setType( "HDD" );
+                                    }
+
+                                    if ( sd.getCapacity() != null )
+                                    {
+                                        long size = sd.getCapacity().getBlock() * sd.getCapacity().getBlockSize();
+                                        long sizeInMB = ( size / ( 1024 * 1024 ) );
+                                        hddInfo.setDiskCapacityInMB( sizeInMB );
+                                    }
+
+                                    if ( sd.getOperationalState() != null && sd.getOperationalState().length > 0 )
+                                    {
+                                        hddInfo.setState( StatusEnum.getHddState( sd.getOperationalState()[( sd.getOperationalState().length )
+                                            - 1] ) );
+                                    }
+
+                                    if ( sd.getUuid() != null )
+                                    {
+                                        for ( String pathKey : plugStoreTopologyPathMap.keySet() )
                                         {
-                                            Path path = plugStoreTopologyPathMap.get( pathKey );
-                                            if ( path != null && path.getTargetNumber() != null )
+                                            if ( pathKey.contains( sd.getUuid() ) )
                                             {
-                                                hddInfo.setLocation( String.valueOf( path.getTargetNumber() ) );
-                                                hddInfo.setId( String.valueOf( path.getTargetNumber() ) );
+                                                Path path = plugStoreTopologyPathMap.get( pathKey );
+                                                if ( path != null && path.getTargetNumber() != null
+                                                    && path.getChannelNumber() != null && path.getLunNumber() != null
+                                                    && path.getAdapter() != null )
+                                                {
+                                                    String deviceLocation = null;
+                                                    String deviceId = null;
+                                                    // For ex: path.getAdapter() returns the value as
+                                                    // "key-vim.host.PlugStoreTopology.Adapter-vmhba1",
+                                                    // we need only the adapter/controller this specific storage device
+                                                    // is connected.
+                                                    // So we are extracting only the vmbha1 using replaceFirst.
+                                                    deviceLocation =
+                                                        path.getAdapter().replaceFirst( "key-vim.host.PlugStoreTopology.Adapter-",
+                                                                                        " " ).trim()
+                                                            + COLON + CHANNEL
+                                                            + String.valueOf( path.getChannelNumber() ) + COLON + TARGET
+                                                            + String.valueOf( path.getTargetNumber() ) + COLON + LUN
+                                                            + String.valueOf( path.getLunNumber() );
+                                                    deviceId =
+                                                        path.getAdapter().replaceFirst( "key-vim.host.PlugStoreTopology.Adapter-",
+                                                                                        " " ).trim()
+                                                            + COLON + DEVICE_CHANNEL
+                                                            + String.valueOf( path.getChannelNumber() ) + COLON
+                                                            + DEVICE_TARGET + String.valueOf( path.getTargetNumber() )
+                                                            + COLON + DEVICE_LUN
+                                                            + String.valueOf( path.getLunNumber() );
+                                                    hddInfo.setLocation( deviceLocation );
+                                                    // TODO: Id can be set it as canonicalName
+                                                    hddInfo.setId( deviceId );
+                                                }
                                             }
                                         }
                                     }
+
+                                    // Set Canonical Name here. Will be required to map Smart Data to particular Hdd
+                                    hddInfo.setName( sd.getCanonicalName() );
+
+                                    // setting revision from scsiLun as firmware for HDD.
+                                    hddInfo.setFirmwareInfo( sd.getRevision() );
+
+                                    // Setting the manufacturer, product model
+                                    hddComponentIdentifier.setManufacturer( sd.getVendor() );
+                                    hddComponentIdentifier.setProduct( sd.getModel() );
+                                    if ( !sd.getSerialNumber().equals( UNAVAILABLE ) && sd.getSerialNumber() != null
+                                        && !sd.getSerialNumber().equals( "" ) )
+                                        hddComponentIdentifier.setSerialNumber( sd.getSerialNumber() );
+                                    hddInfo.setComponentIdentifier( hddComponentIdentifier );
+
+                                    // Get IsCapacityDisk details for the storage device
+                                    boolean isCapacityDisk = findIsCapacityDisk( hddInfo.getName(), session,
+                                                                                 node.getNodeID(), hddInfo.getType() );
+                                    hddInfo.setCapacityDisk( isCapacityDisk );
+
+                                    hddInfos.add( hddInfo );
                                 }
-                                // Set Canonical Name here. Will be required to map Smart Data to particular Hdd
-                                hddInfo.setName( sd.getCanonicalName() );
-                                // setting revision from scsiLun as firmware for HDD.
-                                hddInfo.setFirmwareInfo( sd.getRevision() );
-                                // Setting the manufacturer, product model
-                                hddComponentIdentifier.setManufacturer( sd.getVendor() );
-                                hddComponentIdentifier.setProduct( sd.getModel() );
-                                if ( !sd.getSerialNumber().equals( UNAVAILABLE ) && sd.getSerialNumber() != null
-                                    && !sd.getSerialNumber().equals( "" ) )
-                                    hddComponentIdentifier.setSerialNumber( sd.getSerialNumber() );
-                                hddInfo.setComponentIdentifier( hddComponentIdentifier );
-                                hddInfos.add( hddInfo );
                             }
                         }
                     }
+                    else
+                    {
+                        throw new HmsException( "No HDD information found." );
+                    }
                 }
-                else
-                {
-                    throw new HmsException( "No HDD information found." );
-                }
+                return hddInfos;
             }
-            return hddInfos;
+            finally
+            {
+                destroySession( session );
+            }
         }
         else
         {
@@ -169,8 +254,78 @@ public class HddInfoHelper
     }
 
     /**
-     * Get HDD Specific SMART Data
+     * Gets the IsCapacityDisk flag details for the storage device provided device name
      *
+     * @param deviceCanonicalName
+     * @return
+     */
+    public static boolean findIsCapacityDisk( String deviceCanonicalName, Session session, String nodeId,
+                                              String diskType )
+        throws Exception
+    {
+        logger.debug( "Getting IsCapacityDisk details for the storage device: {} for node {}", deviceCanonicalName,
+                      nodeId );
+
+        boolean isCapacityDisk = true;
+
+        if ( session == null )
+        {
+            throw new HmsException( "Cannot get IsCapacityDisk details for the storage device [ " + deviceCanonicalName
+                + " ] for node " + "[ " + nodeId + "] and Session Object [" + session + " ]" );
+        }
+        try
+        {
+            if ( deviceCanonicalName != null )
+            {
+                String command = Constants.GET_IS_CAPACITY_FLASH.replaceAll( "\\{device\\}", deviceCanonicalName );
+                String result = EsxiSshUtil.executeCommand( session, command );
+                // vdq -q -d {device} command output we get is not proper JSON
+                // formatted one,
+                // so we had to format by removing extra ","
+                StringBuilder sb = new StringBuilder( result );
+                sb.setCharAt( sb.lastIndexOf( "," ), ' ' );
+                sb.setCharAt( sb.lastIndexOf( "," ), ' ' );
+
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, String> map = null;
+
+                ArrayList<HashMap<String, String>> arrayListMap =
+                    mapper.readValue( sb.toString(), new TypeReference<ArrayList<HashMap<String, String>>>()
+                    {
+                    } );
+
+                if ( arrayListMap != null && arrayListMap.size() > 0 )
+                {
+                    map = arrayListMap.get( 0 );
+
+                    if ( map.containsKey( IS_CAPACITY_FLASH ) )
+                    {
+                        isCapacityDisk = "1".equals( map.get( "IsCapacityFlash" ) );
+                        logger.debug( "IsCapacityDisk flag: {} for storage device: {} for node {}", isCapacityDisk,
+                                      deviceCanonicalName, nodeId );
+                        return isCapacityDisk;
+                    }
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            logger.error( "Can't get the IsCapacityDisk data details for the storage device: {} for node: {} : Exception {}",
+                          deviceCanonicalName, nodeId, e );
+        }
+
+        // This means that capacityFalsh has not been added to SSD in case of
+        // not AllFlash environment.
+        if ( "SSD".equals( diskType ) )
+        {
+            return false;
+        }
+        return isCapacityDisk;
+    }
+
+    /**
+     * Get HDD Specific SMART Data
+     * 
      * @param diskName
      * @param session
      * @return
@@ -181,34 +336,47 @@ public class HddInfoHelper
     {
         logger.debug( "Trying to get Smart data for disk: " + diskName );
         List<HddSMARTData> smartData = new ArrayList<HddSMARTData>();
+
         if ( diskName != null && !"".equals( diskName.trim() ) && session != null )
         {
             String command = String.format( Constants.GET_HDD_SMART_DATA_COMMAND, diskName.trim() );
+
             // Result will be received in csv format after executing following command
             String result = EsxiSshUtil.executeCommand( session, command );
+
             // if result String ends with '\n' We need to remove that extra character,
             // else it will appear as last character in Build Version while parsing
             if ( result.endsWith( "\n" ) )
             {
                 result = result.substring( 0, result.length() - 1 );
             }
+
             logger.debug( result );
+
             // convert String into InputStream
             InputStream is = new ByteArrayInputStream( result.getBytes() );
+
             // read it with BufferedReader
             BufferedReader br = new BufferedReader( new InputStreamReader( is ) );
+
             CSVReader csvReader = new CSVReader( br );
+
             // read all lines at once
             List<String[]> records = csvReader.readAll();
+
             Iterator<String[]> iterator = records.iterator();
+
             // skip header row
             iterator.next();
+
             while ( iterator.hasNext() )
             {
                 String[] record = iterator.next();
                 HddSMARTData data = new HddSMARTData();
+
                 // Set name of the Hdd Smart parameter
                 data.setParameter( record[0] );
+
                 if ( data.getParameter() != null )
                 {
                     data.setThreshold( record[1] );
@@ -218,6 +386,7 @@ public class HddInfoHelper
                 }
             }
             csvReader.close();
+
             logger.debug( smartData.toString() );
             return smartData;
         }
@@ -226,11 +395,12 @@ public class HddInfoHelper
             throw new HmsException( "Cannot get HDD SMART Data for Disk: " + diskName + " and Session Object: "
                 + session );
         }
+
     }
 
     /**
      * Get ssh Session Object once for the node
-     *
+     * 
      * @param node
      * @return
      * @throws JSchException
@@ -243,9 +413,10 @@ public class HddInfoHelper
             && node.getOsPassword() != null )
         {
             Properties sessionConfig = new java.util.Properties();
-            sessionConfig.put( "StrictHostKeyChecking", "no" );
+            sessionConfig.put( InbandConstants.STRICT_HOST_KEY_CHECKING, InbandConstants.STRICT_HOST_KEY_CHECK_YES );
             Session session = EsxiSshUtil.getSessionObject( node.getOsUserName(), node.getOsPassword(),
                                                             node.getIbIpAddress(), node.getSshPort(), sessionConfig );
+
             try
             {
                 session.connect( 30000 );
@@ -271,7 +442,7 @@ public class HddInfoHelper
 
     /**
      * Destroy ssh Session once completed
-     *
+     * 
      * @param session
      * @throws Exception
      */
@@ -280,18 +451,22 @@ public class HddInfoHelper
         try
         {
             if ( session != null )
+            {
+                logger.debug( "HddInfoHelper: Destroying the ssh Session begin..." );
                 session.disconnect();
+                logger.debug( "HddInfoHelper: Destroyed the ssh Session..." );
+            }
             session = null;
         }
         catch ( Exception e )
         {
-            logger.error( "Unable to destroy SSH Session " + session );
+            logger.error( "Unable to destroy SSH Session: {} ", session, e );
         }
     }
 
     /**
      * Get HDD Specific Sensor Data (as Health Status,Media Wearout Indicator etc)
-     *
+     * 
      * @param serviceNode
      * @param component
      * @param inbandServiceImpl
@@ -300,10 +475,11 @@ public class HddInfoHelper
      */
     public static List<ServerComponentEvent> getHddSensor( ServiceHmsNode serviceNode, ServerComponent component,
                                                            InbandServiceImpl inbandServiceImpl )
-                                                               throws HmsException
+        throws HmsException
     {
         List<HddInfo> hddInfos = null;
         List<ServerComponentEvent> componentSensors = new ArrayList<ServerComponentEvent>();
+
         try
         {
             if ( inbandServiceImpl != null )
@@ -324,11 +500,14 @@ public class HddInfoHelper
                             ? serviceNode.getNodeID() : serviceNode + "]" );
             throw e;
         }
+
         componentSensors = getHddOperationalStateEvents( hddInfos, serviceNode );
+
         if ( hddInfos != null )
         {
             Session session = null;
             ServiceServerNode node = null;
+
             try
             {
                 node = (ServiceServerNode) serviceNode;
@@ -338,6 +517,7 @@ public class HddInfoHelper
                 logger.error( "serviceNode is not an instance of ServiceServerNode: "
                     + ( node != null ? node.getNodeID() : node ) );
             }
+
             try
             {
                 try
@@ -351,13 +531,15 @@ public class HddInfoHelper
                     logger.error( "Cannot create ssh session Object for node : "
                         + ( node != null ? node.getNodeID() : node ), e );
                 }
+
                 for ( HddInfo hddInfo : hddInfos )
                 {
                     try
                     {
-                        if ( hddInfo != null )
+                        if ( hddInfo != null && opStates.contains( hddInfo.getState() ) )
                         {
                             List<HddSMARTData> hddSmartDatas = getHddSmartDataInfo( hddInfo.getName(), session );
+
                             // if (hddInfo)
                             for ( HddSMARTData hddSmartData : hddSmartDatas )
                             {
@@ -367,13 +549,16 @@ public class HddInfoHelper
                                     {
                                         // For all properties of hddSmartData data in this if condition, generate
                                         // ServerComponentSensor if values are not in the limits.
+
                                         String parameter = hddSmartData.getParameter();
+
                                         ServerComponentEvent componentSensor = null;
                                         if ( parameter != null && !"".equals( parameter )
                                             && hddSmartData.getValue() != null )
                                         {
                                             componentSensor = new ServerComponentEvent();
                                             boolean addComponentSensor = false;
+
                                             if ( hddInfo.getType().equals( "HDD" ) )
                                             {
                                                 switch ( parameter )
@@ -389,6 +574,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.MEDIA_WEAROUT_INDICATOR:
                                                         if ( isSmartDataBeyondThreshold( hddSmartData, false ) )
                                                         {
@@ -397,6 +583,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.WRITE_ERROR_COUNT:
                                                     case Constants.WRITE_SECTORS_TOT_COUNT:
                                                         if ( isSmartDataBeyondThreshold( hddSmartData, false ) )
@@ -406,6 +593,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.READ_ERROR_COUNT:
                                                     case Constants.READ_SECTORS_TOT_COUNT:
                                                     case Constants.RAW_READ_ERROR_RATE:
@@ -416,6 +604,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.DRIVE_TEMPERATURE:
                                                     case Constants.DRIVER_RATED_MAX_TEMPERATURE:
                                                         if ( isSmartDataBeyondThreshold( hddSmartData, false ) )
@@ -425,6 +614,7 @@ public class HddInfoHelper
                                                             componentSensor.setValue( new Float( hddSmartData.getValue() ) );
                                                         }
                                                         break;
+
                                                     case Constants.REALLOCATED_SECTORS_COUNT:
                                                     case Constants.INITIAL_BAD_BLOCK_COUNT:
                                                         if ( isSmartDataBeyondThreshold( hddSmartData, false ) )
@@ -434,6 +624,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.POWER_ON_HOURS:
                                                     case Constants.POWER_CYCLE_COUNT:
                                                         break;
@@ -443,6 +634,7 @@ public class HddInfoHelper
                                             {
                                                 switch ( parameter )
                                                 {
+
                                                     case Constants.MEDIA_WEAROUT_INDICATOR:
                                                         if ( isSmartDataBeyondThreshold( hddSmartData, false ) )
                                                         {
@@ -451,6 +643,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.WRITE_ERROR_COUNT:
                                                     case Constants.WRITE_SECTORS_TOT_COUNT:
                                                         if ( isSmartDataBeyondThreshold( hddSmartData, false ) )
@@ -460,6 +653,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.READ_ERROR_COUNT:
                                                     case Constants.READ_SECTORS_TOT_COUNT:
                                                     case Constants.RAW_READ_ERROR_RATE:
@@ -470,6 +664,7 @@ public class HddInfoHelper
                                                             componentSensor.setDiscreteValue( hddSmartData.getValue() );
                                                         }
                                                         break;
+
                                                     case Constants.DRIVE_TEMPERATURE:
                                                     case Constants.DRIVER_RATED_MAX_TEMPERATURE:
                                                         if ( isSmartDataBeyondThreshold( hddSmartData, false ) )
@@ -483,8 +678,13 @@ public class HddInfoHelper
                                                         break;
                                                 }
                                             }
+
                                             if ( addComponentSensor )
                                             {
+                                                logger.debug( "Adding SMART data event catalog:{} with parameter:{} for host:{}, {}:{} with value:{} and threshold:{}",
+                                                              componentSensor.getEventName().getEventID(), parameter,
+                                                              node.getNodeID(), hddInfo.getType(), hddInfo.getName(),
+                                                              hddSmartData.getValue(), hddSmartData.getThreshold() );
                                                 componentSensor.setEventId( parameter );
                                                 // componentID = hddInfo.getLocation() + " " +
                                                 // hddInfo.getComponentIdentifier().getProduct();
@@ -506,20 +706,22 @@ public class HddInfoHelper
                                         + hddInfo.getName() + " ] for node [ " + serviceNode != null
                                                         ? serviceNode.getNodeID()
                                                         : serviceNode + " ] for SMART parameter:"
-                                                            + hddSmartData.getParameter() );
+                                                            + hddSmartData.getParameter() + e );
                                 }
+
                             }
                         }
                         else
                         {
-                            logger.warn( "One of Storage Info is Null for node [" + serviceNode != null
-                                            ? serviceNode.getNodeID() : serviceNode + "]" );
+                            logger.warn( "One of Storage Info is Null or NonOperational for node ["
+                                + serviceNode != null ? serviceNode.getNodeID() : serviceNode + "]" );
                         }
                     }
                     catch ( Exception e )
                     {
                         logger.error( "Exception while getting Storage Smart Data for [ " + hddInfo.getName()
-                            + " ] for node [ " + serviceNode != null ? serviceNode.getNodeID() : serviceNode + " ]" );
+                            + " ] for node [ " + serviceNode != null ? serviceNode.getNodeID()
+                                            : serviceNode + " ]" + e );
                     }
                 }
             }
@@ -533,6 +735,7 @@ public class HddInfoHelper
             logger.error( "Could Not find any Storage info on node [" + serviceNode != null ? serviceNode.getNodeID()
                             : serviceNode + "]" );
         }
+
         return componentSensors;
     }
 
@@ -546,16 +749,21 @@ public class HddInfoHelper
      */
     public static List<ServerComponentEvent> getHddOperationalStateEvents( List<HddInfo> hddInfoList,
                                                                            ServiceHmsNode serviceNode )
-                                                                               throws HmsException
+        throws HmsException
     {
+
         if ( serviceNode != null && serviceNode instanceof ServiceServerNode )
         {
+
             List<ServerComponentEvent> serverComponentEventList = new ArrayList<ServerComponentEvent>();
+
             if ( hddInfoList != null )
             {
                 ServiceServerNode node = null;
+
                 if ( serviceNode instanceof ServiceServerNode )
                     node = (ServiceServerNode) serviceNode;
+
                 try
                 {
                     for ( HddInfo hddInfo : hddInfoList )
@@ -647,6 +855,7 @@ public class HddInfoHelper
                 logger.error( "Could Not find any Storage device info on node [" + serviceNode != null
                                 ? serviceNode.getNodeID() : serviceNode + "]" );
             }
+
             return serverComponentEventList;
         }
         else
@@ -659,7 +868,7 @@ public class HddInfoHelper
 
     /**
      * Return true if Smart data is in concerning / warning state
-     *
+     * 
      * @param hddSMARTData
      * @return
      */
@@ -667,16 +876,19 @@ public class HddInfoHelper
                                                       boolean isValueGreaterThanThresholdConcerning )
     {
         boolean isDataConcerning = false;
+
         if ( hddSMARTData != null )
         {
             String thresholdString = hddSMARTData.getThreshold();
             String valueString = hddSMARTData.getValue();
+
             if ( valueString != null )
             {
                 if ( thresholdString != null )
                 {
                     Integer value = null;
                     Integer threshold = null;
+
                     try
                     {
                         value = Integer.parseInt( valueString );
@@ -686,19 +898,26 @@ public class HddInfoHelper
                     {
                         return false;
                     }
+
                     // Check if value lower than threshold is concerning or the opposite of it.
                     // If isValueLowerTheBetter is true,
                     // it means that if value exceeds the defined threshold, the data is concerning.
                     if ( isValueGreaterThanThresholdConcerning )
                     {
-                        if ( value >= threshold )
+                        if ( value >= threshold && threshold != 0 )
                         {
                             isDataConcerning = true;
                         }
                     }
                     else
                     {
-                        if ( value <= threshold )
+                        // threshold 0 means that the attribute the threshold is associated to should be considered only
+                        // informational
+                        // and that it has no direct influence over reliability
+                        // If the threshold was set by the device manufacturer to 0, it means this is an informational
+                        // attribute.
+                        // Please refer: http://www.almico.com/sfarticle.php?id=2
+                        if ( value <= threshold && threshold != 0 )
                         {
                             isDataConcerning = true;
                         }
@@ -706,6 +925,8 @@ public class HddInfoHelper
                 }
             }
         }
+
         return isDataConcerning;
     }
+
 }

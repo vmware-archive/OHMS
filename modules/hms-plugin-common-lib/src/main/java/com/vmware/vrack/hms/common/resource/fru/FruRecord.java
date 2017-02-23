@@ -20,6 +20,7 @@ package com.vmware.vrack.hms.common.resource.fru;
  */
 public abstract class FruRecord
 {
+
     private FruType fruType;
 
     public FruType getFruType()
@@ -34,5 +35,7 @@ public abstract class FruRecord
 
     public FruRecord()
     {
+
     }
+
 }

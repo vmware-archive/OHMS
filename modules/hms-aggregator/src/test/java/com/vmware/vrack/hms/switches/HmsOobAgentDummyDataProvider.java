@@ -44,10 +44,12 @@ import com.vmware.vrack.hms.common.switches.api.SwitchOspfGlobalConfig.OspfMode;
 
 public class HmsOobAgentDummyDataProvider
 {
+
     public static SwitchInfo getSwitchInfo()
     {
         SwitchInfo switchInfo = new SwitchInfo();
         ComponentIdentifier id = new ComponentIdentifier();
+
         switchInfo.setAdminStatus( "OPERATIONAL" );
         switchInfo.setComponentIdentifier( id );
         switchInfo.setDiscoverable( true );
@@ -66,12 +68,14 @@ public class HmsOobAgentDummyDataProvider
         switchInfo.setSwitchId( "S1" );
         switchInfo.setSwitchPorts( Arrays.asList( "swp1" ) );
         switchInfo.setValidationStatus( "VALIDATED" );
+
         return switchInfo;
     }
 
     public static SwitchPort getSwitchPort()
     {
         SwitchPort switchPort = new SwitchPort();
+
         switchPort.setAutoneg( PortAutoNegMode.ON );
         switchPort.setDuplex( PortDuplexMode.FULL );
         switchPort.setFlags( "BROADCAST,MULTICAST,UP,LOWER_UP" );
@@ -81,13 +85,16 @@ public class HmsOobAgentDummyDataProvider
         switchPort.setSpeed( "40G" );
         switchPort.setStatus( PortStatus.DOWN );
         switchPort.setType( PortType.SYNC );
+
         return switchPort;
     }
 
     public static List<SwitchPort> getSwitchPortList()
     {
         List<SwitchPort> switchPortList = new ArrayList<SwitchPort>();
+
         switchPortList.add( getSwitchPort() );
+
         return switchPortList;
     }
 
@@ -101,24 +108,30 @@ public class HmsOobAgentDummyDataProvider
         SwitchVlan vlan = new SwitchVlan();
         Set<String> taggedPorts = new HashSet<String>();
         Set<String> untaggedPorts = new HashSet<String>();
+
         taggedPorts.add( "swp1" );
         taggedPorts.add( "swp2" );
         taggedPorts.add( "swp3" );
+
         untaggedPorts.add( "swp10" );
         untaggedPorts.add( "swp11" );
+
         vlan.setId( "2011" );
         vlan.setIpAddress( "1.1.1.1" );
         vlan.setName( "no-name" );
         vlan.setNetmask( "255.255.255.0" );
         vlan.setTaggedPorts( taggedPorts );
         vlan.setUntaggedPorts( untaggedPorts );
+
         return vlan;
     }
 
     public static List<SwitchVlan> getSwitchVlanList()
     {
         List<SwitchVlan> vlanList = new ArrayList<SwitchVlan>();
+
         vlanList.add( getSwitchVlan() );
+
         return vlanList;
     }
 
@@ -130,17 +143,21 @@ public class HmsOobAgentDummyDataProvider
     public static SwitchLacpGroup getSwitchLacpGroup()
     {
         SwitchLacpGroup lag = new SwitchLacpGroup();
+
         lag.setIpAddress( "1.1.1.1/24" );
         lag.setMode( "802.3ad" );
         lag.setName( "bd-test" );
         lag.setPorts( Arrays.asList( "swp20", "swp21", "swp22" ) );
+
         return lag;
     }
 
     public static List<SwitchLacpGroup> getSwitchLacpGroupList()
     {
         List<SwitchLacpGroup> lacpGroupList = new ArrayList<SwitchLacpGroup>();
+
         lacpGroupList.add( getSwitchLacpGroup() );
+
         return lacpGroupList;
     }
 
@@ -155,47 +172,58 @@ public class HmsOobAgentDummyDataProvider
         SwitchOspfGlobalConfig global = new SwitchOspfGlobalConfig();
         SwitchOspfNetworkConfig network = new SwitchOspfNetworkConfig();
         SwitchOspfInterfaceConfig iface = new SwitchOspfInterfaceConfig();
+
         iface.setMode( InterfaceMode.ACTIVE );
         iface.setName( "swp5" );
+
         network.setArea( "0.0.0.0" );
         network.setNetwork( "1.1.1.0/24" );
+
         global.setDefaultMode( OspfMode.PASSIVE );
         global.setInterfaces( Arrays.asList( iface ) );
         global.setNetworks( Arrays.asList( network ) );
         global.setRouterId( "2.2.2.1" );
+
         ospf.setEnabled( true );
         ospf.setGlobal( global );
+
         return ospf;
     }
 
     public static SwitchBgpConfig getSwitchBgp()
     {
         SwitchBgpConfig bgp = new SwitchBgpConfig();
+
         bgp.setEnabled( true );
         bgp.setExportedNetworks( Arrays.asList( "1.1.10.0/24", "1.1.10.0/24" ) );
         bgp.setLocalAsn( 100 );
         bgp.setLocalIpAddress( "1.1.1.1" );
         bgp.setPeerAsn( 200 );
         bgp.setPeerIpAddress( "1.1.1.2" );
+
         return bgp;
     }
 
     public static SwitchMclagInfo getSwitchMcLag()
     {
         SwitchMclagInfo mcLag = new SwitchMclagInfo();
+
         mcLag.setEnabled( true );
         mcLag.setInterfaceName( "swp46" );
         mcLag.setIpAddress( "1.1.1.1" );
         mcLag.setNetmask( "255.255.255.0" );
         mcLag.setPeerIp( "1.1.1.2" );
         mcLag.setSharedMac( "aq:bb:cc:dd:ee:ff" );
+
         return mcLag;
     }
 
     public static GetSwitchesResponse getSwitchIdList()
     {
         GetSwitchesResponse switchList = new GetSwitchesResponse();
+
         switchList.add( new GetSwitchesResponseItem( "S1", "192.168.100.20" ) );
+
         return switchList;
     }
 }

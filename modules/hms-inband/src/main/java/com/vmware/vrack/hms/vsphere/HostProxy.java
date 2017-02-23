@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere;
 
 import static com.vmware.vim.binding.vim.host.NetStackInstance.SystemStackKey.defaultTcpipStack;
@@ -380,11 +381,13 @@ public class HostProxy
         throws VsphereOperationException
     {
         NetworkPolicy networkPolicy = new NetworkPolicy();
+
         PortGroup.Specification pgSpec = new PortGroup.Specification();
         pgSpec.setName( pgName );
         pgSpec.setVlanId( vlanId );
         pgSpec.setVswitchName( switchName );
         pgSpec.setPolicy( networkPolicy );
+
         try
         {
             netSys.addPortGroup( pgSpec );
@@ -429,11 +432,13 @@ public class HostProxy
         String nicTypeName = nicType.name();
         logger.info( "Creating {} vmknic on vSwitch {} with IP address {}", nicTypeName, switchName,
                      prodMgmtIp.getAddress() );
+
         // TODO: It depends on precofiguration.
         // String pgName = addPortGroup(VRACK_MGMT_NETWORK_PREFIX + " " + UUID.randomUUID(), switchName);
         // TransactionContext.getInstance().set(TRAN_NEW_PORT_GROUP_NAME, pgName);
         String pgName = addPortGroup( portGroupName, switchName, vlanId );
         TransactionContext.getInstance().set( TRAN_NEW_PORT_GROUP_NAME, pgName );
+
         IpConfig ipConf = new IpConfig();
         if ( prodMgmtIp.isDhcpEnabled() )
         {
@@ -444,6 +449,7 @@ public class HostProxy
             ipConf.setIpAddress( prodMgmtIp.getAddress() );
             ipConf.setSubnetMask( prodMgmtIp.getNetmask() );
         }
+
         VirtualNic.Specification vNicSpec = new VirtualNic.Specification();
         vNicSpec.setIp( ipConf );
         vNicSpec.setPortgroup( pgName );
@@ -464,6 +470,7 @@ public class HostProxy
         }
         logger.info( "New device vmknic {} has been added", device );
         TransactionContext.getInstance().set( TRAN_NEW_VMKNIC_DEVICE, device );
+
         String newGateway = prodMgmtIp.getGateway();
         logger.debug( "New gateway: {}", newGateway );
         if ( !StringUtils.isBlank( newGateway ) )
@@ -492,6 +499,7 @@ public class HostProxy
                 logger.info( "IP route config is updated to {}", newGateway );
             }
         }
+
         VirtualNic vmknic = findVmknicByIp( prodMgmtIp.getAddress() );
         try
         {
@@ -518,16 +526,20 @@ public class HostProxy
             logger.warn( "The vmknic with IP address {} is not found", newIp.getAddress() );
             return;
         }
+
         IpConfig ipConf = virtualNic.getSpec().getIp();
         IpRouteConfig ipRouteConf = netSys.getIpRouteConfig();
         String oldGateway = ipRouteConf.getDefaultGateway();
         String newGateway = newIp.getGateway();
+
         logger.info( "Old subnet mask: {}, new subnet mask: {}", ipConf.getSubnetMask(), newIp.getNetmask() );
         logger.info( "Old gateway: {}, new gateway: {}", oldGateway, newGateway );
+
         if ( oldGateway != null && newGateway != null && !newGateway.equals( oldGateway ) )
         {
             throw new UnsupportedOperationException( "New IP address cannot be assigned to vmknic in this way" );
         }
+
         ipConf.setIpAddress( newIp.getAddress() );
         ipConf.setSubnetMask( newIp.getNetmask() );
         final VirtualNic.Specification spec = virtualNic.getSpec();
@@ -587,6 +599,7 @@ public class HostProxy
         {
             return;
         }
+
         String device = virtualNic.getDevice();
         String portGroupName = virtualNic.getPortgroup();
         logger.debug( "Vmknic {} {}", device, ipAddress );
@@ -604,6 +617,7 @@ public class HostProxy
         {
             throw new VsphereOperationException( ex );
         }
+
         logger.info( "Removing PortGroup {} from host", portGroupName );
         try
         {
@@ -640,12 +654,15 @@ public class HostProxy
             IpRouteTableConfig ipRouteTableConfig = new IpRouteTableConfig( new IpRouteOp[] {
                 new IpRouteOp( operation.name(), new IpRouteEntry( network, prefixLength, gateway, "" ) ) },
                                                                             new IpRouteOp[0] );
+
             NetStackInstance netStackInstance = new NetStackInstance();
             netStackInstance.setKey( defaultTcpipStack.name() );
             netStackInstance.setRouteTableConfig( ipRouteTableConfig );
+
             NetworkConfig networkConfig = new NetworkConfig();
             networkConfig.setNetStackSpec( new NetworkConfig.NetStackSpec[] {
                 new NetworkConfig.NetStackSpec( netStackInstance, ConfigSpecOperation.edit.name() ) } );
+
             netSys.updateNetworkConfig( networkConfig, MODIFY );
         }
         catch ( AlreadyExists | NotFound | HostConfigFault | ResourceInUse e )
@@ -731,6 +748,7 @@ public class HostProxy
         catch ( AlreadyExists alreadyExists )
         {
             logger.error( "Error renaming the Port Group:  already exists", alreadyExists );
+
         }
         catch ( NotFound notFound )
         {
@@ -784,6 +802,7 @@ public class HostProxy
         {
             return Collections.emptyList();
         }
+
         List<String> vmKernelPortGroup = listVmKernelPortGroupName();
         List<String> nameList = new ArrayList<>();
         for ( PortGroup portGroup : portGroups )
@@ -805,6 +824,7 @@ public class HostProxy
         {
             return Collections.emptyList();
         }
+
         List<String> vmKernelPortGroup = new ArrayList<>( vnics.length );
         for ( VirtualNic vnic : vnics )
         {
@@ -827,14 +847,17 @@ public class HostProxy
             throw new UnsupportedOperationException( String.format( NO_AVAILABLE_PHYSICAL_NIC_IN_ESXI_HOST,
                                                                     this.ipAddress ) );
         }
+
         VirtualSwitch.BeaconConfig beaconConfig = new VirtualSwitch.BeaconConfig();
         beaconConfig.setInterval( 10 );
         VirtualSwitch.BondBridge bridge = new VirtualSwitch.BondBridge();
         bridge.setNicDevice( notInUseVmnics.toArray( Constants.ENPTY_STRING_ARRAY ) );
         bridge.setBeacon( beaconConfig );
+
         VirtualSwitch.Specification spec = new VirtualSwitch.Specification();
         spec.setNumPorts( 128 );
         spec.setBridge( bridge );
+
         logger.info( "Creating standard switch {}", vswitchName );
         try
         {
@@ -856,6 +879,7 @@ public class HostProxy
         {
             return Collections.emptyList();
         }
+
         List<String> inUseVmnics = new ArrayList<>( 8 );
         for ( VirtualSwitch virtualSwitch : allVswitches )
         {
@@ -870,6 +894,7 @@ public class HostProxy
                 inUseVmnics.add( pnicInVswitch );
             }
         }
+
         List<String> notInUseVmnics = new ArrayList<>( 8 );
         logger.debug( "Listing all host physical nics" );
         for ( PhysicalNic pnic : allVmnics )
@@ -893,6 +918,7 @@ public class HostProxy
         {
             throw new IllegalArgumentException( SWITCH_NOT_FOUND );
         }
+
         List<String> inUseVmnics = new ArrayList<>( 8 );
         for ( VirtualSwitch virtualSwitch : virtualSwitches )
         {
@@ -928,12 +954,14 @@ public class HostProxy
             logger.warn( "No any standard switch found" );
             return Collections.EMPTY_LIST;
         }
+
         PhysicalNic[] allVmnics = networkInfo.getPnic();
         if ( isEmptyArray( allVmnics ) )
         {
             logger.warn( "No any vmnic found" );
             return Collections.EMPTY_LIST;
         }
+
         List<String> inUseVmnics = listInUseVmnics();
         List<String> availableVmnics = new ArrayList<>( 8 );
         logger.debug( "Listing all vmnics..." );
@@ -966,6 +994,7 @@ public class HostProxy
         logger.info( "Creating port group {}", networkConfig.getName() );
         addPortGroup( networkConfig.getName(), Constants.DEFAULT_VSWITCH_NAME, networkConfig.getVlandId() );
         logger.info( "Port group {} is created", networkConfig.getName() );
+
         String vnicName = networkConfig.getName();
         String vnicIpAddress = networkConfig.getIpAllocation().getAddress();
         String vnicSubnetMask = networkConfig.getIpAllocation().getNetmask();
@@ -981,6 +1010,7 @@ public class HostProxy
         ipConfig.setIpAddress( vnicIpAddress );
         ipConfig.setSubnetMask( vnicSubnetMask );
         virtualNicSpec.setIp( ipConfig );
+
         Future<String> taskFuture = new ClientFutureImpl<>();
         logger.info( "Start to create virtual NIC with IP address {} and subnet mask {}", vnicIpAddress,
                      vnicSubnetMask );
@@ -1000,19 +1030,24 @@ public class HostProxy
         throws VsphereOperationException
     {
         VirtualNic vmknic = findVmknicByIp( vmkIpAddress );
+
         IpConfig ipConfig = new IpConfig();
         ipConfig.setDhcp( Boolean.FALSE );
         ipConfig.setIpAddress( vmknic.getSpec().getIp().getIpAddress() );
         ipConfig.setSubnetMask( vmknic.getSpec().getIp().getSubnetMask() );
+
         PortConnection portConnection = new PortConnection();
         portConnection.setSwitchUuid( dvSwitchUuid );
         portConnection.setPortgroupKey( dvPortgroupKey );
+
         VirtualNic.Specification virtualNicSpec = new VirtualNic.Specification();
         virtualNicSpec.setIp( ipConfig );
         virtualNicSpec.setDistributedVirtualPort( portConnection );
+
         String nicName = vmknic.getDevice();
         String nicTypeName = NicType.management.name();
         logger.info( "Migrating vmknic {} to DvSwitch {} with IP address: {}", nicName, dvSwitchUuid, vmkIpAddress );
+
         int numTries = 0;
         while ( numTries++ < 10 )
         {
@@ -1043,12 +1078,13 @@ public class HostProxy
     // upstreamIpAddress, downstreamIpAddress => apply only to VSAN vmknics
     public void addVmknicOnDvSwitch( String dvSwitchUuid, IpAllocation newIp, String dvPortgroupKey, NicType nicType,
                                      String upstreamIpAddress, String downstreamIpAddress )
-                                         throws VsphereOperationException
+        throws VsphereOperationException
     {
         IpConfig ipConfig = new IpConfig();
         ipConfig.setDhcp( Boolean.FALSE );
         ipConfig.setIpAddress( newIp.getAddress() );
         ipConfig.setSubnetMask( newIp.getNetmask() );
+
         PortConnection portConnection = new PortConnection();
         portConnection.setSwitchUuid( dvSwitchUuid );
         portConnection.setPortgroupKey( dvPortgroupKey );
@@ -1056,6 +1092,7 @@ public class HostProxy
                      dvPortgroupKey );
         // not necessary for a early-binding dvPortgroupKey and is not allowed for a late-binding portgroup.
         // portConnection.setPortKey("9");
+
         VirtualNic.Specification virtualNicSpec = new VirtualNic.Specification();
         virtualNicSpec.setIp( ipConfig );
         virtualNicSpec.setDistributedVirtualPort( portConnection );
@@ -1066,6 +1103,7 @@ public class HostProxy
         {
             String nicName = createVmknic( virtualNicSpec );
             logger.info( "Vmknic {} created on DistributedVirtualPort {}", nicName, dvPortgroupKey );
+
             VirtualNic vmknic = findVmknicByIp( newIp.getAddress() );
             String nicTypeName = nicType.name();
             if ( nicType == NicType.vsan )
@@ -1092,6 +1130,7 @@ public class HostProxy
                 {
                     vsanHostIpConfig = oldConfigInfo.getNetworkInfo().getPort()[0].getIpConfig();
                 }
+
                 ConfigInfo.NetworkInfo.PortConfig portConfig =
                     new ConfigInfo.NetworkInfo.PortConfig( vsanHostIpConfig, vmknic.getDevice() );
                 ConfigInfo.NetworkInfo networkInfo =
@@ -1121,29 +1160,38 @@ public class HostProxy
     {
         ManagedObjectReference autoStartMor = hostSystem.getConfigManager().autoStartManager;
         AutoStartManager autoStartMgr = client.createStub( AutoStartManager.class, autoStartMor );
+
         String vmTypeName = VirtualMachine.class.getSimpleName();
         AutoPowerInfo[] powerInfo = new AutoPowerInfo[vmNames.length];
+
         for ( int i = 0; i < vmNames.length; i++ )
         {
             ManagedObjectReference vmMor =
                 InventoryService.getInstance().getUniqueByName( client.getPropertyCollector(),
                                                                 client.getContainerView( vmTypeName ), vmTypeName,
                                                                 vmNames[i] );
+
             powerInfo[i] = new AutoPowerInfo();
             powerInfo[i].setKey( vmMor );
+
             powerInfo[i].setStartAction( "powerOn" );
             powerInfo[i].setStartDelay( startDelay );
             powerInfo[i].setStartOrder( i + 1 );
+
             powerInfo[i].setWaitForHeartbeat( WaitHeartbeatSetting.no );
+
             powerInfo[i].setStopAction( "powerOff" );
             powerInfo[i].setStopDelay( -1 ); // System Default
         }
+
         SystemDefaults sDefault = new SystemDefaults();
         sDefault.setEnabled( true );
         sDefault.setStartDelay( new Integer( startDelay ) );
+
         Config configSpec = new Config();
         configSpec.setDefaults( sDefault );
         configSpec.setPowerInfo( powerInfo );
+
         autoStartMgr.reconfigure( configSpec );
     }
 
@@ -1175,6 +1223,7 @@ public class HostProxy
                 VsphereUtils.waitInSeconds( 2 );
             }
         }
+
         if ( nicName == null )
         {
             throw new VsphereOperationException( FAILED_TO_CREATE_VMKNIC );
@@ -1189,6 +1238,7 @@ public class HostProxy
             logger.info( "Default gateway is not set. Skipped" );
             return;
         }
+
         IpRouteConfig ipRouteConf = netSys.getIpRouteConfig();
         ipRouteConf.setDefaultGateway( defaultGateway );
         logger.info( "Updating default gateway {} on host {}", defaultGateway, this.ipAddress );
@@ -1230,6 +1280,7 @@ public class HostProxy
             logger.warn( "No target vmnics assigned. Operation skipped" );
             return;
         }
+
         VirtualSwitch vswitch = getVswitch( vswtichName );
         VirtualSwitch.BondBridge bondBridge = getBondBridge( vswitch );
         String[] vmnicsInUse = bondBridge.getNicDevice();
@@ -1239,6 +1290,7 @@ public class HostProxy
             return;
         }
         logger.info( "Detaching vmnics {} from {}", Arrays.toString( vmnicsInUse ), vswitch.getName() );
+
         String[] remainingNicDevice = excludeTargetVmnics( vmnicsInUse, vmnic );
         if ( remainingNicDevice.length == 0 )
         {
@@ -1302,6 +1354,7 @@ public class HostProxy
         {
             remainingVmnics.add( vmnicInUse );
         }
+
         for ( String target : targetVmnic )
         {
             if ( !remainingVmnics.remove( target ) )
@@ -1327,6 +1380,7 @@ public class HostProxy
         {
             throw new IllegalArgumentException( NO_VMNIC_ASSIGNED );
         }
+
         HostMember.PnicSpec[] pnicSpecs = new HostMember.PnicSpec[vmnic.length];
         for ( int i = 0; i < vmnic.length; i++ )
         {
@@ -1335,14 +1389,18 @@ public class HostProxy
             pnicSpecs[i].setUplinkPortgroupKey( uplinkPortgroupKey );
         }
         logger.info( "Attaching {} to DvSwitch {} and UplinkPorgroup {}", vmnic, dvSwitchUuid, uplinkPortgroupKey );
+
         HostMember.PnicBacking pnicBacking = new HostMember.PnicBacking();
         pnicBacking.setPnicSpec( pnicSpecs );
+
         HostProxySwitch.Specification hostProxySwitchSpec = new HostProxySwitch.Specification();
         hostProxySwitchSpec.setBacking( pnicBacking );
+
         HostProxySwitch.Config hostProxySwitchConfig = new HostProxySwitch.Config();
         hostProxySwitchConfig.setChangeOperation( ConfigChange.Operation.edit.name() );
         hostProxySwitchConfig.setUuid( dvSwitchUuid );
         hostProxySwitchConfig.setSpec( hostProxySwitchSpec );
+
         NetworkConfig networkConfig = new NetworkConfig();
         networkConfig.setProxySwitch( new HostProxySwitch.Config[] { hostProxySwitchConfig } );
         try
@@ -1397,6 +1455,7 @@ public class HostProxy
         try
         {
             ManagedObjectReference tr = vm.powerOn( vm.getRuntime().getHost() );
+
             Task t = client.createStub( Task.class, tr );
             waitTaskEnd( t );
             Exception err = t.getInfo().getError();
@@ -1408,6 +1467,7 @@ public class HostProxy
                 return false;
             }
             return true;
+
         }
         catch ( FileFault | InvalidState | VmConfigFault | InsufficientResourcesFault ex )
         {
@@ -1447,10 +1507,12 @@ public class HostProxy
             card.setBacking( info );
             nicSpec.operation = VirtualDeviceSpec.Operation.add;
             nicSpec.setDevice( card );
+
             // Add NIC
             com.vmware.vim.binding.vim.vm.ConfigSpec spec = new ConfigSpec();
             spec.setDeviceChange( new VirtualDeviceSpec[] { nicSpec } );
             ManagedObjectReference taskRef = vm.reconfigure( spec );
+
             logger.debug( "Waiting for second NIC to be added to {} ...", vmName );
             VsphereUtils.waitForTask( client, taskRef );
             logger.debug( "Second NIC added to VM {}", vmName );
@@ -1481,10 +1543,12 @@ public class HostProxy
             card.setBacking( info );
             nicSpec.operation = VirtualDeviceSpec.Operation.add;
             nicSpec.setDevice( card );
+
             // Add NIC
             com.vmware.vim.binding.vim.vm.ConfigSpec spec = new ConfigSpec();
             spec.setDeviceChange( new VirtualDeviceSpec[] { nicSpec } );
             ManagedObjectReference taskRef = vm.reconfigure( spec );
+
             logger.debug( "Waiting for second NIC to be added to {} ...", vmName );
             VsphereUtils.waitForTask( client, taskRef );
             logger.debug( "Second NIC added to VM {}", vmName );
@@ -1520,14 +1584,14 @@ public class HostProxy
 
     public void uploadFileToGuest( GuestCredential guestCredential, GuestType guestType, String localFilePath,
                                    String guestFilePath )
-                                       throws VsphereOperationException
+        throws VsphereOperationException
     {
         uploadFileToGuest( guestCredential, guestType, localFilePath, guestFilePath, true );
     }
 
     public void uploadFileToGuest( GuestCredential guestCredential, GuestType guestType, String localFilePath,
                                    String guestFilePath, boolean overwrite )
-                                       throws VsphereOperationException
+        throws VsphereOperationException
     {
         if ( StringUtils.isBlank( localFilePath ) )
         {
@@ -1538,14 +1602,18 @@ public class HostProxy
         {
             throw new IllegalArgumentException( "Local file '" + localFilePath + "' does not exist or is a directory" );
         }
+
         ManagedObjectReference fileManagerMor = getGuestOperationsManager().getFileManager();
         FileManager fileManager = client.createStub( FileManager.class, fileManagerMor );
+
         String vmName = guestCredential.getVmName();
         ManagedObjectReference vmMor = getVmMorByName( vmName );
         GuestAuthentication guestAuthentication = guestCredential.getGuestAuthentication();
+
         logger.info( "Starting to upload file {} to guest VM {}", localFilePath, vmName );
         logger.info( "Target guest type: {}, target file path: {}, is overwrite: {}", guestType.name(), guestFilePath,
                      overwrite );
+
         FileManager.FileAttributes fileAttributes = ( guestType == GuestType.POSIX )
                         ? new FileManager.PosixFileAttributes() : new FileManager.WindowsFileAttributes();
         fileAttributes.setAccessTime( Calendar.getInstance() );
@@ -1564,6 +1632,7 @@ public class HostProxy
             logger.error( msg, ex );
             throw new VsphereOperationException( msg, ex );
         }
+
         VsphereUtils.retrieveHostCertificate( hostSystem.getConfig().getCertificate() );
         logger.info( "Certificate of the host {} is successfully retrieved", this.ipAddress );
         try
@@ -1587,6 +1656,7 @@ public class HostProxy
         HttpURLConnection conn = (HttpURLConnection) urlSt.openConnection();
         conn.setDoInput( true );
         conn.setDoOutput( true );
+
         conn.setRequestProperty( "Content-Type", "application/octet-stream" );
         conn.setRequestMethod( "PUT" );
         conn.setRequestProperty( "Content-Length", Long.toString( fileSize ) );
@@ -1606,9 +1676,11 @@ public class HostProxy
             VsphereUtils.closeQuietly( in );
             VsphereUtils.closeQuietly( out );
         }
+
         int responseCode = conn.getResponseCode();
         String responseMessage = conn.getResponseMessage();
         conn.disconnect();
+
         if ( HttpsURLConnection.HTTP_OK == responseCode )
         {
             logger.info( "Successfully upload file {}", fileName );
@@ -1646,7 +1718,9 @@ public class HostProxy
         ManagedObjectReference vmMor = getVmMorByName( vmName );
         ManagedObjectReference processManagerMor = getGuestOperationsManager().getProcessManager();
         ProcessManager processManager = client.createStub( ProcessManager.class, processManagerMor );
+
         logger.info( "Guest programs will be started within VirtualMachine {}", guestCredential.getVmName() );
+
         int[] exitCodes = new int[guestProgram.length];
         int i = 0;
         try
@@ -1675,7 +1749,7 @@ public class HostProxy
 
     private int executeProgram( final GuestAuthentication guestAuthentication, final GuestProgram guestProgram,
                                 final ManagedObjectReference vmMor, final ProcessManager processManager )
-                                    throws GuestOperationsFault, InvalidState, TaskInProgress, FileFault
+        throws GuestOperationsFault, InvalidState, TaskInProgress, FileFault
     {
         ProgramSpec programSpec = new ProgramSpec();
         programSpec.setArguments( guestProgram.getArguments() );
@@ -1688,7 +1762,7 @@ public class HostProxy
 
     private long startProgram( ProcessManager processManager, ManagedObjectReference vmMor,
                                GuestAuthentication guestAuthentication, ProgramSpec programSpec )
-                                   throws GuestOperationsFault, InvalidState, TaskInProgress, FileFault
+        throws GuestOperationsFault, InvalidState, TaskInProgress, FileFault
     {
         long pid = -1;
         while ( true )
@@ -1715,7 +1789,7 @@ public class HostProxy
 
     private int waitForProgramCompleted( final ManagedObjectReference vmMor, final ProcessManager processManager,
                                          final GuestAuthentication guestAuthentication, final long pid )
-                                             throws GuestOperationsFault, InvalidState, TaskInProgress
+        throws GuestOperationsFault, InvalidState, TaskInProgress
     {
         ProcessInfo processInfo = null;
         while ( true )
@@ -1726,8 +1800,10 @@ public class HostProxy
             {
                 break;
             }
+
             logger.info( "Guest program [pid:{}] is running", pid );
         }
+
         int exitCode = processInfo.getExitCode();
         if ( exitCode == 0 )
         {
@@ -1747,12 +1823,16 @@ public class HostProxy
         {
             throw new UnsupportedOperationException( "Only static IP address can be accepted" );
         }
+
         logger.info( "Start to assign IP address {} to Linux VM {}", newNetwork.getAddress(),
                      guestCredential.getVmName() );
+
         List<GuestProgram> guestProgramList = new ArrayList<>();
+
         String ifconfigParam =
             String.format( "%s %s netmask %s", eth, newNetwork.getAddress(), newNetwork.getNetmask() );
         guestProgramList.add( new GuestProgram( SBIN_IFCONFIG, ifconfigParam ) );
+
         if ( StringUtils.isNotBlank( newNetwork.getGateway() ) )
         {
             String routeParam = String.format( "add default gw %s", newNetwork.getGateway() );
@@ -1770,6 +1850,7 @@ public class HostProxy
         {
             return Collections.emptyList();
         }
+
         List<VirtualMachine> vms = new ArrayList<>( vmMors.length );
         for ( ManagedObjectReference vmMor : vmMors )
         {
@@ -1782,6 +1863,7 @@ public class HostProxy
     {
         String vmName = vm.getName();
         logger.info( "Migrating VM {} to DvSwitch {}", vmName, dvSwitchUuid );
+
         if ( dvPortgroupKey == null || dvPortgroupKey.length == 0 )
         {
             logger.warn( "No any target DvPortgroup specified. Migration to DistributedVirtualSwitch is skipped" );
@@ -1801,6 +1883,7 @@ public class HostProxy
                          ethCardCount, dvPortgroupCount );
             return false;
         }
+
         List<VirtualDeviceSpec> virtualDeviceSpecs = new ArrayList<>();
         for ( int ethCardIndex = 0; ethCardIndex < ethCardCount; ethCardIndex++ )
         {
@@ -1810,14 +1893,17 @@ public class HostProxy
             VirtualEthernetCard.DistributedVirtualPortBackingInfo dvPortBackingInfo =
                 new VirtualEthernetCard.DistributedVirtualPortBackingInfo();
             dvPortBackingInfo.setPort( portConnection );
+
             VirtualDevice targetEthernetCard = ethCardList.get( ethCardIndex );
             String ethCardLabel = targetEthernetCard.getDeviceInfo().getLabel();
             targetEthernetCard.setBacking( dvPortBackingInfo );
+
             logger.info( "Migrating VirtualEthernetCard#{} [{}] to DvPortgruop {}", ethCardIndex, ethCardLabel,
                          dvPortgroupKey[ethCardIndex] );
             virtualDeviceSpecs.add( new VirtualDeviceSpec( VirtualDeviceSpec.Operation.edit, null, targetEthernetCard,
                                                            EMPTY_PS ) );
         }
+
         com.vmware.vim.binding.vim.vm.ConfigSpec vmConfigSpec = new com.vmware.vim.binding.vim.vm.ConfigSpec();
         vmConfigSpec.setDeviceChange( virtualDeviceSpecs.toArray( new VirtualDeviceSpec[virtualDeviceSpecs.size()] ) );
         try
@@ -1845,6 +1931,7 @@ public class HostProxy
             logger.warn( "VM {} not found on host {}. Migration to DvSwitch is skipped", vmName, this.ipAddress );
             return false;
         }
+
         VirtualMachine vm = client.createStub( VirtualMachine.class, targetVmMor );
         return migrateVmToDvSwitch( vm, dvSwitchUuid, dvPortgroupKey );
     }
@@ -1937,12 +2024,14 @@ public class HostProxy
             logger.warn( "No any VMs found on host {}. Migration to DvSwitch is skipped", this.ipAddress );
             return;
         }
+
         PortConnection portConnection = new PortConnection();
         portConnection.setSwitchUuid( dvSwitchUuid );
         portConnection.setPortgroupKey( dvPortgroupKey );
         VirtualEthernetCard.DistributedVirtualPortBackingInfo dvPortBackingInfo =
             new VirtualEthernetCard.DistributedVirtualPortBackingInfo();
         dvPortBackingInfo.setPort( portConnection );
+
         for ( ManagedObjectReference vmMor : vmMors )
         {
             VirtualMachine vm = client.createStub( VirtualMachine.class, vmMor );
@@ -1961,6 +2050,7 @@ public class HostProxy
             com.vmware.vim.binding.vim.vm.ConfigSpec vmConfigSpec = new com.vmware.vim.binding.vim.vm.ConfigSpec();
             vmConfigSpec.setDeviceChange( new VirtualDeviceSpec[] {
                 new VirtualDeviceSpec( VirtualDeviceSpec.Operation.edit, null, targetEthernetCard, EMPTY_PS ) } );
+
             try
             {
                 ManagedObjectReference taskRef = vm.reconfigure( vmConfigSpec );

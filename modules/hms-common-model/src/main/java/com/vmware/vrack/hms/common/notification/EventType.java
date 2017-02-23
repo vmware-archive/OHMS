@@ -44,6 +44,7 @@ public enum EventType
     CPU_STATUS,
     MEMORY_STATUS,
     POWER_UNIT_STATUS;
+
     public static EventType getEnumFromStr( String eventTypeStr )
     {
         for ( EventType eventType : EventType.values() )

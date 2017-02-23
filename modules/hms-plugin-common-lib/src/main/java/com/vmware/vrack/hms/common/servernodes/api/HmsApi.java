@@ -13,11 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api;
 
 /**
  * Enum to hold various API exposed by OOB plugins
- *
+ * 
  * @author VMware, Inc.
  */
 public enum HmsApi
@@ -44,6 +45,7 @@ public enum HmsApi
     SWITCH_PORT_SENSOR_INFO,
     SWITCH_FAN_SENSOR_INFO,
     SWITCH_POWERUNIT_SENSOR_INFO,
+
     SERVER_INFO,
     SERVER_POWER_STATUS,
     SERVER_POWER_OPERATIONS,
@@ -60,6 +62,7 @@ public enum HmsApi
     REMOTE_CONSOLE_CAPABILITIES,
     START_REMOTE_CONSOLE_CONNECTION,
     SUPPORTED_HMS_API,
+
     // Needs a cleanup here, as OOB does NOT support below APIs
     HMS_INFO,
     HMS_HEALTH_INFO

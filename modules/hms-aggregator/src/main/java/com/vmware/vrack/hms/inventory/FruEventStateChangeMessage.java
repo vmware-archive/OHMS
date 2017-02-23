@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 public class FruEventStateChangeMessage
     extends ApplicationEvent
 {
+
     private List<Event> listEvent;
 
     private ServerComponent component;
@@ -125,4 +127,5 @@ public class FruEventStateChangeMessage
     {
         this.switchComponent = switchComponent;
     }
+
 }

@@ -1,477 +1,460 @@
 {
-   "ipv4" : [
-      {
-         "interface" : "swp1",
-         "address" : "192.168.1.101",
-         "netmask" : "255.255.255.0"
-      }
-   ],
-   "management" : {
-      "newPassword" : "root123",
-      "password" : "root123",
-      "username" : "cumulus",
-      "ipv4" : {
-         "interface" : "eth0",
-         "address" : "10.28.197.242",
-         "netmask" : "255.255.255.0",
-         "gateway" : "10.28.197.253"
-      },
-      "newPasswordConfirm" : "root123"
-   },
-   "routes" : {
-      "static" : [
-         {
-            "dst" : "0.0.0.0/0",
-            "gateway" : "192.1.1.1",
-            "interface" : "bridge-55"
-         }
-      ],
-      "clag" : [
-         {
-            "interface" : "bond0",
-            "peerIp" : "192.1.1.1",
-            "sharedMac" : "ab:cd:ef:01:23:45"
-         }
-      ],
-      "ospf" : [
-         {}
-      ],
-      "bgp" : [
-         {}
-      ],
-      "vrr" : [
-         {
-            "sharedMac" : "00:00:5e:00:01:66",
-            "sharedIp" : "192.1.1.1",
-            "controlInterface" : "bond0",
-            "interface" : "bridge-66"
-         }
-      ]
-   },
-   "version" : "1.0.0",
-   "description" : "Advanced network configuration for specific workload",
-   "applicableSwitchTypes" : [
-      "cumulus"
-   ],
-   "ports" : [
-      {
-         "lacpGroup" : "bond1",
-         "name" : "swp1",
-         "lacpMode" : true,
-         "type" : "SERVER"
-      },
-      {
-         "name" : "swp2",
-         "lacpGroup" : "bond2",
-         "lacpMode" : true,
-         "type" : "SERVER"
-      },
-      {
-         "lacpMode" : true,
-         "name" : "swp3",
-         "lacpGroup" : "bond3",
-         "type" : "SERVER"
-      },
-      {
-         "lacpMode" : true,
-         "name" : "swp4",
-         "lacpGroup" : "bond4",
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "lacpGroup" : "bond5",
-         "name" : "swp5",
-         "lacpMode" : true
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : true,
-         "name" : "swp6",
-         "lacpGroup" : "bond6"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : true,
-         "name" : "swp7",
-         "lacpGroup" : "bond7"
-      },
-      {
-         "name" : "swp8",
-         "lacpGroup" : "bond8",
-         "lacpMode" : true,
-         "type" : "SERVER"
-      },
-      {
-         "lacpMode" : true,
-         "name" : "swp9",
-         "lacpGroup" : "bond9",
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "lacpGroup" : "bond10",
-         "name" : "swp10",
-         "lacpMode" : true
-      },
-      {
-         "type" : "SERVER",
-         "name" : "swp11",
-         "lacpGroup" : "bond11",
-         "lacpMode" : true
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : true,
-         "lacpGroup" : "bond12",
-         "name" : "swp12"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : true,
-         "lacpGroup" : "bond13",
-         "name" : "swp13"
-      },
-      {
-         "lacpMode" : true,
-         "name" : "swp14",
-         "lacpGroup" : "bond14",
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "lacpGroup" : "bond15",
-         "name" : "swp15",
-         "lacpMode" : true
-      },
-      {
-         "lacpGroup" : "bond16",
-         "name" : "swp16",
-         "lacpMode" : true,
-         "type" : "SERVER"
-      },
-      {
-         "lacpMode" : true,
-         "name" : "swp17",
-         "lacpGroup" : "bond17",
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "lacpGroup" : "bond18",
-         "name" : "swp18",
-         "lacpMode" : true
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : true,
-         "name" : "swp19",
-         "lacpGroup" : "bond19"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : true,
-         "name" : "swp20",
-         "lacpGroup" : "bond20"
-      },
-      {
-         "name" : "swp21",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "lacpMode" : false,
-         "name" : "swp22",
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "name" : "swp23",
-         "lacpMode" : false
-      },
-      {
-         "lacpMode" : false,
-         "name" : "swp24",
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp25"
-      },
-      {
-         "name" : "swp26",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "name" : "swp27",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp28"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp29"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp30"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp31"
-      },
-      {
-         "type" : "SERVER",
-         "name" : "swp32",
-         "lacpMode" : false
-      },
-      {
-         "type" : "SERVER",
-         "name" : "swp33",
-         "lacpMode" : false
-      },
-      {
-         "name" : "swp34",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp35"
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp36"
-      },
-      {
-         "type" : "SERVER",
-         "name" : "swp37",
-         "lacpMode" : false
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp38"
-      },
-      {
-         "type" : "SERVER",
-         "name" : "swp39",
-         "lacpMode" : false
-      },
-      {
-         "lacpMode" : false,
-         "name" : "swp40",
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SERVER",
-         "name" : "swp41",
-         "lacpMode" : false
-      },
-      {
-         "type" : "SERVER",
-         "lacpMode" : false,
-         "name" : "swp42"
-      },
-      {
-         "name" : "swp43",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "name" : "swp44",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "type" : "SYNC",
-         "lacpMode" : true,
-         "name" : "swp45",
-         "lacpGroup" : "bond0"
-      },
-      {
-         "lacpGroup" : "bond0",
-         "name" : "swp46",
-         "lacpMode" : true,
-         "type" : "SYNC"
-      },
-      {
-         "lacpMode" : true,
-         "lacpGroup" : "bond0",
-         "name" : "swp47",
-         "type" : "SYNC"
-      },
-      {
-         "type" : "SYNC",
-         "lacpMode" : true,
-         "lacpGroup" : "bond0",
-         "name" : "swp48"
-      },
-      {
-         "name" : "swp49",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "name" : "swp50",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "name" : "swp51",
-         "lacpMode" : false,
-         "type" : "SERVER"
-      },
-      {
-         "lacpMode" : false,
-         "name" : "swp52",
-         "type" : "SERVER"
-      }
-   ],
-   "vlans" : [
-      {
-         "vlanId" : 55,
-         "untaggedPorts" : [],
-         "taggedPorts" : [
-            "bond1",
-            "bond2",
-            "bond3",
-            "bond4",
-            "bond5",
-            "bond6",
-            "bond7",
-            "bond8"
-         ],
-         "type" : "VLAN",
-         "name" : "bridge-55"
-      },
-      {
-         "untaggedPorts" : [],
-         "taggedPorts" : [
-            "bond0"
-         ],
-         "vlanId" : 66,
-         "name" : "bridge-66",
-         "type" : "VLAN"
-      }
-   ],
-   "name" : "network-config-A",
-   "lacpGroups" : [
-      {
-         "mode" : "802.3ad",
-         "name" : "bond0",
-         "type" : "LACPGROUP"
-      },
-      {
-         "name" : "bond1",
-         "type" : "LACPGROUP",
-         "mode" : "802.3ad"
-      },
-      {
-         "mode" : "802.3ad",
-         "name" : "bond2",
-         "type" : "LACPGROUP"
-      },
-      {
-         "mode" : "802.3ad",
-         "type" : "LACPGROUP",
-         "name" : "bond3"
-      },
-      {
-         "mode" : "802.3ad",
-         "name" : "bond4",
-         "type" : "LACPGROUP"
-      },
-      {
-         "mode" : "802.3ad",
-         "type" : "LACPGROUP",
-         "name" : "bond5"
-      },
-      {
-         "name" : "bond6",
-         "type" : "LACPGROUP",
-         "mode" : "802.3ad"
-      },
-      {
-         "mode" : "802.3ad",
-         "type" : "LACPGROUP",
-         "name" : "bond7"
-      },
-      {
-         "mode" : "802.3ad",
-         "name" : "bond8",
-         "type" : "LACPGROUP"
-      },
-      {
-         "name" : "bond9",
-         "type" : "LACPGROUP",
-         "mode" : "802.3ad"
-      },
-      {
-         "mode" : "802.3ad",
-         "type" : "LACPGROUP",
-         "name" : "bond10"
-      },
-      {
-         "name" : "bond11",
-         "type" : "LACPGROUP",
-         "mode" : "802.3ad"
-      },
-      {
-         "mode" : "802.3ad",
-         "type" : "LACPGROUP",
-         "name" : "bond12"
-      },
-      {
-         "mode" : "802.3ad",
-         "name" : "bond13",
-         "type" : "LACPGROUP"
-      },
-      {
-         "mode" : "802.3ad",
-         "name" : "bond14",
-         "type" : "LACPGROUP"
-      },
-      {
-         "name" : "bond15",
-         "type" : "LACPGROUP",
-         "mode" : "802.3ad"
-      },
-      {
-         "name" : "bond16",
-         "type" : "LACPGROUP",
-         "mode" : "802.3ad"
-      },
-      {
-         "name" : "bond17",
-         "type" : "LACPGROUP",
-         "mode" : "802.3ad"
-      },
-      {
-         "mode" : "802.3ad",
-         "name" : "bond18",
-         "type" : "LACPGROUP"
-      },
-      {
-         "type" : "LACPGROUP",
-         "name" : "bond19",
-         "mode" : "802.3ad"
-      },
-      {
-         "type" : "LACPGROUP",
-         "name" : "bond20",
-         "mode" : "802.3ad"
-      }
-   ]
+	"name": "network-config-A",
+	"description": "Advanced network configuration for specific workload",
+	"version": "1.0.0",
+	"applicableSwitchTypes": [ "cumulus" ],
+	"ports": [
+		{
+			"name": "swp1",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond1"
+		},
+		{
+			"name": "swp2",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond2"
+		},
+		{	
+			"name": "swp3",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond3"
+		},
+		{
+			"name": "swp4",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond4"
+		},
+		{
+			"name": "swp5",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond5"
+		},
+		{
+			"name": "swp6",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond6"
+		},
+		{
+			"name": "swp7",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond7"
+		},
+		{
+			"name": "swp8",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond8"
+		},
+		{
+			"name": "swp9",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond9"
+		},
+		{
+			"name": "swp10",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond10"
+		},
+		{
+			"name": "swp11",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond11"
+		},
+		{
+			"name": "swp12",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond12"
+		},
+		{
+			"name": "swp13",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond13"
+		},
+		{
+			"name": "swp14",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond14"
+		},
+		{
+			"name": "swp15",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond15"
+		},
+		{
+			"name": "swp16",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond16"
+		},
+		{
+			"name": "swp17",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond17"
+		},
+		{
+			"name": "swp18",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond18"
+		},
+		{
+			"name": "swp19",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond19"
+		},
+		{
+			"name": "swp20",
+			"type": "SERVER",
+			"lacpMode": true,
+			"lacpGroup": "bond20"
+		},
+		{
+			"name": "swp21",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp22",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp23",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp24",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp25",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp26",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp27",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp28",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp29",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp30",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp31",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp32",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp33",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp34",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp35",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp36",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp37",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp38",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp39",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp40",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp41",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp42",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp43",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp44",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp45",
+			"type": "SYNC",
+			"lacpMode": true,
+			"lacpGroup": "bond0"
+		},
+		{
+			"name": "swp46",
+			"type": "SYNC",
+			"lacpMode": true,
+			"lacpGroup": "bond0"
+		},
+		{
+			"name": "swp47",
+			"type": "SYNC",
+			"lacpMode": true,
+			"lacpGroup": "bond0"
+		},
+		{
+			"name": "swp48",
+			"type": "SYNC",
+			"lacpMode": true,
+			"lacpGroup": "bond0"
+		},
+		{
+			"name": "swp49",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp50",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp51",
+			"type": "SERVER",
+			"lacpMode": false
+		},
+		{
+			"name": "swp52",
+			"type": "SERVER",
+			"lacpMode": false
+		}
+	],
+	"lacpGroups": [
+		{
+			"name": "bond0",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond1",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond2",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond3",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond4",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond5",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond6",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond7",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond8",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond9",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond10",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond11",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond12",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond13",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond14",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond15",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond16",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond17",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond18",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond19",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		},
+		{
+			"name": "bond20",
+			"type": "LACPGROUP",
+			"mode": "802.3ad"
+		}
+	],
+	"vlans": [
+		{
+			"name": "bridge-55",
+			"vlanId": 55,
+			"type": "VLAN",
+			"taggedPorts": [ "bond1", "bond2", "bond3", "bond4", "bond5", "bond6", "bond7", "bond8" ],
+			"untaggedPorts": [ ]
+		},
+		{
+			"name": "bridge-66",
+			"vlanId": 66,
+			"type": "VLAN",
+			"taggedPorts": [ "bond0" ],
+			"untaggedPorts": [ ]
+		}
+	],
+	"ipv4": [
+		{
+			"interface": "swp1",
+			"address": "192.168.1.101",
+			"netmask": "255.255.255.0"
+		}
+	],
+	"routes": {
+			"static": [
+				{
+					"dst": "0.0.0.0/0",
+					"gateway": "192.1.1.1",
+					"interface": "bridge-55"
+				}
+			],
+			"vrr": [
+				{
+					"interface": "bridge-66",
+					"controlInterface": "bond0",
+					"sharedIp": "192.1.1.1",
+					"sharedMac": "00:00:5e:00:01:66"
+				}
+			],
+			"clag": [
+				{
+					"interface": "bond0",
+					"peerIp": "192.1.1.1",
+					"sharedMac": "ab:cd:ef:01:23:45"
+				}
+			],
+			"ospf": [ { } ], 
+			"bgp": [ { } ]
+	},
+	"management": {
+		"username": "cumulus",
+		"password": "root123",
+		"newPassword": "root123",
+		"newPasswordConfirm": "root123",
+		"ipv4": {
+			"interface": "eth0",
+			"address": "10.28.197.242",
+			"netmask": "255.255.255.0",
+			"gateway": "10.28.197.253"
+		}
+	}
 }

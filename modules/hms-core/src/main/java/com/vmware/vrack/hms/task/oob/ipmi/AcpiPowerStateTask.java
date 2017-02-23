@@ -18,7 +18,6 @@ package com.vmware.vrack.hms.task.oob.ipmi;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -57,10 +56,10 @@ public class AcpiPowerStateTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] params = new Object[] { serviceServerNode };
-                AcpiPowerState acpiPowerState =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                        "getAcpiPowerState", params );
+                // Object[] params = new Object[] { serviceServerNode };
+                AcpiPowerState acpiPowerState = boardService.getAcpiPowerState( serviceServerNode );
+                // AcpiPowerState acpiPowerState = HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                // serviceServerNode, "getAcpiPowerState", params);
                 this.node.setAcpiPowerState( acpiPowerState );
             }
             else
@@ -81,4 +80,5 @@ public class AcpiPowerStateTask
             throw new HmsException( "Error while getting ACPI Power State for Node:" + node.getNodeID(), e );
         }
     }
+
 }

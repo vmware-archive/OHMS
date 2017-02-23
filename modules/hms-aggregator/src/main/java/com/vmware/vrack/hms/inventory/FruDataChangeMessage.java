@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 public class FruDataChangeMessage
     extends ApplicationEvent
 {
+
     private List<FruComponent> fruComponent;
 
     private ServerComponent component;
@@ -117,4 +119,5 @@ public class FruDataChangeMessage
     {
         this.nodeID = nodeID;
     }
+
 }

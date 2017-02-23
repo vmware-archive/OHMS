@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * AbstractTestBoardService.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.testplugin;
 
 import java.math.BigInteger;
@@ -60,6 +61,7 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 public abstract class AbstractTestBoardService
     implements IBoardService
 {
+
     private boolean power_status = true;
 
     private boolean host_manageable = true;
@@ -68,8 +70,10 @@ public abstract class AbstractTestBoardService
     public List<ServerComponentEvent> getComponentEventList( ServiceHmsNode serviceNode, ServerComponent component )
         throws HmsException
     {
+
         List<ServerComponentEvent> serverComponentSensor = new ArrayList<>();
         ServerComponentEvent serverComponentSensorTemp = null;
+
         if ( component == ServerComponent.STORAGE )
         {
             serverComponentSensorTemp = new ServerComponentEvent();
@@ -78,69 +82,88 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_DOWN );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "DriveFault" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 1 status" );
             serverComponentSensorTemp.setComponentId( "HDD_1" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_DOWN );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "DriveFault" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 2 status" );
             serverComponentSensorTemp.setComponentId( "HDD_2" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "InCriticalArray" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 3 status" );
             serverComponentSensorTemp.setComponentId( "HDD_3" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "HotSpare" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 4 status" );
             serverComponentSensorTemp.setComponentId( "HDD_4" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "RebuildRemapAborted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 5 status" );
             serverComponentSensorTemp.setEventId( "HDD_5" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "PredictiveFailure" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 6 status" );
             serverComponentSensorTemp.setComponentId( "HDD_6" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "InCriticalArray" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 7 status" );
             serverComponentSensorTemp.setComponentId( "HDD_7" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "InFailedArray" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 8 status" );
             serverComponentSensorTemp.setComponentId( "HDD_8" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "HotSpare" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "HDD 9 status" );
             serverComponentSensorTemp.setComponentId( "HDD_9" );
             serverComponentSensorTemp.setEventName( NodeEvent.HDD_DOWN );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "DriveFault" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
         }
         if ( component == ServerComponent.CPU )
@@ -152,7 +175,9 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 93 );
             serverComponentSensorTemp.setDiscreteValue( "AboveUpperNonCritical" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "CPU1 Temp" );
             serverComponentSensorTemp.setComponentId( "1" );
@@ -160,62 +185,79 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 20 );
             serverComponentSensorTemp.setDiscreteValue( "BelowLowerNonCritical" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Processor 0 Hot" );
             serverComponentSensorTemp.setComponentId( "Proc 0 Hot" );
             serverComponentSensorTemp.setEventName( NodeEvent.CPU_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "StateAsserted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Processor 1 Hot" );
             serverComponentSensorTemp.setComponentId( "Proc 1 Hot" );
             serverComponentSensorTemp.setEventName( NodeEvent.CPU_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "StateAsserted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Processor 0" );
             serverComponentSensorTemp.setComponentId( "Processor 0" );
             serverComponentSensorTemp.setEventName( NodeEvent.CPU_INIT_ERROR );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "Frb3ProcessorStartupFailure" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Processor 0" );
             serverComponentSensorTemp.setComponentId( "Processor 0" );
             serverComponentSensorTemp.setEventName( NodeEvent.CPU_MACHINE_CHECK_ERROR );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "MachineCheckException" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Processor 1" );
             serverComponentSensorTemp.setComponentId( "Processor 1" );
             serverComponentSensorTemp.setEventName( NodeEvent.CPU_THERMAL_TRIP );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "ProcessorThermalTrip" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Processor 1" );
             serverComponentSensorTemp.setComponentId( "Processor 1" );
             serverComponentSensorTemp.setEventName( NodeEvent.CPU_POST_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "Frb2HangInPostFailure" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Processor 1" );
             serverComponentSensorTemp.setComponentId( "Processor 1" );
             serverComponentSensorTemp.setEventName( NodeEvent.CPU_CAT_ERROR );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "Ierr" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "PCH Temp" );
             serverComponentSensorTemp.setComponentId( "Platform controller hub" );
             serverComponentSensorTemp.setEventName( NodeEvent.PCH_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 94 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
         }
         if ( component == ServerComponent.MEMORY )
@@ -226,146 +268,187 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_A1" );
             serverComponentSensorTemp.setComponentId( "DIMM_A1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_B0" );
             serverComponentSensorTemp.setComponentId( "DIMM_B0" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_B1" );
             serverComponentSensorTemp.setComponentId( "DIMM_B1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_C0" );
             serverComponentSensorTemp.setComponentId( "DIMM_C0" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_C1" );
             serverComponentSensorTemp.setComponentId( "DIMM_C1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_D0" );
             serverComponentSensorTemp.setComponentId( "DIMM_D0" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_D1" );
             serverComponentSensorTemp.setComponentId( "DIMM_D1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_E0" );
             serverComponentSensorTemp.setComponentId( "DIMM_E0" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 95 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_E1" );
             serverComponentSensorTemp.setComponentId( "DIMM_E1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMPERATURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 40 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_F0" );
             serverComponentSensorTemp.setComponentId( "DIMM_F0" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 96 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_F1" );
             serverComponentSensorTemp.setComponentId( "DIMM_F1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMPERATURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 45 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_G0" );
             serverComponentSensorTemp.setComponentId( "DIMM_G0" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMPERATURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 42 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_G1" );
             serverComponentSensorTemp.setComponentId( "DIMM_G1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 97 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_H0" );
             serverComponentSensorTemp.setComponentId( "DIMM_H0" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMP_ABOVE_THRESHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 96 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Temp_DIMM_H1" );
             serverComponentSensorTemp.setComponentId( "DIMM_H1" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_TEMPERATURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DEGREES_CELSIUS );
             serverComponentSensorTemp.setValue( 48 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "MEM_AB Hot" );
             serverComponentSensorTemp.setComponentId( "MEM_AB Hot" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "StateAsserted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "MEM_CD Hot" );
             serverComponentSensorTemp.setComponentId( "MEM_CD Hot" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "StateAsserted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "MEM_EF Hot" );
             serverComponentSensorTemp.setComponentId( "MEM_EF Hot" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "StateAsserted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "MEM_GH Hot" );
             serverComponentSensorTemp.setComponentId( "MEM_GH Hot" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "StateAsserted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Memory Error" );
             serverComponentSensorTemp.setComponentId( "MEM_ERR" );
             serverComponentSensorTemp.setEventName( NodeEvent.MEMORY_ECC_ERROR );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "UncorrectableECC" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
         }
         if ( component == ServerComponent.FAN )
@@ -376,7 +459,9 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7000 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN1-2" );
             serverComponentSensorTemp.setComponentId( "FAN1-2" );
@@ -384,7 +469,9 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 300 );
             serverComponentSensorTemp.setDiscreteValue( "BelowLowerNonRecoverable" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN2-1" );
             serverComponentSensorTemp.setComponentId( "FAN2-1" );
@@ -392,70 +479,90 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 8000 );
             serverComponentSensorTemp.setDiscreteValue( "AboveUpperNonRecoverable" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN2-2" );
             serverComponentSensorTemp.setComponentId( "FAN2-2" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7000 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN3-1" );
             serverComponentSensorTemp.setComponentId( "FAN3-1" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7000 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN3-2" );
             serverComponentSensorTemp.setComponentId( "FAN3-2" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7500 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN4-1" );
             serverComponentSensorTemp.setComponentId( "FAN4-1" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7200 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN4-2" );
             serverComponentSensorTemp.setComponentId( "FAN4-2" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7600 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN5-1" );
             serverComponentSensorTemp.setComponentId( "FAN5-1" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7300 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN5-2" );
             serverComponentSensorTemp.setComponentId( "FAN5-2" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7600 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN6-1" );
             serverComponentSensorTemp.setComponentId( "FAN6-1" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7300 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "SYS_FAN6-2" );
             serverComponentSensorTemp.setComponentId( "FAN6-2" );
             serverComponentSensorTemp.setEventName( NodeEvent.FAN_SPEED_THRESHHOLD );
             serverComponentSensorTemp.setUnit( EventUnitType.RPM );
             serverComponentSensorTemp.setValue( 7700 );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
         }
         if ( component == ServerComponent.POWERUNIT )
         {
@@ -465,20 +572,25 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setEventName( NodeEvent.POWER_UNIT_STATUS_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "PowerUnitFailure" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Power Supply 0" );
             serverComponentSensorTemp.setComponentId( "Power Supply 0" );
             serverComponentSensorTemp.setEventName( NodeEvent.POWER_UNIT_STATUS_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "PowerSupplyInputLost" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "Power Supply 1" );
             serverComponentSensorTemp.setComponentId( "Power Supply 1" );
             serverComponentSensorTemp.setEventName( NodeEvent.POWER_UNIT_STATUS_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "PowerSupplyFailureDetected" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
         }
         if ( component == ServerComponent.BMC )
@@ -489,22 +601,29 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setEventName( NodeEvent.BMC_NOT_REACHABLE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "BMC not reachable" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "BMC AUTHENTICATION" );
             serverComponentSensorTemp.setEventName( NodeEvent.BMC_AUTHENTICATION_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setComponentId( "xx.xx.xx.xx" );
             serverComponentSensorTemp.setDiscreteValue( "BMC Authentication Failed" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "BMC FAILURE" );
             serverComponentSensorTemp.setEventName( NodeEvent.BMC_FAILURE );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setComponentId( "xx.xx.xx.xx" );
             serverComponentSensorTemp.setDiscreteValue( "BMC Management Failure" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
         }
+
         if ( component == ServerComponent.SYSTEM )
         {
             serverComponentSensorTemp = new ServerComponentEvent();
@@ -513,15 +632,19 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setEventName( NodeEvent.SYSTEM_PCIE_ERROR );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "BusFatalError" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventId( "BIOS" );
             serverComponentSensorTemp.setComponentId( "BIOS" );
             serverComponentSensorTemp.setEventName( NodeEvent.SYSTEM_POST_ERROR );
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "StateAsserted" );
+
             serverComponentSensor.add( serverComponentSensorTemp );
         }
+
         if ( component == ServerComponent.STORAGE_CONTROLLER )
         {
             serverComponentSensorTemp = new ServerComponentEvent();
@@ -531,6 +654,7 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setUnit( EventUnitType.DISCRETE );
             serverComponentSensorTemp.setDiscreteValue( "STORAGE_CONTROLLER1 down" );
             serverComponentSensor.add( serverComponentSensorTemp );
+
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp = new ServerComponentEvent();
             serverComponentSensorTemp.setEventName( NodeEvent.STORAGE_CONTROLLER_UP );
@@ -540,7 +664,9 @@ public abstract class AbstractTestBoardService
             serverComponentSensorTemp.setDiscreteValue( "STORAGE_CONTROLLER1 up" );
             serverComponentSensor.add( serverComponentSensorTemp );
         }
+
         return serverComponentSensor;
+
     }
 
     @Override
@@ -555,6 +681,7 @@ public abstract class AbstractTestBoardService
     public boolean getServerPowerStatus( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
+
         return power_status;
     }
 
@@ -562,6 +689,7 @@ public abstract class AbstractTestBoardService
     public boolean powerOperations( ServiceHmsNode serviceHmsNode, PowerOperationAction powerOperationAction )
         throws HmsException
     {
+
         switch ( powerOperationAction )
         {
             case COLDRESET:
@@ -586,6 +714,7 @@ public abstract class AbstractTestBoardService
                 break;
             default:
                 break;
+
         }
         return true;
     }
@@ -594,6 +723,7 @@ public abstract class AbstractTestBoardService
     public String getManagementMacAddress( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
+
         return "MAC:ADDR:TEST:BOARD";
     }
 
@@ -601,12 +731,15 @@ public abstract class AbstractTestBoardService
     public List<BmcUser> getManagementUsers( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
+
         BmcUser user = new BmcUser();
         user.setUserId( 1 );
         user.setUserName( "test" );
+
         BmcUser user2 = new BmcUser();
         user.setUserId( 2 );
         user.setUserName( "test2" );
+
         List<BmcUser> users = new ArrayList<BmcUser>();
         users.add( user );
         users.add( user2 );
@@ -637,6 +770,7 @@ public abstract class AbstractTestBoardService
     public List<CPUInfo> getCpuInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
+
         CPUInfo info = new CPUInfo();
         ComponentIdentifier componentIdentifier = new ComponentIdentifier();
         componentIdentifier.setProduct( "TEST CPU 0" );
@@ -646,6 +780,7 @@ public abstract class AbstractTestBoardService
         componentIdentifier.setManufacturer( "TEST_VENDOR" );
         info.setMaxClockFrequency( 63727387L );
         info.setComponentIdentifier( componentIdentifier );
+
         List<CPUInfo> cpu = new ArrayList<CPUInfo>();
         cpu.add( info );
         return cpu;
@@ -663,31 +798,39 @@ public abstract class AbstractTestBoardService
     public List<EthernetController> getEthernetControllersInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
+
         List<EthernetController> nics = new ArrayList<EthernetController>();
         EthernetController controller1 = new EthernetController();
         ComponentIdentifier componentIdentifier = new ComponentIdentifier();
         componentIdentifier.setManufacturer( "Intel" );
         componentIdentifier.setProduct( "Ethernet Controller x540EC" );
         controller1.setComponentIdentifier( componentIdentifier );
+
         List<PortInfo> portInfos = new ArrayList<PortInfo>();
         PortInfo portInfo1 = new PortInfo();
+
         SpeedInfo info = new SpeedInfo();
         info.setSpeed( (long) 1000 );
         info.setUnit( SpeedUnit.Mbps );
+
         portInfo1.setLinkSpeedInMBps( info );
         portInfo1.setDeviceName( "vmnic0" );
         controller1.setComponent( ServerComponent.NIC );
         portInfo1.setLinkStatus( NicStatus.OK );
         portInfos.add( portInfo1 );
+
         PortInfo portInfo2 = new PortInfo();
+
         portInfo2.setLinkSpeedInMBps( info );
         portInfo2.setDeviceName( "vmnic1" );
         controller1.setComponent( ServerComponent.NIC );
         portInfo2.setLinkStatus( NicStatus.DISCONNECTED );
         portInfos.add( portInfo2 );
+
         controller1.setPortInfos( portInfos );
         nics.add( controller1 );
         return nics;
+
     }
 
     @Override
@@ -731,6 +874,7 @@ public abstract class AbstractTestBoardService
         hdd1.setName( "HDD-80GB" );
         hdd1.setType( "HDD" );
         hddInfos.add( hdd1 );
+
         HddInfo hdd2 = new HddInfo();
         hdd2.setId( "HDD_1" );
         hdd2.setComponent( ServerComponent.STORAGE );
@@ -739,6 +883,7 @@ public abstract class AbstractTestBoardService
         hdd2.setName( "HDD-160GB" );
         hdd2.setType( "HDD" );
         hddInfos.add( hdd2 );
+
         return hddInfos;
     }
 
@@ -757,6 +902,13 @@ public abstract class AbstractTestBoardService
     }
 
     @Override
+    public boolean setBmcPassword( ServiceHmsNode serviceHmsNode, String username, String newPassword )
+        throws HmsException
+    {
+        return false;
+    }
+
+    @Override
     public boolean createManagementUser( ServiceHmsNode serviceHmsNode, BmcUser bmcUser )
         throws HmsException
     {
@@ -772,10 +924,12 @@ public abstract class AbstractTestBoardService
         selInfo.setLastAddtionTimeStamp( new Date() );
         selInfo.setSelVersion( 2 );
         selInfo.setTotalSelCount( 2 );
+
         List<SelRecord> selRecords = new ArrayList<SelRecord>();
         selRecords.add( new SelRecord() );
         selRecords.add( new SelRecord() );
         selInfo.setSelRecords( selRecords );
+
         return selInfo;
     }
 
@@ -803,6 +957,7 @@ public abstract class AbstractTestBoardService
         memory1.setMaxMemorySpeedInHertz( (long) 1600000 );
         memory1.setComponentIdentifier( componentIdentifier1 );
         memories.add( memory1 );
+
         PhysicalMemory memory2 = new PhysicalMemory();
         ComponentIdentifier componentIdentifier2 = new ComponentIdentifier();
         memory2.setId( "MEMORY_1" );
@@ -821,7 +976,9 @@ public abstract class AbstractTestBoardService
     public List<StorageControllerInfo> getStorageControllerInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
+
         List<StorageControllerInfo> storageControllerInfoList = new ArrayList<StorageControllerInfo>();
+
         StorageControllerInfo storageControllerInfo1 = new StorageControllerInfo();
         ComponentIdentifier componentIdentifier1 = new ComponentIdentifier();
         componentIdentifier1.setManufacturer( "Intel Corporation" );
@@ -833,6 +990,7 @@ public abstract class AbstractTestBoardService
         storageControllerInfo1.setDriver( "ahci" );
         storageControllerInfo1.setFirmwareVersion( "23fh.56" );
         storageControllerInfoList.add( storageControllerInfo1 );
+
         StorageControllerInfo storageControllerInfo2 = new StorageControllerInfo();
         ComponentIdentifier componentIdentifier2 = new ComponentIdentifier();
         componentIdentifier2.setManufacturer( "LSI" );
@@ -844,6 +1002,7 @@ public abstract class AbstractTestBoardService
         storageControllerInfo2.setDriver( "mpt2sas" );
         storageControllerInfo2.setFirmwareVersion( "59fh.51" );
         storageControllerInfoList.add( storageControllerInfo2 );
+
         return storageControllerInfoList;
     }
 }

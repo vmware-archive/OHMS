@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Directory where all shell scripts will reside e.g hms_oob_upgrade.sh, hms_ib_upgrade.sh
-HMS_SCRIPT_DIR="/home/vrack/vrm/webapps/hms-local/WEB-INF/classes"
+HMS_SCRIPT_DIR="/home/vrack/vrm/webapps/hms-aggregator/WEB-INF/classes"
 
 # **** HMS IB Related Vars **** #
 
 # Hms ib upgrade binary
-HMS_IB_BINARY_FILENAME="hms-local.war"
+HMS_IB_BINARY_FILENAME="hms-aggregator.war"
 # Directory which holds hms ib upgrade binary
 HMS_IB_BINARY_LOCATION="/home/vrack/upgrade/hms-ib"
 # Calculated absolute path of hms ib upgrade binary

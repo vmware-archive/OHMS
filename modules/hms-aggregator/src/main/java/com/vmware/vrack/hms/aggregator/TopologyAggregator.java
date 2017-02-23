@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * TopologyAggregator.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -66,12 +65,6 @@ public class TopologyAggregator
 
     Set<Future<CumulativeObject>> set = new HashSet<Future<CumulativeObject>>();
 
-    @Value( "${hms.switch.host}" )
-    private String hmsIpAddr;
-
-    @Value( "${hms.switch.port}" )
-    private int hmsPort;
-
     @Autowired
     HmsSwitchManager switchManager;
 
@@ -81,7 +74,7 @@ public class TopologyAggregator
 
     public List<NetTopElement> getNetworkTopology( String body, HttpMethod method, HttpServletRequest request,
                                                    HttpServletResponse response )
-                                                       throws HMSRestException
+        throws HMSRestException
     {
         URI uri = null;
         Map<String, NetTopElement> db = new HashMap<String, NetTopElement>();
@@ -89,7 +82,9 @@ public class TopologyAggregator
         List<NetTopElement> netTopList = new ArrayList<NetTopElement>();
         List<String> torSwitchList = null;
         Map<String, String> ipAddress2NodeIdMap = new HashMap<String, String>();
+
         logger.debug( "START Network topology creation." );
+
         /* Get all switch ids first */
         try
         {
@@ -101,9 +96,12 @@ public class TopologyAggregator
                                         "Exception while connecting to hms."
                                             + ( ( uri != null ) ? uri.toString() : "" ) );
         }
+
         logger.debug( "DONE processing switch list." );
+
         HashMap<String, SwitchPort[]> switchPortBulk = new HashMap<String, SwitchPort[]>();
         HashMap<String, SwitchVlan[]> switchVlanBulk = new HashMap<String, SwitchVlan[]>();
+
         /**
          * Processing for all hosts for host names
          */
@@ -117,16 +115,17 @@ public class TopologyAggregator
                 set.add( futureBulkPort );
             }
         }
+
         logger.debug( "DONE processing all host names." );
+
         /**
          * Processing for all switches for port stats and vlan bulk
          */
+
         for ( String node : torSwitchList )
         {
-            Callable<CumulativeObject> resultBulkPort =
-                new TopologySingleNodeBulkPortsProcessor( hmsIpAddr, hmsPort, node );
-            Callable<CumulativeObject> resultBulkVlans =
-                new TopologySingleNodeBulkValnsProcessor( hmsIpAddr, hmsPort, node );
+            Callable<CumulativeObject> resultBulkPort = new TopologySingleNodeBulkPortsProcessor( node );
+            Callable<CumulativeObject> resultBulkVlans = new TopologySingleNodeBulkValnsProcessor( node );
             Future<CumulativeObject> futureBulkPort = executor.submit( resultBulkPort );
             Future<CumulativeObject> futureBulkVlan = executor.submit( resultBulkVlans );
             set.add( futureBulkPort );
@@ -155,6 +154,7 @@ public class TopologyAggregator
                         logger.debug( "Inserting (" + hostnameInfo.getFullyQualifiedDomainName() + ", " + nodeId
                             + ") into the IP address map." );
                     }
+
                     else
                     {
                         switchVlanBulk.put( output.getNodeName(), (SwitchVlan[]) output.getObject() );
@@ -166,10 +166,12 @@ public class TopologyAggregator
                 logger.error( "Exception occured while retriving details for topology aggregator" + e );
             }
         }
+
         try
         {
             for ( String node : torSwitchList )
             {
+
                 /*
                  * First get list of all the ports configured on the switch uri = new URI( "http", null, hmsIpAddr,
                  * hmsPort, "/api/1.0/hms/switches/{nodeName}/portsbulk".replaceAll("\\{nodeName\\}", node), null,
@@ -180,19 +182,23 @@ public class TopologyAggregator
                  * restTemplate.exchange(uri, HttpMethod.GET, entity, typeRef);
                  */
                 SwitchPort[] portArray = switchPortBulk.get( node );
+
                 if ( portArray != null )
                 {
                     for ( SwitchPort switchPort : portArray )
                     {
                         String remoteSystemId = null;
+
                         elem = new NetTopElement();
                         elem.setDeviceId( node );
                         elem.setPortName( switchPort.getName() );
                         elem.setMacAddress( switchPort.getMacAddress() );
+
                         if ( switchPort.getLinkedPort() != null )
                         {
                             connElem = new NetTopElement();
                             remoteSystemId = switchPort.getLinkedPort().getDeviceName();
+
                             /* Convert IP addresses to node/switch ids where appropriate */
                             if ( remoteSystemId != null && ipAddress2NodeIdMap.containsKey( remoteSystemId ) )
                             {
@@ -200,13 +206,16 @@ public class TopologyAggregator
                                 remoteSystemId = ipAddress2NodeIdMap.get( oldRemoteSystemId );
                                 logger.debug( "Transforming key " + oldRemoteSystemId + " to " + remoteSystemId );
                             }
+
                             connElem.setDeviceId( remoteSystemId );
                             connElem.setPortName( switchPort.getLinkedPort().getPortName() );
                             elem.setConnectedElement( connElem );
                         }
+
                         db.put( node + "." + switchPort.getName(), elem );
                     } // end of per port iteration
                 }
+
                 /*
                  * Now get list of all the VLANs configured on the switch
                  */
@@ -218,14 +227,17 @@ public class TopologyAggregator
                  * restTemplate.exchange(uri, HttpMethod.GET, entity, typeRef2);
                  */
                 SwitchVlan[] vlanArray = switchVlanBulk.get( node );
+
                 if ( vlanArray != null )
                 {
                     for ( SwitchVlan vlan : vlanArray )
                     {
+
                         // Link the ports associated with the VLAN now
                         for ( String up : vlan.getUntaggedPorts() )
                         {
                             NetTopElement e = db.get( node + "." + up );
+
                             if ( e != null )
                             {
                                 List<String> vlans = null;
@@ -244,6 +256,7 @@ public class TopologyAggregator
                         for ( String up : vlan.getTaggedPorts() )
                         {
                             NetTopElement e = db.get( node + "." + up );
+
                             if ( e != null )
                             {
                                 List<String> vlans = null;
@@ -272,12 +285,17 @@ public class TopologyAggregator
                                         "Exception while connecting to hms."
                                             + ( ( uri != null ) ? uri.toString() : "" ) );
         }
+
         logger.debug( "END processing ports on all switches." );
+
         for ( NetTopElement e : db.values() )
         {
             netTopList.add( e );
         }
+
         logger.debug( "END Network topology creation." );
+
         return netTopList;
     }
+
 }

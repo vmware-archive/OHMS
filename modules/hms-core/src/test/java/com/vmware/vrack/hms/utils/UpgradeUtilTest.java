@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.utils;
 
 import static org.junit.Assert.assertFalse;
@@ -23,7 +24,6 @@ import org.junit.Test;
 
 import com.vmware.vrack.hms.common.HmsConfigHolder;
 
-// TODO: Auto-generated Javadoc
 /**
  * <code>UpgradeUtilTest</code> <br>
  * .
@@ -32,11 +32,13 @@ import com.vmware.vrack.hms.common.HmsConfigHolder;
  */
 public class UpgradeUtilTest
 {
+
     /**
      * Instantiates a new upgrade util test.
      */
     public UpgradeUtilTest()
     {
+
         HmsConfigHolder.initializeHmsAppProperties();
     }
 
@@ -68,7 +70,7 @@ public class UpgradeUtilTest
     @Test
     public void testInitUpgradeWithNullSpec()
     {
-        assertFalse( UpgradeUtil.initiateUpgrade( null ) );
+        assertFalse( UpgradeUtil.initiateUpgrade( null, null ) );
     }
 
     /**
@@ -77,6 +79,7 @@ public class UpgradeUtilTest
     @Test
     public void testRollbackUpgradeWithNullSpec()
     {
+
         assertFalse( UpgradeUtil.rollbackUpgrade( null ) );
     }
 }

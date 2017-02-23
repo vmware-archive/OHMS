@@ -205,4 +205,5 @@ public class SwitchInfo
     {
         this.discoverable = discoverable;
     }
+
 }

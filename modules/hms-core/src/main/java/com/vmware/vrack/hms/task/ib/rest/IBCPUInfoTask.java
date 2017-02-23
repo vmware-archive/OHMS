@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * IBCPUInfoTask.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -34,6 +34,7 @@ import com.vmware.vrack.hms.utils.HttpClientService;
 public class IBCPUInfoTask
     extends IBRestTask
 {
+
     private static Logger logger = Logger.getLogger( IBCPUInfoTask.class );
 
     public IBCPUInfoTask( TaskResponse response )
@@ -45,6 +46,7 @@ public class IBCPUInfoTask
     public void executeTask()
         throws Exception
     {
+
         if ( getBaseUrl() != null )
         {
             try
@@ -54,6 +56,7 @@ public class IBCPUInfoTask
                 String response = HttpClientService.getInstance().postJson( getBaseUrl() + "/cpuinfo",
                                                                             mapper.writeValueAsString( serviceServerNode ),
                                                                             true, false );
+
                 List<CPUInfo> info =
                     mapper.readValue( response,
                                       TypeFactory.defaultInstance().constructCollectionType( ArrayList.class,
@@ -62,24 +65,31 @@ public class IBCPUInfoTask
             }
             catch ( JsonGenerationException e )
             {
+
                 logger.error( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
+
             }
             catch ( JsonMappingException e )
             {
+
                 logger.error( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
+
             }
             catch ( IOException e )
             {
+
                 logger.error( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
+
             }
             catch ( Exception e )
             {
                 logger.error( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
                 throw new HmsException( "Error while getting In Band CPU Info for Node:" + node.getNodeID(), e );
             }
+
         }
         else
         {
@@ -88,5 +98,7 @@ public class IBCPUInfoTask
             throw new HmsException( "HMS InBand URL not available, Error while getting In Band CPU Info for Node:"
                 + node.getNodeID() );
         }
+
     }
+
 }

@@ -38,17 +38,21 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.inventory.InventoryLoader;
 
 /**
- * @author Yagnesh Chawda Controller for on demand component events on hms-local side
+ * @author Yagnesh Chawda Controller for on demand component events on hms-aggregator side
  */
 @Controller
 @RequestMapping( "/event/host" )
 public class HmsLocalComponentEventRestService
 {
+
     private Logger logger = Logger.getLogger( HmsLocalComponentEventRestService.class );
 
     /**
-     * Returns you On-Demand Events list for given node, EventSource, component_id
-     *
+     * Returns you On-Demand Events list for given node, EventSource, component_id This end point
+     * /{host_id}/{event_source} will not get called by any of the higher layers in EVO:SDDC stack. This end point is
+     * for debugging purpose only. HMS monitoring task will monitor and get the Hardware events for the server and
+     * switch components periodically.
+     * 
      * @param host_id
      * @param event_source
      * @param component_id
@@ -58,21 +62,24 @@ public class HmsLocalComponentEventRestService
     @RequestMapping( value = "/{host_id}/{event_source}", method = RequestMethod.GET )
     @ResponseBody
     public List<Event> getComponentEvents( @PathVariable( "host_id" ) String host_id,
-                                           @PathVariable( "event_source" ) EventComponent event_source)
-                                               throws HmsException
+                                           @PathVariable( "event_source" ) EventComponent event_source )
+        throws HmsException
     {
+
         if ( !InventoryLoader.getInstance().getNodeMap().containsKey( host_id ) )
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
                                         "Can't find host with id " + host_id );
         else
         {
             logger.debug( "trying to get Events for Host:" + host_id + " for component: " + event_source );
-            ServerNode node = (ServerNode) InventoryLoader.getInstance().getNodeMap().get( host_id );
+            ServerNode node = InventoryLoader.getInstance().getNodeMap().get( host_id );
             try
             {
                 ServerComponent component = EventMonitoringSubscriptionHolder.getMappedServerComponents( event_source );
                 EventGeneratorTask eventGenerator = new EventGeneratorTask();
-                return eventGenerator.getAggregatedEvents( node, component );
+                // The getAggregatedEvents will be called by the HMS Monitoring task (HmsLocalMonitorTask)
+                // TODO: By default oobMonitoring and ibMonitoring is set to true.
+                return eventGenerator.getAggregatedEvents( node, component, true, true );
             }
             catch ( HmsException e )
             {
@@ -93,7 +100,7 @@ public class HmsLocalComponentEventRestService
 
     /**
      * Returns you On-Demand Health Events for HMS
-     *
+     * 
      * @return List<Event>
      * @throws HmsException
      */
@@ -102,6 +109,7 @@ public class HmsLocalComponentEventRestService
     public List<Event> getComponnetEvents()
         throws HmsException
     {
+
         try
         {
             ServerNode node = InventoryLoader.getInstance().getApplicationNode();
@@ -117,4 +125,5 @@ public class HmsLocalComponentEventRestService
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
         }
     }
+
 }

@@ -27,6 +27,7 @@ public class NodeConnectorTest
     public NodeConnectorTest()
     {
     }
+
     /**
      * Test of refreshNodeStatus method, of class NodeConnector, when a Valid Discoverable IP address and Positive Node
      * ID is passed as parameters
@@ -42,6 +43,7 @@ public class NodeConnectorTest
     // sNode.isDiscoverable() );
     // assertTrue(sNode.isDiscoverable());
     // }
+
     /**
      * Test of refreshNodeStatus method, of class NodeConnector, when a Valid Non Discoverable IP address and Positive
      * Node ID is passed as parameters
@@ -57,6 +59,7 @@ public class NodeConnectorTest
     // sNode.isDiscoverable() );
     // assertFalse(sNode.isDiscoverable());
     // }
+
     /**
      * Test of refreshNodeStatus method, of class NodeConnector, when a Valid IP address and Negative Node ID is passed
      * as parameters
@@ -70,6 +73,7 @@ public class NodeConnectorTest
     // logger.info("[TS] : Expected result : isPowered = false, actual result : isPowered = " + sNode.isPowered() );
     // assertFalse(sNode.isPowered());
     // }
+
     /**
      * Test of refreshNodeStatus method, of class NodeConnector, when a Invalid IP address is passed as a parameter
      */
@@ -85,6 +89,7 @@ public class NodeConnectorTest
     // assertFalse(sNode.isDiscoverable());
     // assertFalse(sNode.isPowered());
     // }
+
     /**
      * Test of refreshNodeStatus method, of class NodeConnector, when empty string is passed in place of IP address
      * parameter
@@ -101,6 +106,7 @@ public class NodeConnectorTest
     // assertFalse(sNode.isDiscoverable());
     // assertFalse(sNode.isPowered());
     // }
+
     /**
      * Test of destroy method, of class NodeConnector.
      */
@@ -114,10 +120,12 @@ public class NodeConnectorTest
     // //assertNull(SConnector.getConnector());
     // //logger.info("[TS] : Expected result : connector=NULL , actual result : connector="+ SConnector.getConnector());
     // }
+
     /**
      * Test of ResetServerPower method, of class NodeConnector when Power Down command is sent to a Discoverable Server
      * Node.
      */
+
     // @Test
     // public void testPowerDownDicoverableServer(){
     //
@@ -142,10 +150,12 @@ public class NodeConnectorTest
     // assertFalse(sNode.isPowered());
     //
     // }
+
     /**
      * Test of ResetServerPower method, of class NodeConnector when Power Up command is sent to a Discoverable Server
      * Node.
      */
+
     // @Test
     // public void testPowerUpDicoverableServer(){
     // logger.info("[TS] : testPowerUpDicoverableServer");
@@ -167,10 +177,12 @@ public class NodeConnectorTest
     // "+sNode.isPowered());
     // assertTrue(sNode.isPowered());
     // }
+
     /**
      * Test of ResetServerPower method, of class NodeConnector when Hard Reset command is sent to aDiscoverable Server
      * Node.
      */
+
     // @Test //need to find out what what the expected result should be
     // public void testHardResetDicoverableServer(){
     // logger.info("[TS] : testPowerUpNonDicoverableServer");
@@ -189,10 +201,12 @@ public class NodeConnectorTest
     // "+sNode.isPowered());
     // assertTrue(sNode.isPowered());
     // }
+
     /**
      * Test of ResetServerPower method, of class NodeConnector when Power Down command is sent to a Non Discoverable
      * Server Node.
      */
+
     // @Test
     // public void testPowerDownNonDicoverableServer(){
     // logger.info("[TS] : testPowerDownNonDicoverableServer");
@@ -211,10 +225,12 @@ public class NodeConnectorTest
     // isPowered= "+sNode.isPowered());
     // assertEquals(sNodePowerStatus,sNode.isPowered());
     // }
+
     /**
      * Test of ResetServerPower method, of class NodeConnector when Power Up command is sent to a Non Discoverable
      * Server Node.
      */
+
     // @Test
     // public void testPowerUpNonDicoverableServer() {
     // logger.info("[TS] : testPowerUpNonDicoverableServer");
@@ -234,10 +250,12 @@ public class NodeConnectorTest
     // isPowered= "+sNode.isPowered());
     // assertEquals(sNodePowerStatus,sNode.isPowered());
     // }
+
     /**
      * Test of ResetServerPower method, of class NodeConnector when Hard Reset command is sent to a Non Discoverable
      * Server Node.
      */
+
     // @Test
     // public void testHardResetNonDicoverableServer() {
     // logger.info("[TS] : testPowerUpNonDicoverableServer");
@@ -257,4 +275,5 @@ public class NodeConnectorTest
     // isPowered= "+sNode.isPowered());
     // assertEquals(sNodePowerStatus,sNode.isPowered());
     // }
+
 }

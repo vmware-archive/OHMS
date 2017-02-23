@@ -16,7 +16,8 @@
 
 package com.vmware.vrack.hms.plugin;
 
-public class ServerPluginConstants {
+public class ServerPluginConstants
+{
     /* Board Name */
     public static final String BOARD_NAME = "Dummy";
 

@@ -50,10 +50,13 @@ public abstract class RmmTask
 
     public void setupConnection()
     {
+
     }
 
     @Override
     public void destroy()
     {
+
     }
+
 }

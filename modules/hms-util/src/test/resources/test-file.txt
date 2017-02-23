@@ -1,0 +1,1 @@
+Test file for testing FileUtil.getFileAbsPath() and FileUtil.fileExists() utility methods.

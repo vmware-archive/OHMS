@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * EventFilterService.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import java.util.ArrayList;
@@ -20,8 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.common.event.Event;
 import com.vmware.vrack.common.event.Header;
@@ -36,11 +39,13 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
  *
  * @author vmware
  */
+@SuppressWarnings( "deprecation" )
 public class EventFilterService
 {
-    private static Logger logger = Logger.getLogger( EventFilterService.class );
+    private static Logger logger = LoggerFactory.getLogger( EventFilterService.class );
 
-    // Map<nodeId, Map<ServerComponent, List<Event>>> to hold old events for each nde's all components
+    // Map<nodeId, Map<ServerComponent, List<Event>>> to hold old events for
+    // each node's all components
     private static final Map<String, Map<ServerComponent, List<Event>>> allNodesComponentEventsMap =
         new ConcurrentHashMap<String, Map<ServerComponent, List<Event>>>();
 
@@ -50,6 +55,8 @@ public class EventFilterService
     private static final Map<ServerComponent, Map<String, List<Event>>> hmsEventsMap =
         new ConcurrentHashMap<ServerComponent, Map<String, List<Event>>>();
 
+    private static final ReentrantLock switchEventFilterUpdateLock = new ReentrantLock();
+
     private static final String HMS_AGENT_STATUS = "HMS_AGENT_STATUS";
 
     /**
@@ -58,7 +65,6 @@ public class EventFilterService
      * @param newEvents
      * @return List<Event>
      */
-    @SuppressWarnings( "deprecation" )
     public static List<Event> filterOrMassageEvents( String nodeId, ServerComponent serverComponent,
                                                      List<Event> newEvents )
         throws HmsException
@@ -69,6 +75,7 @@ public class EventFilterService
             massagedEvents = newEvents;
             boolean isHmsCase = false;
             boolean isFilterOn = false;
+
             if ( serverComponent != null )
             {
                 switch ( serverComponent )
@@ -101,6 +108,7 @@ public class EventFilterService
                         break;
                 }
             }
+
             // Put newEvents in componentEventStatusMap, to refer for next call.
             // called because of the Monitoring + onDemand events call over rest
             if ( isHmsCase )
@@ -112,6 +120,7 @@ public class EventFilterService
                 putEventsToComponentStatusMap( nodeId, serverComponent, newEvents );
             }
         }
+
         return massagedEvents;
     }
 
@@ -126,31 +135,58 @@ public class EventFilterService
                                                            List<Event> newEvents )
         throws HmsException
     {
-        List<Event> massagedEvents = newEvents;
-        boolean isFilterOn = false;
-        if ( switchComponent != null )
+        try
         {
-            switch ( switchComponent )
-            {
-                case SWITCH:
-                {
-                    massagedEvents = filterSwitchUpDownEvents( nodeId, switchComponent, newEvents );
-                    isFilterOn = true;
-                    break;
-                }
-                case SWITCH_PORT:
-                {
-                    massagedEvents = filterSwitchPortUpDownEvents( nodeId, switchComponent, newEvents );
-                    isFilterOn = true;
-                    break;
-                }
-                default:
-                    break;
-            }
+            // Acquired the lock to update switch event status
+            switchEventFilterUpdateLock.lock();
         }
-        if ( isFilterOn )
-            putSwitchEventsToComponentStatusMap( nodeId, switchComponent, newEvents );
-        return massagedEvents;
+        catch ( Exception e )
+        {
+            logger.error( "Lock Acquisition failed to filter or message switch events.", e );
+            return new ArrayList<Event>();
+        }
+
+        try
+        {
+            List<Event> massagedEvents = newEvents;
+            boolean isFilterOn = false;
+
+            if ( switchComponent != null )
+            {
+                switch ( switchComponent )
+                {
+                    case SWITCH:
+                    {
+                        massagedEvents = filterSwitchUpDownEvents( nodeId, switchComponent, newEvents );
+                        isFilterOn = true;
+                        break;
+                    }
+                    case SWITCH_PORT:
+                    {
+                        massagedEvents = filterSwitchPortUpDownEvents( nodeId, switchComponent, newEvents );
+                        isFilterOn = true;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            if ( isFilterOn )
+                putSwitchEventsToComponentStatusMap( nodeId, switchComponent, newEvents );
+            return massagedEvents;
+        }
+        catch ( Exception e )
+        {
+            logger.error( "HMS aggregator Error while filtering switch events:{}", nodeId, e );
+        }
+        finally
+        {
+            // release the acquired lock for other thread to update server up or
+            // down event status
+            switchEventFilterUpdateLock.unlock();
+        }
+        return new ArrayList<Event>();
     }
 
     /**
@@ -164,86 +200,111 @@ public class EventFilterService
         List<Event> nicEventsAgrregated = null;
         try
         {
-            logger.debug( "nodeId: " + nodeId + ", serverComponent: " + serverComponent );
+            logger.debug( "Filtering NIC Events for host:{}, serverComponent:{} ", nodeId, serverComponent );
             List<Event> oldEvents = getExistingEventsForComponentInNode( nodeId, serverComponent );
+
             if ( oldEvents != null && newEvents != null )
             {
                 nicEventsAgrregated = new ArrayList<Event>();
+
                 Header newEventHeader = null;
                 Map<EventComponent, String> newEventComponentIdentifier = null;
                 Map<String, String> newEventData = null;
                 EventCatalog newEventCatalog = null;
+
                 Header oldEventHeader = null;
                 Map<EventComponent, String> oldEventComponentIdentifier = null;
                 Map<String, String> oldEventData = null;
                 EventCatalog oldEventCatalog = null;
+
                 for ( Event newEvent : newEvents )
                 {
                     newEventHeader = newEvent.getHeader();
                     newEventComponentIdentifier = newEvent.getHeader().getComponentIdentifier();
                     newEventData = newEvent.getBody().getData();
                     newEventCatalog = newEventHeader.getEventName();
-                    // flag is set to true if we find any matching for the NIC Component in the oldEvents as well as the
-                    // newEvents.
+
+                    // flag is set to true if we find any matching event for the
+                    // NIC Component in the oldEvents as well as the newEvents.
                     // Flag to handle if the new NIC added.
                     boolean flag = false;
+
                     if ( ( newEventCatalog == EventCatalog.NIC_PORT_UP )
                         || ( newEventCatalog == EventCatalog.NIC_PORT_DOWN ) )
                     {
                         String newEventFruId = newEventComponentIdentifier.get( EventComponent.NIC );
-                        logger.debug( "New NIC port status for node: " + nodeId + ", " + newEventFruId + ": "
-                            + newEventCatalog );
+                        String newEventFruIdPort = newEventComponentIdentifier.get( EventComponent.PORT );
+
                         for ( Event oldEvent : oldEvents )
                         {
                             oldEventHeader = oldEvent.getHeader();
                             oldEventComponentIdentifier = oldEvent.getHeader().getComponentIdentifier();
                             oldEventData = oldEvent.getBody().getData();
+
                             String oldEventFruId = oldEventComponentIdentifier.get( EventComponent.NIC );
-                            if ( newEventFruId != null && newEventFruId.equals( oldEventFruId ) )
+                            String oldEventFruIdPort = oldEventComponentIdentifier.get( EventComponent.PORT );
+                            logger.debug( "Host:{}, old NIC:{} Port: {}, new NIC:{} Port:{}", nodeId, oldEventFruId,
+                                          oldEventFruIdPort, newEventFruId, newEventFruIdPort );
+                            // Checking PORT also as we have PORT resource hierarchy in NIC_PORT_UP and NIC_PORT_DOWN
+                            // events
+                            if ( newEventFruId != null && newEventFruIdPort != null
+                                && newEventFruId.equals( oldEventFruId )
+                                && newEventFruIdPort.equals( oldEventFruIdPort ) )
                             {
                                 flag = true;
                                 oldEventCatalog = oldEventHeader.getEventName();
-                                logger.debug( "old & new NIC port status for node: " + nodeId + ", " + oldEventFruId
-                                    + ": " + newEventFruId );
+
                                 if ( ( oldEventCatalog == EventCatalog.NIC_PORT_UP )
                                     || ( oldEventCatalog == EventCatalog.NIC_PORT_DOWN ) )
                                 {
-                                    logger.debug( "event data b/w old & new: " + oldEventData.get( "value" ) + " : "
-                                        + newEventData.get( "value" ) );
                                     if ( newEventData.get( "value" ).equals( oldEventData.get( "value" ) ) )
                                     {
-                                        // old and new port status for this NIC port is same, so we will not generate
+                                        // old and new port status for this NIC
+                                        // port is same, so we will not generate
                                         // new event
                                         continue;
                                     }
                                     else
                                     {
-                                        logger.debug( "Adding NIC port status event unconditionally for node:" + nodeId
-                                            + ", " + newEventFruId + ": " + newEventCatalog );
+                                        logger.debug( "Adding NIC port status event for host:{} with NIC: {} port: {}, "
+                                            + "EventCatalog:{},oldEventvalue: {}, newEventValue: {}", nodeId,
+                                                      newEventFruId, newEventFruIdPort, newEventCatalog,
+                                                      oldEventData.get( "value" ), newEventData.get( "value" ) );
+
                                         nicEventsAgrregated.add( newEvent );
                                     }
                                 }
                             }
                         }
                         if ( flag == false )
+                        {
+                            logger.debug( "A new NIC component has been detected for host:{} with NIC: {} port:{} and eventCatalog:{}.",
+                                          nodeId, newEventFruId, newEventFruIdPort, newEventCatalog );
                             nicEventsAgrregated.add( newEvent );
+                        }
                     }
                     else
                     {
+                        logger.debug( "Adding NIC port status event for host:{} with EventCatalog:{}", nodeId,
+                                      newEventCatalog );
                         nicEventsAgrregated.add( newEvent );
                     }
                 }
             }
             else
             {
-                // Because no past events are present, no need to do any massaging
+                // Because no past events are present, no need to do any
+                // massaging
+                logger.debug( "Adding the complete set of newEvents for host:{} with serverComponent:{} "
+                    + "since oldEvents/newEvents set is null.", nodeId, serverComponent );
                 nicEventsAgrregated = newEvents;
             }
         }
         catch ( Exception e )
         {
-            logger.error( "HMS aggregator Error while getting Events for server component NIC: " + nodeId, e );
+            logger.error( "HMS aggregator Error while getting Events for server component NIC:{}", nodeId, e );
         }
+
         if ( nicEventsAgrregated == null )
         {
             // We will not return NULL, We will atleast return Empty Array
@@ -264,82 +325,108 @@ public class EventFilterService
         List<Event> storageControllerEventsAgrregated = null;
         try
         {
+            logger.debug( "Filtering STORAGE CONTROLLER Events for host:{}, serverComponent:{} ", nodeId,
+                          serverComponent );
             List<Event> oldEvents = getExistingEventsForComponentInNode( nodeId, serverComponent );
+
             if ( oldEvents != null && newEvents != null )
             {
                 storageControllerEventsAgrregated = new ArrayList<Event>();
+
                 Header newEventHeader = null;
                 Map<EventComponent, String> newEventComponentIdentifier = null;
                 Map<String, String> newEventData = null;
                 EventCatalog newEventCatalog = null;
+
                 Header oldEventHeader = null;
                 Map<EventComponent, String> oldEventComponentIdentifier = null;
                 Map<String, String> oldData = null;
                 EventCatalog oldEventCatalog = null;
+
                 for ( Event newEvent : newEvents )
                 {
                     newEventHeader = newEvent.getHeader();
                     newEventComponentIdentifier = newEvent.getHeader().getComponentIdentifier();
                     newEventCatalog = newEventHeader.getEventName();
-                    // flag is set to true if we find any matching for the STORAGE_CONTROLLER Component in oldEvents as
-                    // well as newEvents.
+
+                    // flag is set to true if we find any matching event for the
+                    // STORAGE_CONTROLLER Component in oldEvents as well as
+                    // newEvents.
                     // Flag to handle if the new storage controller added.
                     boolean flag = false;
+
                     if ( ( newEventCatalog == EventCatalog.STORAGE_CONTROLLER_DOWN )
                         || ( newEventCatalog == EventCatalog.STORAGE_CONTROLLER_UP ) )
                     {
-                        logger.debug( "HMS Storage controller operational status events are available for this node: "
-                            + nodeId );
                         for ( Event oldEvent : oldEvents )
                         {
                             oldEventHeader = oldEvent.getHeader();
                             oldEventComponentIdentifier = oldEvent.getHeader().getComponentIdentifier();
+                            logger.debug( "Host:{}, old Storage Controller ID:{}, new Storage Controller ID:{}", nodeId,
+                                          oldEventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ),
+                                          ( newEventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ) ) );
+
                             if ( oldEventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ).equals( newEventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ) ) )
                             {
                                 flag = true;
                                 oldEventCatalog = oldEventHeader.getEventName();
+
                                 if ( ( oldEventCatalog == EventCatalog.STORAGE_CONTROLLER_UP )
                                     || ( oldEventCatalog == EventCatalog.STORAGE_CONTROLLER_DOWN ) )
                                 {
                                     newEventData = newEvent.getBody().getData();
                                     oldData = oldEvent.getBody().getData();
-                                    logger.debug( "Getting Storage controller component Identifier for comparision for the node: "
-                                        + nodeId );
+
                                     if ( newEventData.get( "value" ).equals( oldData.get( "value" ) ) )
                                     {
-                                        // Status has NOT changed for Storage Controller, so no need to generate new
-                                        // event.
+                                        // Status has NOT changed for Storage
+                                        // Controller, so no need to generate
+                                        // new event.
                                         continue;
                                     }
                                     else
                                     {
-                                        logger.debug( "Adding Storage Controller operational status event as the component status change found for the node: "
-                                            + nodeId );
+                                        logger.debug( "Adding Storage Controller operational status event for the host:{} with "
+                                            + "storage controller:{}, oldEventvalue: {}, newEventValue: {}", nodeId,
+                                                      newEventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ),
+                                                      oldData.get( "value" ), newEventData.get( "value" ) );
                                         storageControllerEventsAgrregated.add( newEvent );
                                     }
                                 }
                             }
                         }
                         if ( flag == false )
+                        {
+                            logger.debug( "A new Storage Controller component has been detected for host:{} "
+                                + "with storage controller:{} and eventCatalog:{}.", nodeId,
+                                          newEventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER ),
+                                          newEventCatalog );
                             storageControllerEventsAgrregated.add( newEvent );
+                        }
                     }
                     else
                     {
+                        logger.debug( "Adding Storage Controller event for host:{} with EventCatalog:{}", nodeId,
+                                      newEventCatalog );
                         storageControllerEventsAgrregated.add( newEvent );
                     }
                 }
             }
             else
             {
-                // Because no past events are present, no need to do any massaging
+                // Because no past events are present, no need to do any
+                // massaging
+                logger.debug( "Adding the complete set of newEvents for host:{} with "
+                    + "serverComponent:{} since oldEvents/newEvents set is null.", nodeId, serverComponent );
                 storageControllerEventsAgrregated = newEvents;
             }
         }
         catch ( Exception e )
         {
-            logger.error( "HMS aggregator Error while getting Events for server component Storage Controller:" + nodeId,
-                          e );
+            logger.error( "HMS aggregator Error while getting Events for server component Storage Controller:{}",
+                          nodeId, e );
         }
+
         if ( storageControllerEventsAgrregated == null )
         {
             // We will not return NULL, We will atleast return Empty Array
@@ -360,86 +447,118 @@ public class EventFilterService
     private static List<Event> filterStorageEvents( String nodeId, ServerComponent serverComponent,
                                                     List<Event> newEvents )
     {
+
         List<Event> storageEventsAgrregated = null;
+
         try
         {
+            logger.debug( "Filtering STORAGE Events for host:{}, serverComponent:{} ", nodeId, serverComponent );
             List<Event> oldEvents = getExistingEventsForComponentInNode( nodeId, serverComponent );
+
             if ( oldEvents != null && newEvents != null )
             {
                 storageEventsAgrregated = new ArrayList<Event>();
+
                 Header newEventHeader = null;
                 Map<EventComponent, String> newEventComponentIdentifier = null;
                 Map<String, String> newEventData = null;
                 EventCatalog newEventCatalog = null;
+
                 Header oldEventHeader = null;
                 Map<EventComponent, String> oldEventComponentIdentifier = null;
                 Map<String, String> oldData = null;
                 EventCatalog oldEventCatalog = null;
+
                 for ( Event newEvent : newEvents )
                 {
                     newEventHeader = newEvent.getHeader();
                     newEventComponentIdentifier = newEvent.getHeader().getComponentIdentifier();
                     newEventCatalog = newEventHeader.getEventName();
-                    // flag is set to true if we find any matching for the STORAGE Component in oldEvents as well as
-                    // newEvents.
+
+                    // flag is set to true if we find any matching event for the
+                    // STORAGE Component in oldEvents as well as newEvents.
                     // Flag to handle if the new storage disk added/inserted.
                     boolean flag = false;
+
                     if ( ( newEventCatalog == EventCatalog.HDD_UP ) || ( newEventCatalog == EventCatalog.HDD_DOWN )
                         || ( newEventCatalog == EventCatalog.SSD_UP ) || ( newEventCatalog == EventCatalog.SSD_DOWN ) )
                     {
-                        logger.debug( "HMS Storage operational status events are available for this node: " + nodeId );
+
                         for ( Event oldEvent : oldEvents )
                         {
                             oldEventHeader = oldEvent.getHeader();
                             oldEventComponentIdentifier = oldEvent.getHeader().getComponentIdentifier();
-                            logger.debug( "Getting Storage component Identifier for comparision for the node: "
-                                + nodeId );
+
+                            logger.debug( "Host:{}, old Storage Id:{}, new Storage Id:{}", nodeId,
+                                          oldEventComponentIdentifier.get( EventComponent.STORAGE ),
+                                          newEventComponentIdentifier.get( EventComponent.STORAGE ) );
+
                             if ( oldEventComponentIdentifier.get( EventComponent.STORAGE ).equals( newEventComponentIdentifier.get( EventComponent.STORAGE ) ) )
                             {
                                 oldEventCatalog = oldEventHeader.getEventName();
                                 flag = true;
+
                                 if ( ( oldEventCatalog == EventCatalog.HDD_UP )
                                     || ( oldEventCatalog == EventCatalog.HDD_DOWN )
                                     || ( oldEventCatalog == EventCatalog.SSD_UP )
                                     || ( oldEventCatalog == EventCatalog.SSD_DOWN ) )
                                 {
+
                                     newEventData = newEvent.getBody().getData();
                                     oldData = oldEvent.getBody().getData();
-                                    logger.debug( "Getting Storage operational status for comparision for the node: "
-                                        + nodeId );
+
                                     if ( newEventData.get( "value" ).equals( oldData.get( "value" ) ) )
                                     {
-                                        // Status has NOT changed for Storage Events, so no need to generate new event.
+                                        // Status has NOT changed for Storage
+                                        // Events, so no need to generate new
+                                        // event.
                                         continue;
                                     }
                                     else
                                     {
-                                        logger.debug( "Adding Storage operational status event as the component status change found for the node: "
-                                            + nodeId );
+                                        logger.debug( "Adding Storage operational status event for the host:{} "
+                                            + "with storageId:{}, oldData:{}, newData:{}", nodeId,
+                                                      newEventComponentIdentifier.get( EventComponent.STORAGE ),
+                                                      oldData.get( "value" ), newEventData.get( "value" ) );
                                         storageEventsAgrregated.add( newEvent );
                                     }
                                 }
                             }
                         }
+
                         if ( flag == false )
+                        {
+                            logger.debug( "A new Storage component has been detected for host:{} with storageId:{} and eventCatalog:{}.",
+                                          nodeId, newEventComponentIdentifier.get( EventComponent.STORAGE ),
+                                          newEventCatalog );
                             storageEventsAgrregated.add( newEvent );
+                        }
+
                     }
                     else
                     {
+                        logger.debug( "Adding Storage event for host:{} with EventCatalog:{}", nodeId,
+                                      newEventCatalog );
                         storageEventsAgrregated.add( newEvent );
                     }
                 }
             }
             else
             {
-                // Because no old events are present, no need to do any filter or massaging
+                // Because no old events are present, no need to do any filter
+                // or massaging
+                logger.debug( "Adding the complete set of newEvents for host:{} with serverComponent:{} since oldEvents/newEvents set is null.",
+                              nodeId, serverComponent );
                 storageEventsAgrregated = newEvents;
             }
+
         }
         catch ( Exception e )
         {
-            logger.error( "HMS aggregator Error while getting Events for server component Storage :" + nodeId, e );
+            logger.error( "HMS aggregator Error while getting Events for host:{} for server component Storage.", nodeId,
+                          e );
         }
+
         if ( storageEventsAgrregated == null )
         {
             // We will not return NULL, We will atleast return Empty Array
@@ -458,15 +577,19 @@ public class EventFilterService
      */
     private static List<Event> filterHmsAgentEvents( ServerComponent serverComponent, List<Event> newEvents )
     {
+
         List<Event> hmsEventsAgrregated = null;
+
         try
         {
             List<Event> oldEvents = getExistingEventsForHms( serverComponent );
+
             if ( oldEvents != null && newEvents != null )
             {
                 hmsEventsAgrregated = new ArrayList<Event>();
                 Map<String, String> newEventData = null;
                 Map<String, String> oldEventData = null;
+
                 for ( Event newEvent : newEvents )
                 {
                     if ( EventsUtil.isHmsSupportedEvent( newEvent ) )
@@ -477,13 +600,17 @@ public class EventFilterService
                             {
                                 newEventData = newEvent.getBody().getData();
                                 oldEventData = oldEvent.getBody().getData();
+
                                 if ( newEventData != null && oldEventData != null )
                                 {
                                     String newData = newEventData.get( "value" );
                                     String oldData = oldEventData.get( "value" );
+
                                     if ( newData != null && newData.equals( oldData ) )
                                     {
-                                        // Status has NOT changed for HMS Events, so no need to generate new event.
+                                        // Status has NOT changed for HMS
+                                        // Events, so no need to generate new
+                                        // event.
                                         logger.debug( "component status change not found for HMS" );
                                         continue;
                                     }
@@ -495,9 +622,10 @@ public class EventFilterService
                                 }
                                 else
                                 {
-                                    logger.debug( "Null data found- oldEventData:" + oldEventData + "::newEventData: "
-                                        + newEventData );
+                                    logger.debug( "Null data found- oldEventData:{} :: newEventData:{}", oldEventData,
+                                                  newEventData );
                                 }
+
                             }
                         }
                     }
@@ -509,7 +637,8 @@ public class EventFilterService
             }
             else
             {
-                // Because no old events are present, no need to do any filter or massaging
+                // Because no old events are present, no need to do any filter
+                // or massaging
                 hmsEventsAgrregated = newEvents;
             }
         }
@@ -517,12 +646,14 @@ public class EventFilterService
         {
             logger.error( "HMS aggregator Error while getting Events for HMS", e );
         }
+
         if ( hmsEventsAgrregated == null )
         {
             // We will not return NULL, We will atleast return Empty Array
             hmsEventsAgrregated = new ArrayList<Event>();
         }
         return hmsEventsAgrregated;
+
     }
 
     /**
@@ -537,26 +668,34 @@ public class EventFilterService
     private static List<Event> filterSwitchPortUpDownEvents( String nodeId, SwitchComponentEnum switchComponent,
                                                              List<Event> newEvents )
     {
+
         List<Event> switchPortEventsAgrregated = null;
+
         try
         {
+            logger.debug( "Filtering SWITCH PORT Events for switch:{}, switchComponent:{} ", nodeId, switchComponent );
             List<Event> oldEvents = getExistingSwitchEventsForComponentInNode( nodeId, switchComponent );
+
             if ( oldEvents != null && newEvents != null )
             {
                 switchPortEventsAgrregated = new ArrayList<Event>();
+
                 Header newEventHeader = null;
                 Map<EventComponent, String> newEventComponentIdentifier = null;
                 Map<String, String> newEventData = null;
                 EventCatalog newEventCatalog = null;
+
                 Header oldEventHeader = null;
                 Map<EventComponent, String> oldEventComponentIdentifier = null;
                 Map<String, String> oldData = null;
                 EventCatalog oldEventCatalog = null;
+
                 for ( Event newEvent : newEvents )
                 {
                     newEventHeader = newEvent.getHeader();
                     newEventComponentIdentifier = newEvent.getHeader().getComponentIdentifier();
                     newEventCatalog = newEventHeader.getEventName();
+
                     if ( ( newEventCatalog == EventCatalog.MANAGEMENT_SWITCH_PORT_UP )
                         || ( newEventCatalog == EventCatalog.MANAGEMENT_SWITCH_PORT_DOWN )
                         || ( newEventCatalog == EventCatalog.TOR_SWITCH_PORT_UP )
@@ -564,16 +703,16 @@ public class EventFilterService
                         || ( newEventCatalog == EventCatalog.SPINE_SWITCH_PORT_UP )
                         || ( newEventCatalog == EventCatalog.SPINE_SWITCH_PORT_DOWN ) )
                     {
-                        logger.debug( "HMS Switch Port status events are available for this switch node: " + nodeId );
+
                         for ( Event oldEvent : oldEvents )
                         {
                             oldEventHeader = oldEvent.getHeader();
                             oldEventComponentIdentifier = oldEvent.getHeader().getComponentIdentifier();
-                            logger.debug( "Getting Switch Port component Identifier for comparision for the node: "
-                                + nodeId );
+
                             if ( oldEventComponentIdentifier.get( EventComponent.SWITCH_PORT ).equals( newEventComponentIdentifier.get( EventComponent.SWITCH_PORT ) ) )
                             {
                                 oldEventCatalog = oldEventHeader.getEventName();
+
                                 if ( ( oldEventCatalog == EventCatalog.MANAGEMENT_SWITCH_PORT_UP )
                                     || ( oldEventCatalog == EventCatalog.MANAGEMENT_SWITCH_PORT_DOWN )
                                     || ( oldEventCatalog == EventCatalog.TOR_SWITCH_PORT_UP )
@@ -581,19 +720,23 @@ public class EventFilterService
                                     || ( oldEventCatalog == EventCatalog.SPINE_SWITCH_PORT_UP )
                                     || ( oldEventCatalog == EventCatalog.SPINE_SWITCH_PORT_DOWN ) )
                                 {
+
                                     newEventData = newEvent.getBody().getData();
                                     oldData = oldEvent.getBody().getData();
-                                    logger.debug( "Getting Switch Port status for comparision for the switch node: "
-                                        + nodeId );
+
                                     if ( newEventData.get( "value" ).equals( oldData.get( "value" ) ) )
                                     {
-                                        // Status has NOT changed for Storage Events, so no need to generate new event.
+                                        // Status has NOT changed for Storage
+                                        // Events, so no need to generate new
+                                        // event.
                                         continue;
                                     }
                                     else
                                     {
-                                        logger.debug( "Adding Switch Port status event as the component status change found for the switch node: "
-                                            + nodeId );
+                                        logger.debug( "Adding Switch Port status event as the status change found for the "
+                                            + "switch:{} with switch port:{}, oldData:{}, newData:{}", nodeId,
+                                                      newEventComponentIdentifier.get( EventComponent.SWITCH_PORT ),
+                                                      oldData.get( "value" ), newEventData.get( "value" ) );
                                         switchPortEventsAgrregated.add( newEvent );
                                     }
                                 }
@@ -602,20 +745,26 @@ public class EventFilterService
                     }
                     else
                     {
+                        logger.debug( "Adding Switch Port event for switch:{} with EventCatalog:{}", nodeId,
+                                      newEventCatalog );
                         switchPortEventsAgrregated.add( newEvent );
                     }
                 }
             }
             else
             {
-                // Because no old events are present, no need to do any filter or massaging
+                // Because no old events are present, no need to do any filter
+                // or massaging
+                logger.debug( "Adding the complete set of newEvents for switch:{} with switchComponent:{} "
+                    + "since oldEvents/newEvents set is null.", nodeId, switchComponent );
                 switchPortEventsAgrregated = newEvents;
             }
         }
         catch ( Exception e )
         {
-            logger.error( "HMS aggregator Error while getting Events for Switch component Switch Port :" + nodeId, e );
+            logger.error( "HMS aggregator Error while getting Events for Switch Port of switch:{}", nodeId, e );
         }
+
         if ( switchPortEventsAgrregated == null )
         {
             // We will not return NULL, We will atleast return Empty Array
@@ -636,30 +785,39 @@ public class EventFilterService
     private static List<Event> filterSwitchUpDownEvents( String nodeId, SwitchComponentEnum switchComponent,
                                                          List<Event> newEvents )
     {
+
         List<Event> switchEventsAgrregated = null;
+
         try
         {
+            logger.debug( "Filtering SWITCH Events for switch:{}, switchComponent:{} ", nodeId, switchComponent );
             List<Event> oldEvents = getExistingSwitchEventsForComponentInNode( nodeId, switchComponent );
+
             if ( oldEvents != null && newEvents != null )
             {
                 switchEventsAgrregated = new ArrayList<Event>();
+
                 Header newEventHeader = null;
                 Map<EventComponent, String> newEventComponentIdentifier = null;
                 Map<String, String> newEventData = null;
                 EventCatalog newEventCatalog = null;
+
                 Header oldEventHeader = null;
                 Map<EventComponent, String> oldEventComponentIdentifier = null;
                 Map<String, String> oldData = null;
                 EventCatalog oldEventCatalog = null;
+
                 for ( Event newEvent : newEvents )
                 {
                     newEventHeader = newEvent.getHeader();
                     newEventComponentIdentifier = newEvent.getHeader().getComponentIdentifier();
                     newEventCatalog = newEventHeader.getEventName();
-                    // flag is set to true if we find any matching for the SWITCH Component in oldEvents as well as
-                    // newEvents.
+
+                    // flag is set to true if we find any matching event for the
+                    // SWITCH Component in oldEvents as well as newEvents.
                     // Flag to handle if the new Switch added.
                     boolean flag = false;
+
                     if ( ( newEventCatalog == EventCatalog.MANAGEMENT_SWITCH_UP )
                         || ( newEventCatalog == EventCatalog.MANAGEMENT_SWITCH_DOWN )
                         || ( newEventCatalog == EventCatalog.TOR_SWITCH_UP )
@@ -667,16 +825,17 @@ public class EventFilterService
                         || ( newEventCatalog == EventCatalog.SPINE_SWITCH_UP )
                         || ( newEventCatalog == EventCatalog.SPINE_SWITCH_DOWN ) )
                     {
-                        logger.debug( "HMS Switch status events are available for this switch node: " + nodeId );
+
                         for ( Event oldEvent : oldEvents )
                         {
                             oldEventHeader = oldEvent.getHeader();
                             oldEventComponentIdentifier = oldEvent.getHeader().getComponentIdentifier();
-                            logger.debug( "Getting Switch component Identifier for comparision for the node: " + nodeId );
+
                             if ( oldEventComponentIdentifier.get( EventComponent.SWITCH ).equals( newEventComponentIdentifier.get( EventComponent.SWITCH ) ) )
                             {
                                 flag = true;
                                 oldEventCatalog = oldEventHeader.getEventName();
+
                                 if ( ( oldEventCatalog == EventCatalog.MANAGEMENT_SWITCH_UP )
                                     || ( oldEventCatalog == EventCatalog.MANAGEMENT_SWITCH_DOWN )
                                     || ( oldEventCatalog == EventCatalog.TOR_SWITCH_UP )
@@ -684,43 +843,57 @@ public class EventFilterService
                                     || ( oldEventCatalog == EventCatalog.SPINE_SWITCH_UP )
                                     || ( oldEventCatalog == EventCatalog.SPINE_SWITCH_DOWN ) )
                                 {
+
                                     newEventData = newEvent.getBody().getData();
                                     oldData = oldEvent.getBody().getData();
-                                    logger.debug( "Getting Switch status for comparision for the switch node: "
-                                        + nodeId );
+
                                     if ( newEventData.get( "value" ).equals( oldData.get( "value" ) ) )
                                     {
-                                        // Status has NOT changed for Storage Events, so no need to generate new event.
+                                        // Status has NOT changed for Storage
+                                        // Events, so no need to generate new
+                                        // event.
                                         continue;
                                     }
                                     else
                                     {
-                                        logger.debug( "Adding Switch status event as the component status change found for the switch node: "
-                                            + nodeId );
+                                        logger.debug( "Adding Switch status event as the status change found for "
+                                            + "the switch:{}, oldData:{}, newData:{}", nodeId, oldData.get( "value" ),
+                                                      newEventData.get( "value" ) );
+
                                         switchEventsAgrregated.add( newEvent );
                                     }
                                 }
                             }
                         }
                         if ( flag == false )
+                        {
+                            logger.debug( "A new Switch component has been detected for switch:{} and eventCatalog:{}.",
+                                          nodeId, newEventCatalog );
                             switchEventsAgrregated.add( newEvent );
+                        }
                     }
                     else
                     {
+                        logger.debug( "Adding SWITCH event for switch:{} with EventCatalog:{}", nodeId,
+                                      newEventCatalog );
                         switchEventsAgrregated.add( newEvent );
                     }
                 }
             }
             else
             {
-                // Because no old events are present, no need to do any filter or massaging
+                // Because no old events are present, no need to do any filter
+                // or massaging
+                logger.debug( "Adding the complete set of newEvents for switch:{} with switchComponent:{} "
+                    + "since oldEvents/newEvents set is null.", nodeId, switchComponent );
                 switchEventsAgrregated = newEvents;
             }
         }
         catch ( Exception e )
         {
-            logger.error( "HMS aggregator Error while getting Events for Switch component Switch :" + nodeId, e );
+            logger.error( "HMS aggregator Error while getting Events for Switch component of Switch:{}", nodeId, e );
         }
+
         if ( switchEventsAgrregated == null )
         {
             // We will not return NULL, We will atleast return Empty Array
@@ -811,42 +984,70 @@ public class EventFilterService
     {
         Map<ServerComponent, List<Event>> componentEventsMap = allNodesComponentEventsMap.get( nodeId );
         ;
+
         if ( componentEventsMap == null )
         {
             componentEventsMap = new HashMap<ServerComponent, List<Event>>();
         }
-        if ( events.size() > 0 )
+
+        if ( events != null && events.size() > 0 )
         {
             List<Event> oldEvents = getExistingEventsForComponentInNode( nodeId, serverComponent );
+
             if ( oldEvents != null )
             {
                 EventComponent eventcomponent = serverComponent.getEventComponent();
                 List<Event> aggregatedEvents = new ArrayList<Event>();
                 List<Event> newEvents = events;
+
                 for ( Event evento : oldEvents )
                 {
                     Map<EventComponent, String> oldEventComponentIdentifier =
                         evento.getHeader().getComponentIdentifier();
-                    // flag is set to true if we find any matching for the serverComponent in oldEvents as well as
-                    // newEvents.
+
+                    // flag is set to true if we find any matching event for the
+                    // serverComponent in oldEvents as well as newEvents.
                     boolean flag = false;
+
                     for ( Event eventn : newEvents )
                     {
                         Map<EventComponent, String> newEventComponentIdentifier =
                             eventn.getHeader().getComponentIdentifier();
                         if ( oldEventComponentIdentifier.get( eventcomponent ).equals( newEventComponentIdentifier.get( eventcomponent ) ) )
                         {
-                            aggregatedEvents.add( eventn );
-                            flag = true;
-                            break;
+                            Header eventHeader = eventn.getHeader();
+                            EventCatalog eventCatalog = eventHeader.getEventName();
+                            // Checking PORT also as we have PORT resource hierarchy in NIC_PORT_UP and NIC_PORT_DOWN
+                            // events
+                            if ( ( eventCatalog == EventCatalog.NIC_PORT_UP )
+                                || ( eventCatalog == EventCatalog.NIC_PORT_DOWN ) )
+                            {
+                                if ( oldEventComponentIdentifier.get( EventComponent.PORT ).equals( newEventComponentIdentifier.get( EventComponent.PORT ) ) )
+                                {
+                                    aggregatedEvents.add( eventn );
+                                    flag = true;
+                                    break;
+                                }
+
+                            }
+                            else
+                            {
+                                aggregatedEvents.add( eventn );
+                                flag = true;
+                                break;
+                            }
                         }
                     }
+
                     if ( flag == false )
                         aggregatedEvents.add( evento );
+
                 }
-                // adding all the new events which were not in the oldEvents List.
+                // adding all the new events which were not in the oldEvents
+                // List.
                 newEvents.removeAll( aggregatedEvents );
                 aggregatedEvents.addAll( newEvents );
+
                 events = aggregatedEvents; // Finally update the events.
             }
             componentEventsMap.put( serverComponent, events );
@@ -861,10 +1062,12 @@ public class EventFilterService
     private static void putEventsToComponentStatusMap( ServerComponent serverComponent, List<Event> events )
     {
         Map<String, List<Event>> componentEventsMap = hmsEventsMap.get( HMS_AGENT_STATUS );
+
         if ( componentEventsMap == null )
         {
             componentEventsMap = new HashMap<String, List<Event>>();
         }
+
         componentEventsMap.put( HMS_AGENT_STATUS, events );
         hmsEventsMap.put( serverComponent, componentEventsMap );
     }
@@ -878,25 +1081,31 @@ public class EventFilterService
                                                              List<Event> events )
     {
         Map<SwitchComponentEnum, List<Event>> componentEventsMap = switchNodesComponentEventsMap.get( nodeId );
+
         if ( componentEventsMap == null )
         {
             componentEventsMap = new HashMap<SwitchComponentEnum, List<Event>>();
         }
-        if ( events.size() > 0 )
+
+        if ( events != null && events.size() > 0 )
         {
             List<Event> oldEvents = getExistingSwitchEventsForComponentInNode( nodeId, switchComponent );
+
             if ( oldEvents != null )
             {
                 EventComponent eventcomponent = switchComponent.getEventComponent();
                 List<Event> aggregatedEvents = new ArrayList<Event>();
                 List<Event> newEvents = events;
+
                 for ( Event evento : oldEvents )
                 {
                     Map<EventComponent, String> oldEventComponentIdentifier =
                         evento.getHeader().getComponentIdentifier();
-                    // flag is set to true if we find any matching for the switchComponent in oldEvents as well as
-                    // newEvents.
+
+                    // flag is set to true if we find any matching event for the
+                    // switchComponent in oldEvents as well as newEvents.
                     boolean flag = false;
+
                     for ( Event eventn : newEvents )
                     {
                         Map<EventComponent, String> newEventComponentIdentifier =
@@ -908,12 +1117,16 @@ public class EventFilterService
                             break;
                         }
                     }
+
                     if ( flag == false )
                         aggregatedEvents.add( evento );
+
                 }
-                // adding all the new events which were not in the oldEvents List.
+                // adding all the new events which were not in the oldEvents
+                // List.
                 newEvents.removeAll( aggregatedEvents );
                 aggregatedEvents.addAll( newEvents );
+
                 events = aggregatedEvents; // Finally update the events.
             }
             componentEventsMap.put( switchComponent, events );

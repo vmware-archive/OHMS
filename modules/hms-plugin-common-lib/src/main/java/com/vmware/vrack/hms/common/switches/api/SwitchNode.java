@@ -13,8 +13,11 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.switches.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.configuration.SwitchItem;
 import com.vmware.vrack.hms.common.servernodes.api.ComponentIdentifier;
@@ -61,6 +64,11 @@ public class SwitchNode
     private String osName;
 
     private String osVendor;
+
+    public SwitchNode()
+    {
+
+    }
 
     public SwitchNode( String switchId, String protocol, String ipAddress, Integer port, String username,
                        String password )
@@ -190,11 +198,13 @@ public class SwitchNode
         return role;
     }
 
+    @JsonIgnore
     public void setRole( SwitchRoleType role )
     {
         this.role = role;
     }
 
+    @JsonProperty( "role" )
     public void setRole( String role )
     {
         this.role = SwitchRoleType.valueOf( role.toUpperCase() );

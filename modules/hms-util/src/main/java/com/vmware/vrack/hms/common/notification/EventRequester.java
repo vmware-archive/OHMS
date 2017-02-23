@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Model for Event Requester
- *
+ * 
  * @author ychawda
  */
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -66,4 +66,5 @@ public class EventRequester
     {
         return "EventRequester [appType=" + appType + ", baseUrl=" + baseUrl + ", subscriberId=" + subscriberId + "]";
     }
+
 }

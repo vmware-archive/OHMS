@@ -25,6 +25,7 @@ import com.vmware.vrack.hms.task.ib.cli.CLITaskConnector;
 public abstract class SwitchTaskSuite
     implements IHmsTask
 {
+
     public TaskResponse response;
 
     public HMSSwitchNode node;
@@ -40,11 +41,13 @@ public abstract class SwitchTaskSuite
         getConnection();
         executeTask();
         destroy();
+
         return response;
     }
 
     public void getConnection()
     {
+
         try
         {
             sshConnector = new CLITaskConnector( node.getManagementUserName(), node.getManagementUserPassword(),
@@ -52,6 +55,7 @@ public abstract class SwitchTaskSuite
             sshConnector.createConnection();
             node.setDiscoverable( sshConnector.getSession().isConnected() );
             node.setPowered( sshConnector.getSession().isConnected() );
+
         }
         catch ( JSchException e )
         {
@@ -62,13 +66,16 @@ public abstract class SwitchTaskSuite
         {
             node.setDiscoverable( false );
             node.setPowered( false );
+
         }
     }
 
     public void destroy()
     {
+
         if ( sshConnector != null )
         {
+
             try
             {
                 sshConnector.destroy();
@@ -79,6 +86,8 @@ public abstract class SwitchTaskSuite
                 // TODO Auto-generated catch block
                 logger.error( e.getMessage() );
             }
+
         }
     }
+
 }

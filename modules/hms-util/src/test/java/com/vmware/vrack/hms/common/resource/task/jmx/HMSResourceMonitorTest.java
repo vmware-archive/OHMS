@@ -28,12 +28,14 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 public class HMSResourceMonitorTest
 {
+
     private static Logger logger = Logger.getLogger( HMSResourceMonitorTest.class );
 
     @Test
     public void test()
     {
         logger.info( "Testing HMSResourceMonitorTest" );
+
         try
         {
             ServerNode node = new ServerNode();
@@ -41,10 +43,15 @@ public class HMSResourceMonitorTest
             node.setManagementUserName( "testuser" );
             node.setManagementUserPassword( "testpass" );
             IComponentEventInfoProvider boardService = new BoardServiceTest();
+
             MonitoringTaskResponse response = new MonitoringTaskResponse( node, ServerComponent.MEMORY, boardService );
+
             HMSResourceMonitor hmsResourceMonitor = new HMSResourceMonitor( response, ServerComponent.MEMORY );
+
             hmsResourceMonitor.call();
+
             assertNotNull( hmsResourceMonitor.response );
+
         }
         catch ( Exception e )
         {
@@ -52,4 +59,5 @@ public class HMSResourceMonitorTest
             e.printStackTrace();
         }
     }
+
 }

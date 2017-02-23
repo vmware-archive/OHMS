@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SwitchServiceImplementation.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -22,13 +22,15 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Target;
 
 /**
- * Every Switch implementation must annotate its class with the SwitchImplementation annotation.
- * The name is the name of the implementation, e.g. "cumulus", "arista", etc.
+ * Every Switch implementation must annotate its class with the SwitchImplementation annotation. The name is the name of
+ * the implementation, e.g. "cumulus", "arista", etc.
+ * 
  * @author VMware, Inc.
  */
 @Documented
-@Target(ElementType.TYPE)
+@Target( ElementType.TYPE )
 @Inherited
-public @interface SwitchServiceImplementation {
-	String name();
+public @interface SwitchServiceImplementation
+{
+    String name();
 }

@@ -15,10 +15,8 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.common.servernodes.api.storagecontroller;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 import com.vmware.vrack.hms.common.servernodes.api.AbstractServerComponent;
 
 /**
@@ -54,11 +52,6 @@ public class StorageControllerInfo
      * PCI device id of the controller
      */
     private String pciDeviceId;
-
-    /**
-     * The operational status of the adapter. Required for the operation status events generation
-     */
-    private FruOperationalStatus operationalStatus;
 
     /*
      * Get the storage controller (Host Bus Adapter) device name
@@ -140,20 +133,4 @@ public class StorageControllerInfo
         this.pciDeviceId = pciDeviceId;
     }
 
-    /**
-     * Get the operational status of the adapter
-     */
-    @JsonIgnore
-    public FruOperationalStatus getFruOperationalStatus()
-    {
-        return operationalStatus;
-    }
-
-    /**
-     * Sets the operational status of the adapter
-     */
-    public void setFruOperationalStatus( FruOperationalStatus operationalStatus )
-    {
-        this.operationalStatus = operationalStatus;
-    }
 }

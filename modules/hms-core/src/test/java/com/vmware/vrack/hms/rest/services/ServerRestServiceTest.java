@@ -19,16 +19,30 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import javax.ws.rs.core.Response;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.HmsConfigHolder;
+import com.vmware.vrack.hms.common.HmsNode;
+import com.vmware.vrack.hms.common.boardvendorservice.resource.ServerItemBoardInfo;
+import com.vmware.vrack.hms.common.boardvendorservice.resource.ServerItemHypervisorInfo;
+import com.vmware.vrack.hms.common.configuration.HmsInventoryConfiguration;
+import com.vmware.vrack.hms.common.configuration.ServerItem;
 import com.vmware.vrack.hms.common.exception.HMSRestException;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.notification.BaseResponse;
@@ -54,37 +68,39 @@ import com.vmware.vrack.hms.common.servernodes.api.cpu.CPUInfo;
 import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
 import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
+import com.vmware.vrack.hms.common.util.HmsGenericUtil;
 import com.vmware.vrack.hms.node.server.ServerNodeConnector;
 import com.vmware.vrack.hms.testplugin.BoardService_TEST;
 
 public class ServerRestServiceTest
 {
-    private static Logger logger = Logger.getLogger( ServerRestServiceTest.class );
+
+    private static Logger logger = LoggerFactory.getLogger( ServerRestServiceTest.class );
 
     /**
      * Insert test node in NodeMap
-     * 
+     *
      * @param node
      */
     public static void insertNodeInNodeMap( ServerNode node )
     {
-        ServerNodeConnector.getInstance().nodeMap.put( "N1", node );
+        ServerNodeConnector.getInstance().getNodeMap().put( "N1", node );
     }
 
     /**
      * Insert test board service for test node
-     * 
+     *
      * @throws Exception
      */
     public static void addBoardServiceForNode()
         throws Exception
     {
-        ServerNode node = (ServerNode) ServerNodeConnector.getInstance().nodeMap.get( "N1" );
+        ServerNode node = (ServerNode) ServerNodeConnector.getInstance().getNodeMap().get( "N1" );
         BoardService_TEST boardService_TEST = new BoardService_TEST();
         try
         {
             BoardServiceProvider.addBoardServiceClass( node.getServiceObject(), BoardService_TEST.class, true );
-            HmsPluginServiceCallWrapper.addNodeRateLimitModelForNode( "N1" );
+            // HmsPluginServiceCallWrapper.addNodeRateLimitModelForNode("N1");
         }
         catch ( HmsException e )
         {
@@ -97,7 +113,7 @@ public class ServerRestServiceTest
      */
     public static void removeNodeFromNodeMap()
     {
-        ServerNodeConnector.getInstance().nodeMap.remove( "N1" );
+        ServerNodeConnector.getInstance().getNodeMap().remove( "N1" );
     }
 
     /**
@@ -107,11 +123,11 @@ public class ServerRestServiceTest
     {
         try
         {
-            BoardServiceProvider.removeBoardServiceClass( getServerNode().getServiceObject() );
+            BoardServiceProvider.removeBoardServiceClass( getServerNode().getNodeID() );
         }
         catch ( HmsException e )
         {
-            logger.error( "Unable to clear boardservice for node: " + getServerNode().getNodeID() );
+            logger.error( "Unable to clear boardservice for node: {} ", getServerNode().getNodeID() );
         }
     }
 
@@ -130,14 +146,32 @@ public class ServerRestServiceTest
         removeBoardServiceForNode();
     }
 
+    /**
+     * Gets the server node.
+     *
+     * @return the server node
+     */
     public static ServerNode getServerNode()
     {
+        return getServerNode( "N1" );
+    }
+
+    /**
+     * Gets the server node.
+     *
+     * @param serverId the server id
+     * @return the server node
+     */
+    public static ServerNode getServerNode( final String serverId )
+    {
         ServerNode node = new ServerNode();
-        node.setNodeID( "N1" );
+        node.setNodeID( serverId );
         node.setBoardProductName( "S2600GZ" );
         node.setBoardVendor( "Intel" );
         node.setIbIpAddress( "10.28.197.28" );
         node.setManagementIp( "10.28.197.208" );
+        node.setOsUserName( "testuser" );
+        node.setOsPassword( "password" );
         return node;
     }
 
@@ -146,6 +180,7 @@ public class ServerRestServiceTest
         throws HMSRestException
     {
         clearNodeMapAndBoardService();
+
         ServerRestService restService = new ServerRestService();
         List<CPUInfo> cpuInfos = restService.getCpuInfo( "N1" );
         assertNotNull( cpuInfos );
@@ -156,6 +191,7 @@ public class ServerRestServiceTest
         throws HMSRestException
     {
         clearNodeMapAndBoardService();
+
         ServerRestService restService = new ServerRestService();
         List<PhysicalMemory> memories = restService.getMemoryInfo( "N1" );
         assertNotNull( memories );
@@ -166,6 +202,7 @@ public class ServerRestServiceTest
         throws HMSRestException
     {
         clearNodeMapAndBoardService();
+
         ServerRestService restService = new ServerRestService();
         List<HddInfo> hddInfos = restService.getHddInfo( "N1" );
         assertNotNull( hddInfos );
@@ -176,6 +213,7 @@ public class ServerRestServiceTest
         throws HMSRestException
     {
         clearNodeMapAndBoardService();
+
         ServerRestService restService = new ServerRestService();
         List<EthernetController> ethernetControllers = restService.getNicInfo( "N1" );
         assertNotNull( ethernetControllers );
@@ -186,6 +224,7 @@ public class ServerRestServiceTest
         throws HMSRestException
     {
         clearNodeMapAndBoardService();
+
         ServerRestService restService = new ServerRestService();
         List<StorageControllerInfo> storageControllerInfo = restService.getStorageControllerInfo( "N1" );
         assertNotNull( storageControllerInfo );
@@ -196,6 +235,7 @@ public class ServerRestServiceTest
         throws HMSRestException
     {
         insertNodeInNodeMap( getServerNode() );
+
         ServerRestService restService = new ServerRestService();
         ServerNode returnedNode = restService.getHostNode( "N1" );
         assertNotNull( returnedNode );
@@ -209,6 +249,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         removeBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<CPUInfo> cpuInfos = restService.getCpuInfo( "N1" );
         assertNotNull( cpuInfos );
@@ -221,6 +262,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         removeBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<PhysicalMemory> memories = restService.getMemoryInfo( "N1" );
         assertNotNull( memories );
@@ -233,6 +275,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         removeBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<HddInfo> hddInfos = restService.getHddInfo( "N1" );
         assertNotNull( hddInfos );
@@ -245,6 +288,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         removeBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<EthernetController> ethernetControllers = restService.getNicInfo( "N1" );
         assertNotNull( ethernetControllers );
@@ -257,6 +301,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         removeBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<StorageControllerInfo> storageControllerInfo = restService.getStorageControllerInfo( "N1" );
         assertNotNull( storageControllerInfo );
@@ -269,6 +314,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<CPUInfo> cpuInfos = restService.getCpuInfo( "N1" );
         assertNotNull( cpuInfos );
@@ -282,6 +328,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<PhysicalMemory> memories = restService.getMemoryInfo( "N1" );
         assertNotNull( memories );
@@ -295,6 +342,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<HddInfo> hddInfos = restService.getHddInfo( "N1" );
         assertNotNull( hddInfos );
@@ -308,6 +356,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<StorageControllerInfo> storageControllerInfo = restService.getStorageControllerInfo( "N1" );
         assertNotNull( storageControllerInfo );
@@ -321,6 +370,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<EthernetController> ethernetControllers = restService.getNicInfo( "N1" );
         assertNotNull( ethernetControllers );
@@ -336,6 +386,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         ServerNodePowerStatus status = restService.getHostPowerStatus( "N1" );
         assertNotNull( status );
@@ -350,6 +401,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         SelfTestResults selfTestResults = restService.getHostSelfTestResults( "N1" );
         assertNotNull( selfTestResults );
@@ -363,6 +415,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         List<BmcUser> bmcUsers = restService.getBmcUsers( "N1" );
         assertNotNull( bmcUsers );
@@ -377,6 +430,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         AcpiPowerState acpiPowerState = restService.getHostAcpiPowerState( "N1" );
         assertNotNull( acpiPowerState );
@@ -390,6 +444,7 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
         SystemBootOptions bootOptions = restService.getSystemBootOptions( "N1" );
         assertNotNull( bootOptions );
@@ -405,13 +460,16 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         SystemBootOptions systemBootOptions = new SystemBootOptions();
         systemBootOptions.setBiosBootType( BiosBootType.Legacy );
         systemBootOptions.setBootDeviceInstanceNumber( 0 );
         systemBootOptions.setBootDeviceSelector( BootDeviceSelector.PXE );
         systemBootOptions.setBootDeviceType( BootDeviceType.Internal );
         systemBootOptions.setBootOptionsValidity( BootOptionsValidity.Persistent );
+
         BaseResponse response = restService.getSystemBootOptions( "N2", systemBootOptions );
         assertNotNull( response );
         assertTrue( 200 == response.getStatusCode() );
@@ -423,13 +481,16 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         SystemBootOptions systemBootOptions = new SystemBootOptions();
         systemBootOptions.setBiosBootType( BiosBootType.Legacy );
         systemBootOptions.setBootDeviceInstanceNumber( 0 );
         systemBootOptions.setBootDeviceSelector( BootDeviceSelector.PXE );
         systemBootOptions.setBootDeviceType( BootDeviceType.Internal );
         systemBootOptions.setBootOptionsValidity( BootOptionsValidity.Persistent );
+
         BaseResponse response = restService.getSystemBootOptions( "N1", systemBootOptions );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
@@ -441,11 +502,14 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         ChassisIdentifyOptions chassisIdentifyOptions = new ChassisIdentifyOptions();
         chassisIdentifyOptions.setForceIdentifyChassis( false );
         chassisIdentifyOptions.setIdentify( true );
         chassisIdentifyOptions.setInterval( 15 );
+
         BaseResponse response = restService.chassisIdentify( "N2", chassisIdentifyOptions );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
@@ -457,11 +521,14 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         ChassisIdentifyOptions chassisIdentifyOptions = new ChassisIdentifyOptions();
         chassisIdentifyOptions.setForceIdentifyChassis( false );
         chassisIdentifyOptions.setIdentify( true );
         chassisIdentifyOptions.setInterval( 15 );
+
         BaseResponse response = restService.chassisIdentify( "N1", chassisIdentifyOptions );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
@@ -473,11 +540,14 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         SelOption selOption = new SelOption();
         selOption.setDirection( SelFetchDirection.RecentEntries );
         selOption.setRecordCount( 64 );
         selOption.setSelTask( SelTask.SelDetails );
+
         SelInfo selInfo = restService.selInfo( "N2", selOption );
         assertNotNull( selInfo );
     }
@@ -488,11 +558,14 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         SelOption selOption = new SelOption();
         selOption.setDirection( SelFetchDirection.RecentEntries );
         selOption.setRecordCount( 64 );
         selOption.setSelTask( SelTask.SelDetails );
+
         SelInfo selInfo = restService.selInfo( "N1", selOption );
         assertNotNull( selInfo );
     }
@@ -503,7 +576,9 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         List<HmsApi> hmsApis = restService.getAvailableNodeOperations( "N2" );
         assertNotNull( hmsApis );
         assertTrue( hmsApis.size() > 0 );
@@ -515,7 +590,9 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         List<HmsApi> hmsApis = restService.getAvailableNodeOperations( "N1" );
         assertNotNull( hmsApis );
         assertTrue( hmsApis.size() > 0 );
@@ -527,7 +604,9 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         BaseResponse response = restService.updateNodes( "N2", "power_up" );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
@@ -539,21 +618,185 @@ public class ServerRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ServerRestService restService = new ServerRestService();
+
         BaseResponse response = restService.updateNodes( "N1", "power_up" );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
+
         response = restService.updateNodes( "N1", "cold_reset" );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
+
         response = restService.updateNodes( "N1", "hard_reset" );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
+
         response = restService.updateNodes( "N1", "power_down" );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
+
         response = restService.updateNodes( "N1", "power_cycle" );
         assertNotNull( response );
         assertTrue( 202 == response.getStatusCode() );
+    }
+
+    @Test
+    public void getHosts()
+        throws HMSRestException
+    {
+        ServerNodeConnector.getInstance().setNodeMap( new ConcurrentHashMap<String, HmsNode>() );
+        insertNodeInNodeMap( getServerNode() );
+
+        ServerRestService restService = new ServerRestService();
+        Map<String, HmsNode> hostMap = restService.getHosts();
+
+        Set<Entry<String, HmsNode>> nodeEntrySet = hostMap.entrySet();
+
+        if ( nodeEntrySet != null && nodeEntrySet.size() > 0 )
+        {
+            Iterator<Entry<String, HmsNode>> itr = nodeEntrySet.iterator();
+            while ( itr.hasNext() )
+            {
+                Entry<String, HmsNode> curItem = itr.next();
+                ServerNode servNode = (ServerNode) curItem.getValue();
+
+                assertEquals( servNode.getNodeID(), "N1" );
+                assertEquals( servNode.getBoardProductName(), "S2600GZ" );
+                assertEquals( servNode.getBoardVendor(), "Intel" );
+                assertEquals( servNode.getIbIpAddress(), "10.28.197.28" );
+                assertEquals( servNode.getManagementIp(), "10.28.197.208" );
+                assertEquals( servNode.getOsUserName(), "testuser" );
+                assertEquals( servNode.getOsPassword(), "****" );
+            }
+        }
+
+        nodeEntrySet = ServerNodeConnector.getInstance().getNodeMap().entrySet();
+        if ( nodeEntrySet != null && nodeEntrySet.size() > 0 )
+        {
+            Iterator<Entry<String, HmsNode>> itr = nodeEntrySet.iterator();
+            while ( itr.hasNext() )
+            {
+                Entry<String, HmsNode> curItem = itr.next();
+                ServerNode servNode = (ServerNode) curItem.getValue();
+
+                assertEquals( servNode.getNodeID(), "N1" );
+                assertEquals( servNode.getBoardProductName(), "S2600GZ" );
+                assertEquals( servNode.getBoardVendor(), "Intel" );
+                assertEquals( servNode.getIbIpAddress(), "10.28.197.28" );
+                assertEquals( servNode.getManagementIp(), "10.28.197.208" );
+                assertEquals( servNode.getOsUserName(), "testuser" );
+                assertEquals( servNode.getOsPassword(), "password" );
+            }
+        }
+    }
+
+    /**
+     * Test remove invalid server.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testRemoveInvalidServer()
+        throws Exception
+    {
+        insertNodeInNodeMap( getServerNode() );
+        ServerRestService serverRestService = new ServerRestService();
+        Response response = serverRestService.removeServer( "N" + getDateTimeStamp() );
+        assertNotNull( response );
+        assertTrue( response.getStatus() == Response.Status.BAD_REQUEST.getStatusCode() );
+        // delete the backup file
+        HmsGenericUtil.deleteLatestInventoryBackup();
+    }
+
+    /**
+     * Test remove valid server.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testRemoveValidServer()
+        throws Exception
+    {
+
+        /*
+         * THIS TEST MUST NOT BE RUN FROM IDE(STS). OTHERWISE, config/hms-inventory.json will be CORRUPTED. IF NEEDS TO
+         * BE RUN FROM IDE, YOU MUST NEED TO SET BELOW JVM ARGUMENT.
+         * -Dhms.config.file=src/test/resources/test-config.properties
+         */
+        final String serverId = "N" + getDateTimeStamp();
+        // mock data - starts
+
+        ServerNode serverNode = getServerNode( serverId );
+
+        ServerNodeConnector.getInstance().setNodeMap( new ConcurrentHashMap<String, HmsNode>() );
+        ServerNodeConnector.getInstance().getNodeMap().put( serverId, serverNode );
+        BoardServiceProvider.addBoardServiceClass( serverNode.getServiceObject(), BoardService_TEST.class, true );
+
+        // delete the backup file
+        HmsGenericUtil.deleteLatestInventoryBackup();
+
+        ServerItem serverItem = getServerItem( serverId );
+        List<ServerItem> serverItemLst = new ArrayList<ServerItem>();
+        serverItemLst.add( serverItem );
+        HmsInventoryConfiguration hmsInventoryConfiguration = new HmsInventoryConfiguration();
+        hmsInventoryConfiguration.setServers( serverItemLst );
+        HmsConfigHolder.setHmsInventoryConfiguration( hmsInventoryConfiguration );
+        // mock data - ends
+
+        // delete the backup file
+        HmsGenericUtil.deleteLatestInventoryBackup();
+
+        ServerRestService serverRestService = new ServerRestService();
+        Response response = serverRestService.removeServer( serverId );
+        assertNotNull( response );
+        assertTrue( response.getStatus() == Response.Status.OK.getStatusCode() );
+
+        // delete the backup file
+        HmsGenericUtil.deleteLatestInventoryBackup();
+    }
+
+    /**
+     * Gets the date time stamp.
+     *
+     * @return the date time stamp
+     */
+    private String getDateTimeStamp()
+    {
+        Calendar cal = Calendar.getInstance();
+        return Long.toString( cal.getTimeInMillis() );
+    }
+
+    /**
+     * Gets the server item.
+     *
+     * @param serverId the server id
+     * @return the server item
+     */
+    private ServerItem getServerItem( final String serverId )
+    {
+        ServerItem serverItem = new ServerItem();
+        serverItem.setId( serverId );
+        serverItem.setOobUsername( "oobUsername" );
+        serverItem.setOobProtocol( "oobProtocol" );
+        serverItem.setOobPort( 10000 );
+        serverItem.setOobPassword( "oobPassword" );
+        serverItem.setOobIpAddress( "oobIpAddress" );
+        serverItem.setLocation( "location" );
+        serverItem.setIbUsername( "ibUsername" );
+        serverItem.setIbProtocol( "ibProtocol" );
+        serverItem.setIbPort( 10000 );
+        serverItem.setIbPassword( "ibPassword" );
+        serverItem.setIbIpAddress( "ibIpAddress" );
+        ServerItemHypervisorInfo serverItemHypervisorInfo = new ServerItemHypervisorInfo();
+        serverItemHypervisorInfo.setName( "name" );
+        serverItemHypervisorInfo.setProvider( "provider" );
+        serverItem.setHypervisorInfo( serverItemHypervisorInfo );
+        ServerItemBoardInfo serverItemBoardInfo = new ServerItemBoardInfo();
+        serverItemBoardInfo.setManufacturer( "manufacturer" );
+        serverItemBoardInfo.setModel( "model" );
+        serverItem.setBoardInfo( serverItemBoardInfo );
+        return serverItem;
     }
 }

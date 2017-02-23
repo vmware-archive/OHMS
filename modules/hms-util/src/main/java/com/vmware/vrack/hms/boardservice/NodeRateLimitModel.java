@@ -19,11 +19,12 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * This class is used to keep a ScheduledExecutorService and a ThreadPool for each node
- *
+ * 
  * @author Vmware inc
  */
 public class NodeRateLimitModel
 {
+
     ThreadLimitExecuterServiceObjectPool threadLimitExecuterServiceObject;
 
     ScheduledExecutorService scheduledExecutorService;
@@ -47,4 +48,5 @@ public class NodeRateLimitModel
     {
         this.scheduledExecutorService = scheduledExecutorService;
     }
+
 }

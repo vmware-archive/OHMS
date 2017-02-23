@@ -36,6 +36,7 @@ import static org.junit.Assert.*;
 @Ignore
 public class TaskRequestHandlerTest
 {
+
     public TaskRequestHandlerTest()
     {
     }
@@ -49,6 +50,7 @@ public class TaskRequestHandlerTest
         System.out.println( "getInstance" );
         TaskRequestHandler result = TaskRequestHandler.getInstance();
         assertNotNull( result );
+
     }
 
     /**
@@ -89,5 +91,6 @@ public class TaskRequestHandlerTest
         System.out.println( "destroy" );
         TaskRequestHandler result = TaskRequestHandler.getInstance();
         result.destroy();
+
     }
 }

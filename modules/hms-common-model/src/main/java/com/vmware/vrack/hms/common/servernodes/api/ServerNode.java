@@ -1,13 +1,12 @@
 /* ********************************************************************************
  * ServerNode.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
- * Copyright (c) 2016 Intel Corporation
- *
+
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0
- *
+
  * Unless required by applicable law or agreed to in writing, software distributed
  * under the License is distributed on an "AS IS" BASIS, without warranties or
  * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
@@ -20,14 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.vrack.common.event.enums.EventComponent;
 import com.vmware.vrack.hms.common.HmsNode;
+import com.vmware.vrack.hms.common.boardvendorservice.remoteconsole.RemoteConsoleCapabilities;
+import com.vmware.vrack.hms.common.boardvendorservice.remoteconsole.RemoteConsoleConnectionInfo;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServerItemBoardInfo;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServerItemHypervisorInfo;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
@@ -41,6 +40,7 @@ import com.vmware.vrack.hms.common.resource.BmcUser;
 import com.vmware.vrack.hms.common.resource.SelfTestResults;
 import com.vmware.vrack.hms.common.resource.SystemBootOptions;
 import com.vmware.vrack.hms.common.resource.fru.EthernetController;
+import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 import com.vmware.vrack.hms.common.resource.sel.SelInfo;
 import com.vmware.vrack.hms.common.rest.model.ServerInfo;
 import com.vmware.vrack.hms.common.servernodes.api.cpu.CPUInfo;
@@ -50,11 +50,11 @@ import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.powerunit.PowerUnitInfo;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 
+@SuppressWarnings( "deprecation" )
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class ServerNode
     extends HmsNode
 {
-    private static Logger logger = Logger.getLogger( ServerNode.class );
 
     private String ibIpAddress = "0.0.0.0";
 
@@ -65,8 +65,6 @@ public class ServerNode
     private String osEncodedPassword;
 
     private String oobMacAddress = "";
-
-    private String uuid = "";
 
     private List<BmcUser> bmcUserList = new ArrayList<BmcUser>();
 
@@ -112,10 +110,41 @@ public class ServerNode
 
     private String biosReleaseDate;
 
+    private String ibProtocol;
+
+    private String ibInitialIpAddress;
+
+    @JsonIgnore
+    private RemoteConsoleCapabilities remoteConsoleCapabilities;
+
+    @JsonIgnore
+    private RemoteConsoleConnectionInfo remoteConsoleConnectionInfo;
+
+    public RemoteConsoleCapabilities getRemoteConsoleCapabilities()
+    {
+        return remoteConsoleCapabilities;
+    }
+
+    public void setRemoteConsoleCapabilities( RemoteConsoleCapabilities remoteConsoleCapabilities )
+    {
+        this.remoteConsoleCapabilities = remoteConsoleCapabilities;
+    }
+
+    public RemoteConsoleConnectionInfo getRemoteConsoleConnectionInfo()
+    {
+        return remoteConsoleConnectionInfo;
+    }
+
+    public void setRemoteConsoleConnectionInfo( RemoteConsoleConnectionInfo remoteConsoleConnectionInfo )
+    {
+        this.remoteConsoleConnectionInfo = remoteConsoleConnectionInfo;
+    }
+
     private List<HmsApi> supportedHMSAPI;
 
     public ServerNode()
     {
+
     }
 
     public ServerNode( String nodeID, String ipAddress, String managementUserName, String managementUserPassword )
@@ -178,17 +207,6 @@ public class ServerNode
         return oobMacAddress;
     }
 
-    @JsonIgnore
-    public String getUuid()
-    {
-        return uuid;
-    }
-
-    public void setUuid( String uuid )
-    {
-        this.uuid = uuid;
-    }
-
     public void setOobMacAddress( String oobMacAddress )
     {
         this.oobMacAddress = oobMacAddress;
@@ -197,13 +215,15 @@ public class ServerNode
     @Override
     public void broadcastNodeFailureEvent( List<Map<String, String>> data )
     {
-        this.notifyObservers( CallbackRequestFactory.getNotificationRequest( EventType.HOST_FAILURE, this.nodeID, data ) );
+        this.notifyObservers( CallbackRequestFactory.getNotificationRequest( EventType.HOST_FAILURE, this.nodeID,
+                                                                             data ) );
     }
 
     @Override
     public void broadcastNodeAvailableEvent( List<Map<String, String>> data )
     {
         this.notifyObservers( CallbackRequestFactory.getNotificationRequest( EventType.HOST_UP, this.nodeID, data ) );
+
     }
 
     public List<BmcUser> getBmcUserList()
@@ -338,6 +358,7 @@ public class ServerNode
         {
             getEthernetControllerList().add( ethernet );
         }
+
     }
 
     private void notifyHostChange( EventType event, Object data )
@@ -353,6 +374,7 @@ public class ServerNode
             this.notifyObservers( CallbackRequestFactory.getNotificationRequest( event, String.valueOf( this.nodeID ),
                                                                                  eventData ) );
         }
+
     }
 
     public String getLocation()
@@ -391,6 +413,7 @@ public class ServerNode
         throws HmsException
     {
         ServiceServerNode serviceServerNode = new ServiceServerNode();
+
         serviceServerNode.setNodeID( nodeID );
         serviceServerNode.setManagementIp( managementIp );
         serviceServerNode.setManagementUserName( managementUserName );
@@ -399,10 +422,12 @@ public class ServerNode
         serviceServerNode.setOsUserName( osUserName );
         serviceServerNode.setOsPassword( osPassword );
         serviceServerNode.setSshPort( this.getSshPort() );
-        // SEnding mac address for now, for hac in NIC info. But in future, we will stop sending this property
+        // SEnding mac address for now, for hac in NIC info. But in future, we
+        // will stop sending this property
         serviceServerNode.setOobMacAddress( oobMacAddress );
         serviceServerNode.setBoardVendor( boardVendor );
         serviceServerNode.setBoardProductName( boardProductName );
+
         return serviceServerNode;
     }
 
@@ -422,6 +447,7 @@ public class ServerNode
      * == 1) { isBoardDiscoverableViaBoardService = true; } else { isBoardDiscoverableViaBoardService = false; } } catch
      * (Exception e) { isBoardDiscoverableViaBoardService = false; } } return isBoardDiscoverableViaBoardService; }
      */
+
     public String getHypervisorName()
     {
         return hypervisorName;
@@ -474,7 +500,7 @@ public class ServerNode
 
     /**
      * getServerComponent searches for a component based on the componnetType and its id
-     *
+     * 
      * @param source
      * @param component_id
      * @return AbstractServerComponent
@@ -521,11 +547,12 @@ public class ServerNode
         {
             throw new HmsException( "Exception getting board component.", e );
         }
+
     }
 
     /**
      * getServerComponentList returns all the server components of type AbstractServerComponent
-     *
+     * 
      * @return List<AbstractServerComponent>
      */
     @JsonIgnore
@@ -574,6 +601,26 @@ public class ServerNode
         this.biosReleaseDate = biosReleaseDate;
     }
 
+    public String getIbProtocol()
+    {
+        return ibProtocol;
+    }
+
+    public void setIbProtocol( String ibProtocol )
+    {
+        this.ibProtocol = ibProtocol;
+    }
+
+    public String getIbInitialIpAddress()
+    {
+        return ibInitialIpAddress;
+    }
+
+    public void setIbInitialIpAddress( String ibInitialIpAddress )
+    {
+        this.ibInitialIpAddress = ibInitialIpAddress;
+    }
+
     /**
      * Wrapper method that will get the ServerItem object for the node
      *
@@ -591,10 +638,12 @@ public class ServerNode
         serverItem.setOobIpAddress( this.getManagementIp() );
         serverItem.setOobUsername( this.getManagementUserName() );
         serverItem.setOobPassword( this.getManagementUserPassword() );
+
         ServerItemHypervisorInfo hypervisorInfo = new ServerItemHypervisorInfo();
         hypervisorInfo.setName( this.getHypervisorName() );
         hypervisorInfo.setProvider( this.getHypervisorProvider() );
         serverItem.setHypervisorInfo( hypervisorInfo );
+
         ServerItemBoardInfo boardInfo = new ServerItemBoardInfo();
         boardInfo.setManufacturer( this.boardVendor );
         boardInfo.setModel( this.boardProductName );
@@ -618,8 +667,10 @@ public class ServerNode
     @JsonIgnore
     public ServerInfo getServerInfo( ServerNode serverNode )
     {
+
         ServerInfo serverInfo = new ServerInfo();
         ComponentIdentifier identifier = new ComponentIdentifier();
+
         serverInfo.setNodeId( serverNode.getNodeID() );
         serverInfo.setManagementIpAddress( serverNode.getManagementIp() );
         serverInfo.setInBandIpAddress( serverNode.getIbIpAddress() );
@@ -634,8 +685,18 @@ public class ServerNode
         identifier.setManufacturingDate( serverNode.getBoardMfgDate() );
         serverInfo.setComponentIdentifier( identifier );
         serverInfo.setLocation( serverNode.getLocation() );
-        serverInfo.setOperationalStatus( serverNode.getOperationalStatus() );
+
+        if ( "true".equalsIgnoreCase( serverNode.getOperationalStatus() ) )
+        {
+            serverInfo.setOperationalStatus( FruOperationalStatus.Operational );
+        }
+        else
+        {
+            serverInfo.setOperationalStatus( FruOperationalStatus.NonOperational );
+        }
+
         serverInfo.setAdminStatus( serverNode.getAdminStatus().toString() );
+
         return serverInfo;
     }
 }

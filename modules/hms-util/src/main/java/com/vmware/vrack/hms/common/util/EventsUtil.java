@@ -40,7 +40,7 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 
 /**
  * Utility class to broadcast non maskable events as well as subscribed events to the subscribers
- *
+ * 
  * @author Yagnesh Chawda
  */
 public class EventsUtil
@@ -49,7 +49,7 @@ public class EventsUtil
 
     /**
      * Broadcast events to the subscribers, can be either maskable as well as non-maskable
-     *
+     * 
      * @param events
      * @param subscription
      */
@@ -64,12 +64,14 @@ public class EventsUtil
                 // Here we are assuming that the username and password are already populated in CommonProperties class.
                 HttpClientService.getInstance().prepareClients( CommonProperties.getPrmBasicAuthUser(),
                                                                 CommonProperties.getPrmBasicAuthPass() );
+
                 if ( subscription.getRequestMethod() != null && subscription.getNotificationEndpoint() != null )
                 {
                     String url = subscription.getNotificationEndpoint();
                     RequestMethod method = subscription.getRequestMethod();
                     ObjectMapper mapper = new ObjectMapper();
                     String requestBody;
+
                     try
                     {
                         requestBody = mapper.writeValueAsString( events );
@@ -78,11 +80,11 @@ public class EventsUtil
                         switch ( method )
                         {
                             case PUT:
-                                HttpClientService.getInstance().postJson( url, requestBody, true, true );
+                                HttpClientService.getInstance().postJson( url, requestBody, false, true );
                                 break;
                             case POST:
                             default:
-                                HttpClientService.getInstance().postJson( url, requestBody, true, true );
+                                HttpClientService.getInstance().postJson( url, requestBody, false, true );
                                 break;
                         }
                     }
@@ -103,7 +105,7 @@ public class EventsUtil
 
     /**
      * Broadcast Non Maskable Events to everyone
-     *
+     * 
      * @param events
      */
     public static boolean broadcastNmeEvents( List<Event> events )
@@ -123,7 +125,7 @@ public class EventsUtil
 
     /**
      * Broadcast subscribed events notification to respective subscribers
-     *
+     * 
      * @param events
      * @return
      */
@@ -161,7 +163,7 @@ public class EventsUtil
 
     /**
      * Verifies if the ServerComponent is supported by BoardService before calling actual method for that component
-     *
+     * 
      * @param componentEventInfoProvider
      * @param serverComponent
      * @param serviceHmsNode
@@ -171,16 +173,20 @@ public class EventsUtil
     public static boolean isComponentServerApiSupported( IComponentEventInfoProvider componentEventInfoProvider,
                                                          ServerComponent serverComponent,
                                                          ServiceHmsNode serviceHmsNode )
-                                                             throws HmsException
+        throws HmsException
     {
+
         if ( componentEventInfoProvider != null )
         {
+
             // HACK: Yags: Condition needs to be cleaned up as part of switch cleanup stories.
             if ( serverComponent != null && serverComponent.getComponentSensorAPI() == null )
             {
                 return true;
             }
+
             List<HmsApi> hmsApis = componentEventInfoProvider.getSupportedHmsApi( serviceHmsNode );
+
             if ( hmsApis != null && serverComponent != null )
             {
                 return hmsApis.contains( serverComponent.getComponentSensorAPI() );
@@ -208,15 +214,19 @@ public class EventsUtil
     public static boolean isComponentSwitchApiSupported( IComponentSwitchEventInfoProvider switchComponentEventInfoProvider,
                                                          SwitchComponentEnum switchComponent,
                                                          ServiceHmsNode serviceHmsNode )
-                                                             throws HmsException
+        throws HmsException
     {
+
         if ( switchComponentEventInfoProvider != null )
         {
+
             if ( switchComponent != null && switchComponent.getComponentSensorAPI() == null )
             {
                 return true;
             }
+
             List<HmsApi> hmsApis = switchComponentEventInfoProvider.getSupportedHmsSwitchApi( serviceHmsNode );
+
             if ( hmsApis != null && switchComponent != null )
             {
                 return hmsApis.contains( switchComponent.getComponentSensorAPI() );
@@ -234,7 +244,7 @@ public class EventsUtil
 
     /**
      * Identifies if the event belongs to HMS
-     *
+     * 
      * @param eventName
      * @return
      */
@@ -249,7 +259,7 @@ public class EventsUtil
 
     /**
      * Identifies if the event belongs to HMS
-     *
+     * 
      * @param event
      * @return
      */

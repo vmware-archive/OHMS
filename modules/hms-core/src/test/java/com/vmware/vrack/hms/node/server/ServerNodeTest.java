@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.node.server;
 
 import static org.junit.Assert.assertFalse;
@@ -36,6 +37,7 @@ public class ServerNodeTest
     }
 
     // Start - Commenting out test cases for methds whose signature has changed
+
     /**
      * Test of refreshNodeStatus method, of class ServerNode, when a Valid Discoverable IP address and Positive Node ID
      * is passed as parameters
@@ -44,6 +46,7 @@ public class ServerNodeTest
     @Test
     public void testRefreshNodeStatusForValidDiscoverableIPAddressAndPositiveNodeID()
     {
+
         logger.info( "[TS] : testRefreshNodeStatusForValidDiscoverableIPAddressAndPositiveNodeID" );
         ServerNode sNode = new ServerNode( "2", "10.28.197.202", "ADMIN", "ADMIN" );
         // sNode.refreshNodePowerStatus();
@@ -59,6 +62,7 @@ public class ServerNodeTest
     @Test
     public void testRefreshNodeStatusForValidNonDiscoverableIPAddressAndPositiveNodeID()
     {
+
         logger.info( "[TS] : testRefreshNodeStatusForValidNonDiscoverableIPAddressAndPositiveNodeID" );
         ServerNode sNode = new ServerNode( "2", "10.28.197.1", "ADMIN", "ADMIN" ); // IP address TO BE changed
         // sNode.refreshNodePowerStatus();
@@ -130,6 +134,7 @@ public class ServerNodeTest
         assertFalse( sNode.isDiscoverable() );
         assertFalse( sNode.isPowered() );
     }
+
     /*
      * Test caes commented out as Power Command code is deleted from ServerNode / // /** // * Test of getSensorData
      * method, of class ServerNode when the username OR password is invalid //
@@ -281,6 +286,7 @@ public class ServerNodeTest
     // }
     //
     //
+
     // @Test
     // public void testRefreshNodeSensorStatus() throws IOException, Exception{
     // ServerNode sNode = new ServerNode("2","10.28.197.202","ADMIN","ADMIN");
@@ -289,5 +295,7 @@ public class ServerNodeTest
     // List sensorData = sNode.refreshNodeSensorStatus(ipmiTaskConnector);
     // assertFalse(sensorData.isEmpty());
     // }
+
     // End - Commenting out test cases for methds whose signature has changed
+
 }

@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HmsSwitchOobManager.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -15,38 +15,24 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.aggregator.switches;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.vrack.hms.common.exception.HMSRestException;
+import com.vmware.vrack.hms.rest.factory.HmsOobAgentRestTemplate;
 
 @Component
 public class HmsSwitchOobManager
 {
-    @Autowired
-    RestTemplate restTemplate;
-
-    @Value( "${hms.switch.host}" )
-    private String hmsIpAddr;
-
-    @Value( "${hms.switch.port}" )
-    private int hmsPort;
 
     @Value( "${hms.switch.username}" )
     private String hmsOobUsername;
@@ -70,19 +56,12 @@ public class HmsSwitchOobManager
         throws HMSRestException
     {
         ResponseEntity<String> hmsJsonDataResp = null;
-        URI uri = null;
+
         try
         {
-            try
-            {
-                uri = new URI( "http", null, hmsIpAddr, hmsPort, HMS_API_PREFIX + metricURI, null, null );
-            }
-            catch ( URISyntaxException e )
-            {
-                throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Server Error",
-                                            "Exception while parsing uri. URI: " + HMS_API_PREFIX + metricURI );
-            }
-            hmsJsonDataResp = restTemplate.getForEntity( uri.toString(), String.class );
+            String path = HMS_API_PREFIX + metricURI;
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
+            hmsJsonDataResp = restTemplate.getForEntity( path, String.class );
             HttpStatus statusCode = hmsJsonDataResp.getStatusCode();
             if ( statusCode != HttpStatus.OK )
             {
@@ -125,40 +104,33 @@ public class HmsSwitchOobManager
         ResponseEntity<String> hmsJsonDataResp = null;
         String jsonPayload = null;
         ObjectMapper mapper = new ObjectMapper();
+
         try
         {
             jsonPayload = mapper.writeValueAsString( payload );
         }
         catch ( Exception e )
         {
-            throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Server Error",
-                                        "Error in converting object into JSON String. Reason: " + e.getMessage() );
+            throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                        "Error in converting object into JSON String", e );
         }
+
         try
         {
-            // URL input fields should already encoded,
-            URI requestURL = null;
-            try
-            {
-                requestURL = new URI( "http", null, hmsIpAddr, hmsPort, HMS_API_PREFIX + metricURI, null, null );
-            }
-            catch ( URISyntaxException e )
-            {
-                throw new HMSRestException( HttpStatus.INTERNAL_SERVER_ERROR.value(), "Server Error",
-                                            "Exception while parsing uri. URI: " + HMS_API_PREFIX + metricURI );
-            }
+            String path = HMS_API_PREFIX + metricURI;
+
             if ( method != null && method != HttpMethod.GET )
             {
-                HttpHeaders headers = new HttpHeaders();
-                headers.add( "Content-Type", "application/json" );
-                HttpEntity<Object> entity = new HttpEntity<Object>( jsonPayload, headers );
-                hmsJsonDataResp = restTemplate.exchange( URLDecoder.decode( requestURL.toString(), "UTF-8" ), method,
-                                                         entity, String.class );
+                // URL input fields should already encoded,
+                HmsOobAgentRestTemplate<String> restTemplate = new HmsOobAgentRestTemplate<String>( jsonPayload );
+                hmsJsonDataResp = restTemplate.exchange( method, path, String.class, true );
             }
             else
             {
-                hmsJsonDataResp = restTemplate.getForEntity( requestURL, String.class );
+                HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
+                hmsJsonDataResp = restTemplate.getForEntity( path, String.class );
             }
+
             HttpStatus statusCode = hmsJsonDataResp.getStatusCode();
             if ( statusCode != HttpStatus.OK )
             {
@@ -174,6 +146,7 @@ public class HmsSwitchOobManager
         String hmsJsonData = hmsJsonDataResp.getBody();
         if ( hmsJsonData == null )
             return null;
+
         try
         {
             return mapper.readValue( hmsJsonData, metricClazz );

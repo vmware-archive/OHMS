@@ -33,6 +33,7 @@ import com.jcraft.jsch.SftpException;
 
 public class SshUtil
 {
+
     private static Logger logger = Logger.getLogger( SshUtil.class );
 
     /**
@@ -51,9 +52,10 @@ public class SshUtil
      * "session connect"); String command = "vmware -v"; String result = executeCommand(session, command); //
      * logger.debug("The returned result is : \n" + result); session.disconnect(); }
      */
+
     /**
      * Retunrs Session object for host and other params passed. Caller to open channel to perform actual operation.
-     *
+     * 
      * @param userName
      * @param password
      * @param hostName
@@ -62,10 +64,13 @@ public class SshUtil
      * @return
      * @throws JSchException
      */
+
     public static Session getSessionObject( String userName, String password, String hostName, int port,
                                             Properties sessionConfig )
     {
+
         Session session = null;
+
         // logger.debug("In getSessionObject");
         if ( userName != null && !"".equals( userName ) && password != null && hostName != null
             && !"".equals( hostName ) )
@@ -75,10 +80,12 @@ public class SshUtil
             {
                 session = jsch.getSession( userName, hostName, port );
                 session.setPassword( password );
+
                 if ( sessionConfig != null )
                 {
                     session.setConfig( sessionConfig );
                 }
+
                 // logger.debug("COnfig set");
             }
             catch ( Exception e )
@@ -94,7 +101,7 @@ public class SshUtil
     /**
      * It executes the command and returns the response back to the calling function. This function will expect Session
      * object and command string as parameters .
-     *
+     * 
      * @param sessionObj
      * @param command
      * @return
@@ -106,11 +113,14 @@ public class SshUtil
     {
         StringBuilder builder = null;
         logger.debug( "Starting to execute command [" + command + "]" );
+
         if ( sessionObj != null && command != null && !"".equals( command ) )
         {
             builder = new StringBuilder();
             Channel channel = null;
+
             int arrMaxSize = 1024;
+
             try
             {
                 channel = sessionObj.openChannel( "exec" );
@@ -119,7 +129,9 @@ public class SshUtil
                 ( (ChannelExec) channel ).setErrStream( System.err );
                 InputStream in = channel.getInputStream();
                 channel.connect();
+
                 byte[] tmp = new byte[arrMaxSize];
+
                 while ( true )
                 {
                     while ( in.available() > 0 )
@@ -129,6 +141,7 @@ public class SshUtil
                             break;
                         builder.append( new String( tmp, 0, i ) );
                     }
+
                     if ( channel.isClosed() )
                     {
                         break;
@@ -139,8 +152,10 @@ public class SshUtil
                     }
                     catch ( Exception ee )
                     {
+
                     }
                 }
+
                 if ( channel.isClosed() && channel.getExitStatus() != 0 )
                 {
                     logger.debug( "Command exited with error code " + channel.getExitStatus() );
@@ -165,7 +180,7 @@ public class SshUtil
 
     /**
      * This method uploads a stream/file to the remote server using sftp.
-     *
+     * 
      * @param session JSch session
      * @param localInputStream Local InputStream
      * @param remoteFile Absolute path of the remote file
@@ -183,7 +198,7 @@ public class SshUtil
 
     /**
      * This method downloads a file from the remote server using sftp.
-     *
+     * 
      * @param session JSch session
      * @param localOutputStream Local OutputStream
      * @param remoteFile Absolute path of the remote file
@@ -201,7 +216,7 @@ public class SshUtil
 
     /**
      * This method returns the file attributes of the remote file.
-     *
+     * 
      * @param session JSch session
      * @param remoteFile Absolute path of the remote file
      * @return SftpATTRS object that contains the file attributes

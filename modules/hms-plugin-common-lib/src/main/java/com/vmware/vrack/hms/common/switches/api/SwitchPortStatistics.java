@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.switches.api;
 
 import java.util.Date;
@@ -20,11 +21,12 @@ import java.util.Date;
 /**
  * The SwitchPortStatistics class represents the historical statistics for a particular SwitchPort. This class may be
  * extended to capture additional statistics, if needed.
- *
+ * 
  * @author VMware, Inc.
  */
 public class SwitchPortStatistics
 {
+
     public SwitchPortStatistics()
     {
     }

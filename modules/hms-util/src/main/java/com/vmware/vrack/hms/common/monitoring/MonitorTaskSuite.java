@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.hms.common.exception.HmsException;
+import com.vmware.vrack.hms.common.servernodes.api.NodeAdminStatus;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
@@ -36,6 +37,7 @@ import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
 public class MonitorTaskSuite
     implements Callable<MonitoringTaskResponse>
 {
+
     /** The logger. */
     private static Logger logger = LoggerFactory.getLogger( MonitorTaskSuite.class );
 
@@ -59,6 +61,7 @@ public class MonitorTaskSuite
      */
     public Long getMonitorFrequency()
     {
+
         return monitorFrequency;
     }
 
@@ -69,6 +72,7 @@ public class MonitorTaskSuite
      */
     public void setMonitorFrequency( Long monitorFrequency )
     {
+
         this.monitorFrequency = monitorFrequency;
     }
 
@@ -79,6 +83,7 @@ public class MonitorTaskSuite
      */
     public MonitorTaskSuite( MonitoringTaskResponse response )
     {
+
         super();
         this.response = response;
     }
@@ -91,6 +96,7 @@ public class MonitorTaskSuite
      */
     public MonitorTaskSuite( MonitoringTaskResponse response, Long monitorFrequency )
     {
+
         super();
         this.response = response;
         this.monitorFrequency = monitorFrequency;
@@ -105,27 +111,44 @@ public class MonitorTaskSuite
     public MonitoringTaskResponse executeTask()
         throws HmsException
     {
+
         MonitorResponseCallback updateSubscriber = new MonitorResponseCallback();
         while ( ( !Thread.currentThread().isInterrupted() ) && ( !stopMonitoring ) )
         {
+
             try
             {
+
                 Thread.sleep( monitorFrequency );
+
                 List<ServerComponent> components = response.getComponentList();
                 List<SwitchComponentEnum> switchComponents = response.getSwitchComponentList();
+
                 // Monitor Server nodes
                 if ( response.getNode() instanceof ServerNode )
                 {
+
+                    if ( response.getNode().getAdminStatus() == NodeAdminStatus.DECOMISSION )
+                    {
+                        logger.info( "In executeTask, Server with nodeId: {} status is {}."
+                            + " Stopping Monitoring for the server.", response.getNode().getNodeID(),
+                                     NodeAdminStatus.DECOMISSION );
+                        break;
+                    }
                     if ( !response.node.isNodeOperational() )
                     {
                         continue;
                     }
+
                     for ( ServerComponent component : components )
                     {
+
                         try
                         {
+
                             if ( !stopMonitoring )
                             {
+
                                 logger.debug( "Monitoring node: {};  TimeStamp: {}.", response.getHms_node_id(),
                                               new Date() );
                                 MonitorTask monitor = new MonitorTask( response, component );
@@ -134,20 +157,25 @@ public class MonitorTaskSuite
                         }
                         catch ( Exception e )
                         {
+
                             logger.error( "Error getting sensor information for node id: {}.",
                                           response.getHms_node_id(), e );
                         }
                     }
                 }
+
                 // Monitor Switch nodes
                 if ( response.getNode() instanceof HMSSwitchNode )
                 {
                     for ( SwitchComponentEnum component : switchComponents )
                     {
+
                         try
                         {
+
                             if ( !stopMonitoring )
                             {
+
                                 logger.debug( "Monitoring Switch node: {} TimeStamp : {} ", response.getHms_node_id(),
                                               new Date() );
                                 MonitorSwitchTask monitor = new MonitorSwitchTask( response, component );
@@ -161,17 +189,21 @@ public class MonitorTaskSuite
                         }
                     }
                 }
+
                 if ( response.getNode() instanceof ServerNode )
                 {
                     updateSubscriber.callbackEventSubcribers( response.node, components );
                 }
+
                 if ( response.getNode() instanceof HMSSwitchNode )
                 {
                     updateSubscriber.callbackSwitchEventSubcribers( response.node, switchComponents );
                 }
+
             }
             catch ( Exception e )
             {
+
                 logger.error( "Error getting sensor information for node id: {}.", response.getHms_node_id(), e );
                 throw new HmsException( "Error Initiating monitoring for HMS Node: " + response.getHms_node_id(), e );
             }
@@ -190,6 +222,7 @@ public class MonitorTaskSuite
     public MonitoringTaskResponse call()
         throws Exception
     {
+
         return executeTask();
     }
 
@@ -200,6 +233,7 @@ public class MonitorTaskSuite
      */
     public boolean isStopMonitoring()
     {
+
         return stopMonitoring;
     }
 
@@ -210,6 +244,7 @@ public class MonitorTaskSuite
      */
     public void setStopMonitoring( boolean stopMonitoring )
     {
+
         this.stopMonitoring = stopMonitoring;
     }
 }

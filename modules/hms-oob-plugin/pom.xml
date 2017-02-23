@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- /* ********************************************************************************
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
@@ -12,11 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>com.vmware.vrack</groupId>
         <artifactId>hms</artifactId>
-        <version>1.0.0</version>
+        <version>2.0.0-RELEASE</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -34,11 +36,6 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson-core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>

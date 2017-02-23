@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,9 @@ import com.vmware.vrack.hms.common.util.Constants;
 @Component
 public class InventoryLoader
 {
+
+    private static Logger logger = LoggerFactory.getLogger( InventoryLoader.class );
+
     private static volatile InventoryLoader instance;
 
     private String inventoryFilePath;
@@ -47,9 +53,6 @@ public class InventoryLoader
 
     @Value( "${hms.switch.host}" )
     private String hmsIpAddr;
-
-    @Value( "${hms.switch.port}" )
-    private int hmsPort;
 
     public Map<String, List<HmsApi>> getNodeComponentSupportedOob()
     {
@@ -69,6 +72,7 @@ public class InventoryLoader
     {
         if ( instance == null )
             instance = new InventoryLoader();
+
         return instance;
     }
 
@@ -92,6 +96,7 @@ public class InventoryLoader
         Map<String, ServerItem> serverItemNodeMap = new HashMap<String, ServerItem>();
         if ( nodeMap == null )
             return null;
+
         for ( ServerNode node : nodeMap.values() )
         {
             serverItemNodeMap.put( node.getNodeID(), node.getServerItemObject() );
@@ -144,12 +149,13 @@ public class InventoryLoader
         try
         {
             if ( !nodeComponentSupportedOob.containsKey( node_id ) && nodeMap.containsKey( node_id ) )
-                nodeComponentSupportedOob = InventoryUtil.getOOBSupportedOperations( hmsIpAddr, hmsPort,
-                                                                                     Constants.HMS_OOB_SUPPORTED_OPEARIONS_ENDPOINT,
-                                                                                     "application/json" );
+                nodeComponentSupportedOob =
+                    InventoryUtil.getOOBSupportedOperations( Constants.HMS_OOB_SUPPORTED_OPEARIONS_ENDPOINT,
+                                                             "application/json" );
         }
         catch ( HmsException e )
         {
+
         }
     }
 
@@ -171,5 +177,30 @@ public class InventoryLoader
     public String getHmsIpAddr()
     {
         return this.hmsIpAddr;
+    }
+
+    /**
+     * Removes the node supported operations.
+     *
+     * @param nodeId the node id
+     * @throws HmsException the hms exception
+     */
+    public void removeNodeSupportedOperations( final String nodeId )
+        throws HmsException
+    {
+        if ( StringUtils.isBlank( nodeId ) )
+        {
+            throw new HmsException( "NodeID is either null or blank." );
+        }
+        if ( nodeComponentSupportedOob.containsKey( nodeId ) )
+        {
+            nodeComponentSupportedOob.remove( nodeId );
+            logger.debug( "In removeNodeSupportedOperations, Removed Supported Operations for nodeId: '{}'.", nodeId );
+        }
+        else
+        {
+            logger.warn( "In removeNodeSupportedOperations, Node Supported Operations not found for nodeId: '{}'.",
+                         nodeId );
+        }
     }
 }

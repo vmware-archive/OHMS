@@ -15,170 +15,133 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.common.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.vmware.vrack.hms.common.servernodes.api.ComponentIdentifier;
 
 /**
- * Helps to generate the FruID hashcode
+ * Helps to generate the FruID hash code
  * 
  * @author VMware. Inc
  */
 public class FruIdGeneratorUtil
 {
-    private static Logger logger = Logger.getLogger( FruIdGeneratorUtil.class );
+    private static Logger logger = LoggerFactory.getLogger( FruIdGeneratorUtil.class );
 
     /**
-     * Method to generate the unique FRU ID Hash code
+     * Method to generate the unique FRU ID Hash code with FRU componentIdentifier and location
      * 
      * @param componentIdentifier
      * @param location
-     * @return hash (hashcode)
+     * @return hashCode
      */
-    public long generateFruIdHashCode( ComponentIdentifier componentIdentifier, String location )
+    public static String generateFruIdHashCode( ComponentIdentifier componentIdentifier, String location )
     {
-        long hash = 0;
+        String hash = "0";
+
         try
         {
             if ( componentIdentifier != null )
             {
                 if ( componentIdentifier.getManufacturer() != null )
                 {
-                    hash = componentIdentifier.getManufacturer().hashCode();
+                    hash = String.valueOf( componentIdentifier.getManufacturer().hashCode() );
                 }
                 if ( componentIdentifier.getProduct() != null )
                 {
-                    hash = hash + componentIdentifier.getProduct().hashCode();
+                    hash = hash.concat( String.valueOf( componentIdentifier.getProduct().hashCode() ) );
                 }
                 if ( componentIdentifier.getPartNumber() != null )
                 {
-                    hash = hash + componentIdentifier.getPartNumber().hashCode();
+                    hash = hash.concat( String.valueOf( componentIdentifier.getPartNumber().hashCode() ) );
                 }
                 if ( componentIdentifier.getSerialNumber() != null )
                 {
-                    hash = hash + componentIdentifier.getSerialNumber().hashCode();
+                    hash = hash.concat( String.valueOf( componentIdentifier.getSerialNumber().hashCode() ) );
                 }
             }
             if ( location != null )
             {
-                hash = hash + location.hashCode();
+                hash = hash.concat( String.valueOf( location.hashCode() ) );
             }
-            return hash;
+            return String.valueOf( hash.hashCode() );
         }
         catch ( Exception e )
         {
-            logger.error( " Error while generating the FRU ID " + componentIdentifier + location, e );
+            logger.error( " Error while generating the FRU ID {} ", componentIdentifier, location, e );
         }
-        return 0;
+        return hash;
     }
 
     /**
-     * Generate the unique FRU ID Hash code for Storage/HDD FRU component
-     *
-     * @param storageFruId
+     * Method to generate the unique FRU ID Hash code with fruId of the Server Component and server FRU ID
+     * 
+     * @param fruId
      * @param serverFruId
-     * @param diskType
      * @return String (HashCode)
      */
-    public String generateFruIdHashCodeStorage( Long storageFruId, String serverFruId, String diskType )
+    public static String generateFruIdHashCodeServerComponent( String fruId, String serverFruId )
     {
-        long hash = 0;
-        String hashCode = null;
+        String hash = "0";
+
         try
         {
-            if ( storageFruId != null )
+            if ( fruId != null )
             {
-                hash = storageFruId;
-                if ( diskType != null )
-                {
-                    hash = hash + diskType.hashCode();
-                }
+                hash = fruId;
             }
+
             if ( serverFruId != null )
             {
-                hashCode = String.valueOf( hash ) + serverFruId;
+                hash = hash.concat( serverFruId );
             }
-            return hashCode;
+            return String.valueOf( hash.hashCode() );
         }
         catch ( Exception e )
         {
-            logger.error( " Error while generating the FRU ID for Storage or HDD FRU component" + storageFruId
-                + serverFruId, e );
+            logger.error( " Error while generating the FRU ID for Server FRU component {}", fruId, serverFruId, e );
         }
-        return hashCode;
+        return hash;
     }
 
     /**
-     * Generate the unique FRU ID Hash code for Ethernet Controller FRU component
-     *
-     * @param EthernetControllerFruId
-     * @param macAddress
+     * Method to generate the unique FRU ID Hash code with fruId of the Server Component and server FRU ID and with
+     * uniqueFruProperty
+     * 
+     * @param fruId
      * @param serverFruId
+     * @param uniqueFruProperty
      * @return String (HashCode)
      */
-    public String generateFruIdHashCodeEthernetController( Long EthernetControllerFruId, String macAddress,
-                                                           String serverFruId )
+    public static String generateFruIdHashCodeServerComponent( String fruId, String serverFruId,
+                                                               String uniqueFruProperty )
     {
-        long hash = 0;
-        String hashCode = null;
+        String hash = "0";
+
         try
         {
-            if ( EthernetControllerFruId != null )
+            if ( fruId != null )
             {
-                hash = EthernetControllerFruId;
-                if ( macAddress != null )
+                hash = fruId;
+                if ( uniqueFruProperty != null )
                 {
-                    hash = hash + macAddress.hashCode();
+                    hash = hash.concat( String.valueOf( uniqueFruProperty.hashCode() ) );
                 }
             }
+
             if ( serverFruId != null )
             {
-                hashCode = String.valueOf( hash ) + serverFruId;
+                hash = hash.concat( serverFruId );
             }
-            return hashCode;
+
+            return String.valueOf( hash.hashCode() );
         }
         catch ( Exception e )
         {
-            logger.error( " Error while generating the FRU ID for Ethernet Controller FRU component" + serverFruId
-                + macAddress, e );
+            logger.error( " Error while generating the FRU ID for Server FRU component {}", fruId, serverFruId, e );
         }
-        return hashCode;
+        return hash;
     }
 
-    /**
-     * Generate the unique FRU ID Hash code for Storage Controller FRU component
-     *
-     * @param storageControllerFruId
-     * @param hbaDeviceName
-     * @param serverFruId
-     * @return String (HashCode)
-     */
-    public String generateFruIdHashCodeStorageController( Long storageControllerFruId, String hbaDeviceName,
-                                                          String serverFruId )
-    {
-        long hash = 0;
-        String hashCode = null;
-        try
-        {
-            if ( storageControllerFruId != null )
-            {
-                hash = storageControllerFruId;
-                if ( hbaDeviceName != null )
-                {
-                    hash = hash + hbaDeviceName.hashCode();
-                }
-            }
-            if ( serverFruId != null )
-            {
-                hashCode = String.valueOf( hash ) + serverFruId;
-            }
-            return hashCode;
-        }
-        catch ( Exception e )
-        {
-            logger.error( " Error while generating the FRU ID for Storage Controller FRU component" + serverFruId
-                + hbaDeviceName, e );
-        }
-        return hashCode;
-    }
 }

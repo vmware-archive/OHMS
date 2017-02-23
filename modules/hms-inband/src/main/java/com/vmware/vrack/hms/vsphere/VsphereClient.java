@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere;
 
 import java.io.Closeable;
@@ -51,11 +52,12 @@ import com.vmware.vim.vmomi.core.types.VmodlContext;
  * Author: Tao Ma Date: 2/21/14
  */
 public class VsphereClient
-    implements Client, AutoCloseable, Closeable
+    implements AutoCloseable, Closeable
 {
     /*
      * Re-factor hard coded string 2014-08-07
      */
+
     private static final String VIEW_MANAGER_IS_NULL_FOR = "ViewManager is null for %s.";
 
     private static final String PROPERTY_COLLECTOR_IS_NULL_FOR = "PropertyCollector is null for %s.";
@@ -115,7 +117,9 @@ public class VsphereClient
                                            1, // max pool size
                                            10, TimeUnit.SECONDS, // max thread idle time
                                            new LinkedBlockingQueue<Runnable>() ); // work queue
+
         HttpClientConfiguration clientConfig = HttpClientConfiguration.Factory.newInstance();
+
         httpConfig = new HttpConfigurationImpl();
         httpConfig.setThumbprintVerifier( new ThumbprintVerifier()
         {
@@ -129,7 +133,7 @@ public class VsphereClient
             @Override
             public void onSuccess( X509Certificate[] chain, String thumbprint, Result verifyResult,
                                    boolean trustedChain, boolean verifiedAssertions )
-                                       throws SSLException
+                throws SSLException
             {
                 // this callback let's application know if
                 // server cert was accepted by trust store or thumbrint
@@ -148,12 +152,16 @@ public class VsphereClient
         clientConfig.setHttpConfiguration( httpConfig );
         client = Client.Factory.createClient( ( cert != null ? new URI( https_sdk_tunnel_8089 ) : serviceUri ),
                                               version9.class, clientConfig );
+
         ManagedObjectReference svcRef = new ManagedObjectReference();
         svcRef.setType( SERVICE_INSTANCE );
         svcRef.setValue( SERVICE_INSTANCE );
+
         ServiceInstance si = client.createStub( ServiceInstance.class, svcRef );
         sic = si.retrieveContent();
+
         sessionMgr = client.createStub( SessionManager.class, sic.getSessionManager() );
+
         if ( cert == null )
         {
             // user
@@ -207,19 +215,16 @@ public class VsphereClient
             return null;
     }
 
-    @Override
     public <T extends ManagedObject> T createStub( Class<T> clazz, ManagedObjectReference moRef )
     {
         return client.createStub( clazz, moRef );
     }
 
-    @Override
     public ProtocolBinding getBinding()
     {
         return client.getBinding();
     }
 
-    @Override
     public void shutdown()
     {
         sessionMgr.logout();

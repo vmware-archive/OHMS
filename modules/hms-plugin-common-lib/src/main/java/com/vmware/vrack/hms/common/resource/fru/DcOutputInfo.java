@@ -21,6 +21,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class DcOutputInfo
     extends MultiRecordInfo
 {
+
     private Integer outputNumber;
 
     /**

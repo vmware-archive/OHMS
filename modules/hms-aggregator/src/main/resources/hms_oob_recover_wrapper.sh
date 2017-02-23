@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HMS_PARENT_DIR_FULLPATH="/opt/vrack"
+HMS_UPGRADE_DIR="/opt/vrack/upgrade"
 CURR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "From hms_oob_recover_wrapper : $CURR_DIR"
 
@@ -11,5 +11,5 @@ echo
 echo "$@"
 echo
 echo "*****************************************"
-nohup bash $CURR_DIR/hms_oob_recover.sh "$@" >> $HMS_PARENT_DIR_FULLPATH/oob_upgrade.log 2>&1 &
+nohup bash $CURR_DIR/hms_oob_recover.sh "$@" >> $HMS_UPGRADE_DIR/oob_upgrade.log 2>&1 &
 echo "hms_oob_recover script triggered successfully."

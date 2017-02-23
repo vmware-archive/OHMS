@@ -1,0 +1,24 @@
+{
+  "servers" : [ {
+    "id" : "N1487849009845",
+    "oobProtocol" : "oobProtocol",
+    "oobIpAddress" : "oobIpAddress",
+    "oobPort" : 10000,
+    "oobUsername" : "oobUsername",
+    "oobPassword" : "oobPassword",
+    "ibProtocol" : "ibProtocol",
+    "ibIpAddress" : "ibIpAddress",
+    "ibPort" : 10000,
+    "ibUsername" : "ibUsername",
+    "ibPassword" : "ibPassword",
+    "location" : "location",
+    "boardInfo" : {
+      "manufacturer" : "manufacturer",
+      "model" : "model"
+    },
+    "hypervisorInfo" : {
+      "name" : "name",
+      "provider" : "provider"
+    }
+  } ]
+}

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.chassis;
 
 /**
@@ -23,6 +24,7 @@ package com.vmware.vrack.hms.common.resource.chassis;
 public enum BootDeviceType
 {
     Internal( 1 ), External( 0 );
+
     private int code;
 
     private BootDeviceType( int code )
@@ -46,4 +48,5 @@ public enum BootDeviceType
             return External;
         }
     }
+
 }

@@ -1,13 +1,12 @@
 /* ********************************************************************************
  * TaskFactory.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
- * Copyright (c) 2016 Intel Corporation
- *
+
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0
- *
+
  * Unless required by applicable law or agreed to in writing, software distributed
  * under the License is distributed on an "AS IS" BASIS, without warranties or
  * conditions of any kind, EITHER EXPRESS OR IMPLIED. See the License for the
@@ -16,9 +15,11 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.task;
 
+import com.vmware.vrack.hms.common.HmsNode;
 import com.vmware.vrack.hms.common.notification.TaskResponse;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
+import com.vmware.vrack.hms.task.ib.HmsPrmHandshakeTask;
 import com.vmware.vrack.hms.task.oob.ipmi.AcpiPowerStateTask;
 import com.vmware.vrack.hms.task.oob.ipmi.ChassisIdentifyTask;
 import com.vmware.vrack.hms.task.oob.ipmi.ColdResetBmcTask;
@@ -34,8 +35,8 @@ import com.vmware.vrack.hms.task.oob.ipmi.PowerUpServerTask;
 import com.vmware.vrack.hms.task.oob.ipmi.SelInfoTask;
 import com.vmware.vrack.hms.task.oob.ipmi.SelfTestTask;
 import com.vmware.vrack.hms.task.oob.ipmi.ServerInfoServerTask;
+import com.vmware.vrack.hms.task.oob.ipmi.SetBmcPasswordTask;
 import com.vmware.vrack.hms.task.oob.ipmi.SetSystemBootOptionsTask;
-import com.vmware.vrack.hms.task.oob.redfish.RedfishDiscoverComputerSystemsTask;
 import com.vmware.vrack.hms.task.oob.rmm.CpuInformationTask;
 import com.vmware.vrack.hms.task.oob.rmm.HddInformationTask;
 import com.vmware.vrack.hms.task.oob.rmm.MemoryInformationTask;
@@ -45,9 +46,22 @@ import com.vmware.vrack.hms.task.oob.rmm.StorageControllerInformationTask;
 public class TaskFactory
 {
 
+    @Deprecated
+    public static IHmsTask getTask( TaskType taskType, HmsNode node )
+    {
+        IHmsTask task = null;
+
+        switch ( taskType )
+        {
+            default:
+                return task;
+        }
+    }
+
     public static IHmsTask getTask( TaskType taskType, TaskResponse response )
     {
         IHmsTask task = null;
+
         switch ( taskType )
         {
             case HMSBootUp:
@@ -64,6 +78,9 @@ public class TaskFactory
                 break;
             case ServerBoardInfo:
                 task = new ServerInfoServerTask( response );
+                break;
+            case HmsPrmHandshake:
+                task = new HmsPrmHandshakeTask( response );
                 break;
             case InitMonitorService:
                 if ( response.getNode() instanceof HMSSwitchNode )
@@ -117,11 +134,14 @@ public class TaskFactory
                     task = new SwitchMonitorTask( (HMSSwitchNode) response.getNode() );
                 }
                 break;
+            // case GetRemoteConsoleType:
+            // task = new RemoteConsoleInfoTask( response );
+            // break;
+            // case RemoteConsoleDisplayRequest:
+            // task = new StartRemoteConsoleTask( response );
+            // break;
             case GetSupportedAPI:
                 task = new GetSupportedAPI( response );
-                break;
-            case RedfishDiscoverComputerSystems:
-                task = new RedfishDiscoverComputerSystemsTask();
                 break;
             default:
                 return task;
@@ -133,6 +153,7 @@ public class TaskFactory
     public static IHmsTask getTask( TaskType taskType, TaskResponse response, Object data )
     {
         IHmsTask task = null;
+
         switch ( taskType )
         {
             case SetSystemBootOptions:
@@ -144,9 +165,13 @@ public class TaskFactory
             case SelInfo:
                 task = new SelInfoTask( response, data );
                 break;
+            case SetBmcPassword:
+                task = new SetBmcPasswordTask( response, data );
+                break;
             default:
                 return task;
         }
         return task;
     }
+
 }

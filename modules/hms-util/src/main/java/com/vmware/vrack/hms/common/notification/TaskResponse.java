@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.notification;
 
 import java.util.Date;
@@ -26,6 +27,7 @@ import com.vmware.vrack.hms.common.monitoring.ITaskResponseLifecycleHandler;
 @Deprecated
 public class TaskResponse
 {
+
     protected HmsNode node;
 
     protected long timeStamp;
@@ -72,20 +74,24 @@ public class TaskResponse
             this.taskHandler = taskHandler;
             taskHandler.init( this );
         }
+
     }
 
     @Override
     public int hashCode()
     {
         int hash = new Long( timeStamp ).hashCode();
+
         if ( node.getNodeID() != null )
         {
             hash = 31 * hash + node.getNodeID().hashCode();
         }
+
         if ( taskType != null )
         {
             hash = 31 * hash + taskType.hashCode();
         }
+
         return hash;
     }
 
@@ -96,21 +102,26 @@ public class TaskResponse
         {
             return false;
         }
+
         TaskResponse compareTo = (TaskResponse) obj;
+
         if ( compareTo.timeStamp != this.timeStamp )
         {
             return false;
         }
+
         // We must have node object and nodeId in it being NOT null
         if ( !( compareTo.node != null && this.node != null && compareTo.node.getNodeID() != null
             && compareTo.node.getNodeID().equals( this.node.getNodeID() ) ) )
         {
             return false;
         }
+
         if ( !( compareTo.taskType.equals( this.taskType ) ) )
         {
             return false;
         }
+
         return true;
     }
 
@@ -170,6 +181,7 @@ public class TaskResponse
     {
         if ( taskHandler != null )
             taskHandler.onTaskComplete( this );
+
     }
 
     @JsonIgnore
@@ -182,4 +194,5 @@ public class TaskResponse
     {
         this.taskHandler = taskHandler;
     }
+
 }

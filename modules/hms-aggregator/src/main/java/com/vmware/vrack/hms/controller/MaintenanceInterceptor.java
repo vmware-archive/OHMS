@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -47,11 +48,16 @@ import com.vmware.vrack.hms.inventory.InventoryLoader;
 public class MaintenanceInterceptor
     extends HandlerInterceptorAdapter
 {
+
     /** The logger. */
     private static Logger logger = LoggerFactory.getLogger( MaintenanceInterceptor.class );
 
     /** The active request counter. */
     private static AtomicInteger activeRequestCounter = new AtomicInteger();
+
+    private String localIpRegex;
+
+    private String privateIpEligibleApisRegEx;
 
     /**
      * @param request
@@ -65,18 +71,31 @@ public class MaintenanceInterceptor
     public boolean preHandle( HttpServletRequest request, HttpServletResponse response, Object handler )
         throws Exception
     {
+
         String method = request.getMethod();
         String requestURL = request.getRequestURL().toString();
-        logger.info( "Received request: [ {} on {} ].", method, requestURL );
+        String remoteAddr = request.getRemoteAddr();
+
+        logger.info( "Received request: [ {} on {} from remote address {} ].", method, requestURL, remoteAddr );
+
+        if ( !isTheRequestFromValidSource( requestURL, remoteAddr ) )
+        {
+            logger.error( "Resource access denied for requestURL: {} remoteAddr: {}", requestURL, remoteAddr );
+            throw new HMSRestException( Status.FORBIDDEN.getStatusCode(), Status.FORBIDDEN.toString(),
+                                        " Api access denied." );
+        }
+
         ServiceState serviceState = ServiceManager.getServiceState();
         if ( serviceState.equals( ServiceState.NORMAL_MAINTENANCE )
             || serviceState.equals( ServiceState.FORCE_MAINTENANCE ) )
         {
+
             // allow upgrade monitoring api, even if service is in maintenance
             // Allow get/set HMS statue even if service is in maintenance
             if ( ( !( method.equalsIgnoreCase( RequestMethod.GET.toString() )
                 && requestURL.matches( ".*/upgrade/monitor/.*" ) ) ) && !( requestURL.matches( ".*/state.*" ) ) )
             {
+
                 logger.info( "HMS Service is in {} state. Aborting the request: [ {} on {} ].", serviceState, method,
                              requestURL );
                 throw new HMSRestException( Status.SERVICE_UNAVAILABLE.getStatusCode(),
@@ -84,6 +103,33 @@ public class MaintenanceInterceptor
             }
         }
         return validateNodeAvialability( request, response );
+    }
+
+    /**
+     * Validate if the I/P of the requested source is localhost/private ip. Only private eligible api's can access from
+     * private n/w or localhost and all others should be from only localhost. context.xml valve will make sure only the
+     * request from private ip & localhost are reached here. After this the regex comparison is to verify upgrade/about
+     * url's which has to be allowed from localhost and priviate ip and for all the other urls the else check will make
+     * sure that its allowed only from localIpRegex
+     *
+     * @param requestURL
+     * @param remoteAddr
+     * @return
+     */
+    private boolean isTheRequestFromValidSource( String requestURL, String remoteAddr )
+    {
+        if ( requestURL != null && requestURL.matches( privateIpEligibleApisRegEx ) )
+        {
+            return true;
+        }
+        else
+        {
+            if ( remoteAddr.matches( localIpRegex ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -99,10 +145,12 @@ public class MaintenanceInterceptor
         throws HMSRestException
     {
         String actionParameter = request.getParameter( "action" );
+
         if ( actionParameter != null )
         {
             try
             {
+
                 NodeAdminStatus.valueOf( actionParameter );
                 activeRequestCounter.incrementAndGet();
                 return true;
@@ -111,15 +159,19 @@ public class MaintenanceInterceptor
             {
                 logger.info( "Action not of type NodeOperationalStatus" );
             }
+
         }
+
         String path = (String) request.getAttribute( HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE );
         String bestMatchPattern = (String) request.getAttribute( HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE );
         AntPathMatcher apm = new AntPathMatcher();
         Map<String, String> mappedRequestParam = apm.extractUriTemplateVariables( bestMatchPattern, path );
+
         if ( mappedRequestParam.containsKey( "host_id" ) )
         {
             String host_id = mappedRequestParam.get( "host_id" );
             HmsNode host;
+
             if ( !InventoryLoader.getInstance().getNodeMap().containsKey( host_id ) )
             {
                 throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), "Invalid Request",
@@ -129,6 +181,7 @@ public class MaintenanceInterceptor
             {
                 host = InventoryLoader.getInstance().getNodeMap().get( host_id );
             }
+
             if ( host.isNodeOperational() )
             {
                 activeRequestCounter.incrementAndGet();
@@ -157,8 +210,9 @@ public class MaintenanceInterceptor
     @Override
     public void afterCompletion( HttpServletRequest request, HttpServletResponse response, Object handler,
                                  Exception ex )
-                                     throws Exception
+        throws Exception
     {
+
         logger.info( "Returning response code {} for request: [ {} on {} ]", response.getStatus(), request.getMethod(),
                      request.getRequestURI() );
         activeRequestCounter.decrementAndGet();
@@ -171,6 +225,29 @@ public class MaintenanceInterceptor
      */
     public static int getActiveRequests()
     {
+
         return activeRequestCounter.get();
+    }
+
+    public String getLocalIpRegex()
+    {
+        return localIpRegex;
+    }
+
+    @Value( "${hms.local.ip.regex}" )
+    public void setLocalIpRegex( String localIpRegex )
+    {
+        this.localIpRegex = localIpRegex;
+    }
+
+    public String getPrivateIpEligibleApisRegEx()
+    {
+        return privateIpEligibleApisRegEx;
+    }
+
+    @Value( "${hms.private.ip.eligible.apis.regex}" )
+    public void setPrivateIpEligibleApisRegEx( String privateIpEligibleApisRegEx )
+    {
+        this.privateIpEligibleApisRegEx = privateIpEligibleApisRegEx;
     }
 }

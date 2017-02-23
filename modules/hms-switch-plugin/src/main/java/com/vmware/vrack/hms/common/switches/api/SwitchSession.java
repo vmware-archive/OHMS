@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SwitchSession.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -22,20 +22,34 @@ import java.io.OutputStream;
 import com.vmware.vrack.hms.common.exception.HmsException;
 
 /**
- * The TorSwitchSession interface represents a live session object that's connected to the TorSwitch.
- * Each switch should implement this interface based on its connectivity paradigm. For example, on
- * Cumulus Linux based switches, this would be implemented using an SSH session.
+ * The TorSwitchSession interface represents a live session object that's connected to the TorSwitch. Each switch should
+ * implement this interface based on its connectivity paradigm. For example, on Cumulus Linux based switches, this would
+ * be implemented using an SSH session.
  * 
  * @author VMware, Inc.
  */
-public interface SwitchSession {
-	void setSwitchNode(SwitchNode switchNode);
-	SwitchNode getSwitchNode();
-	void connect() throws HmsException;
-	void connect(int timeout) throws HmsException;
-	boolean isConnected();
-	String execute(String command) throws HmsException;
-	boolean upload(InputStream localInputStream, String remoteFilename) throws HmsException;
-	boolean download(OutputStream localOutputStream, String remoteFilename) throws HmsException;
-	void disconnect();
+public interface SwitchSession
+{
+    void setSwitchNode( SwitchNode switchNode );
+
+    SwitchNode getSwitchNode();
+
+    void connect()
+        throws HmsException;
+
+    void connect( int timeout )
+        throws HmsException;
+
+    boolean isConnected();
+
+    String execute( String command )
+        throws HmsException;
+
+    boolean upload( InputStream localInputStream, String remoteFilename )
+        throws HmsException;
+
+    boolean download( OutputStream localOutputStream, String remoteFilename )
+        throws HmsException;
+
+    void disconnect();
 }

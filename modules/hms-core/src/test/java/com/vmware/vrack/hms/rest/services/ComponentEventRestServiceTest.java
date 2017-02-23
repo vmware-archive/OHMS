@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.ConnectorStatistics;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
@@ -30,6 +29,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.common.event.Body;
 import com.vmware.vrack.common.event.Event;
@@ -44,7 +45,7 @@ import com.vmware.vrack.hms.testplugin.BoardService_TEST;
 
 public class ComponentEventRestServiceTest
 {
-    private static Logger logger = Logger.getLogger( ComponentEventRestServiceTest.class );
+    private static Logger logger = LoggerFactory.getLogger( ComponentEventRestServiceTest.class );
 
     private ConnectorStatistics connectorStatistics;
 
@@ -57,7 +58,7 @@ public class ComponentEventRestServiceTest
      */
     public static void insertNodeInNodeMap( ServerNode node )
     {
-        ServerNodeConnector.getInstance().nodeMap.put( "N1", node );
+        ServerNodeConnector.getInstance().getNodeMap().put( "N1", node );
     }
 
     /**
@@ -68,7 +69,7 @@ public class ComponentEventRestServiceTest
     public static void addBoardServiceForNode()
         throws Exception
     {
-        ServerNode node = (ServerNode) ServerNodeConnector.getInstance().nodeMap.get( "N1" );
+        ServerNode node = (ServerNode) ServerNodeConnector.getInstance().getNodeMap().get( "N1" );
         try
         {
             BoardServiceProvider.addBoardServiceClass( node.getServiceObject(), BoardService_TEST.class, true );
@@ -84,7 +85,7 @@ public class ComponentEventRestServiceTest
      */
     public static void removeNodeFromNodeMap()
     {
-        ServerNodeConnector.getInstance().nodeMap.remove( "N1" );
+        ServerNodeConnector.getInstance().getNodeMap().remove( "N1" );
     }
 
     /**
@@ -94,11 +95,11 @@ public class ComponentEventRestServiceTest
     {
         try
         {
-            BoardServiceProvider.removeBoardServiceClass( getServerNode().getServiceObject() );
+            BoardServiceProvider.removeBoardServiceClass( getServerNode().getNodeID() );
         }
         catch ( HmsException e )
         {
-            logger.error( "Unable to clear boardservice for node: " + getServerNode().getNodeID() );
+            logger.error( "Unable to clear boardservice for node: {} ", getServerNode().getNodeID() );
         }
     }
 
@@ -124,6 +125,8 @@ public class ComponentEventRestServiceTest
         node.setBoardVendor( "Intel" );
         node.setIbIpAddress( "10.28.197.28" );
         node.setManagementIp( "10.28.197.208" );
+        node.setOsUserName( "testuser" );
+        node.setOsPassword( "ospassword" );
         return node;
     }
 
@@ -132,6 +135,7 @@ public class ComponentEventRestServiceTest
         throws HMSRestException
     {
         clearNodeMapAndBoardService();
+
         ComponentEventRestService restService = new ComponentEventRestService();
         restService.getComponnetEvents( "N1", EventComponent.CPU );
     }
@@ -142,6 +146,7 @@ public class ComponentEventRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         removeBoardServiceForNode();
+
         ComponentEventRestService restService = new ComponentEventRestService();
         restService.getComponnetEvents( "N1", EventComponent.CPU );
     }
@@ -151,7 +156,9 @@ public class ComponentEventRestServiceTest
         throws Exception
     {
         insertNodeInNodeMap( getServerNode() );
+
         addBoardServiceForNode();
+
         ComponentEventRestService restService = new ComponentEventRestService();
         List<Event> cpuEvents = restService.getComponnetEvents( "N1", EventComponent.CPU );
         assertNotNull( cpuEvents );
@@ -178,6 +185,7 @@ public class ComponentEventRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         ComponentEventRestService restService = new ComponentEventRestService();
         List<Event> hddEvents = restService.getComponnetNmeEvents( "N1" );
         assertNotNull( hddEvents );
@@ -191,7 +199,9 @@ public class ComponentEventRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         server = initMocks( AbstractLifeCycle.STARTED );
+
         ComponentEventRestService restService = new ComponentEventRestService();
         List<Event> hmsEvents = restService.getComponentEvents();
         assertNotNull( hmsEvents );
@@ -205,6 +215,7 @@ public class ComponentEventRestServiceTest
         assertEquals( "[MANAGEMENT, SOFTWARE]", header.getEventCategoryList().toString() );
         assertEquals( "INFORMATIONAL", header.getSeverity().name() );
         // assertEquals("?", header.getComponentIdentifier());
+
         Body body = event.getBody();
         Map<String, String> data = body.getData();
         assertEquals( "DISCRETE", data.get( "unit" ) );
@@ -213,7 +224,9 @@ public class ComponentEventRestServiceTest
         // assertEquals("Hms Agent is Up", data.get("value"));
         assertEquals( "HMS_AGENT_UP", data.get( "eventName" ) );
         assertEquals( "HMS Agent is up - rack {RACK_NAME}", body.getDescription() );
+
         resetMocks( server );
+
     }
 
     @Test
@@ -222,7 +235,9 @@ public class ComponentEventRestServiceTest
     {
         insertNodeInNodeMap( getServerNode() );
         addBoardServiceForNode();
+
         server = initMocks( AbstractLifeCycle.FAILED );
+
         ComponentEventRestService restService = new ComponentEventRestService();
         List<Event> hmsEvents = restService.getComponentEvents();
         assertNotNull( hmsEvents );
@@ -236,6 +251,7 @@ public class ComponentEventRestServiceTest
         assertEquals( "[MANAGEMENT, SOFTWARE]", header.getEventCategoryList().toString() );
         assertEquals( "CRITICAL", header.getSeverity().name() );
         // assertEquals("?", header.getComponentIdentifier());
+
         Body body = event.getBody();
         Map<String, String> data = body.getData();
         assertEquals( "DISCRETE", data.get( "unit" ) );
@@ -244,6 +260,7 @@ public class ComponentEventRestServiceTest
         // assertEquals("Hms Agent is Down", data.get("value"));
         assertEquals( "HMS_AGENT_DOWN", data.get( "eventName" ) );
         assertEquals( "HMS Agent is down - rack {RACK_NAME}", body.getDescription() );
+
         resetMocks( server );
     }
 
@@ -263,4 +280,5 @@ public class ComponentEventRestServiceTest
         Mockito.reset( server );
         Mockito.reset( connectorStatistics );
     }
+
 }

@@ -26,20 +26,25 @@ public final class SwitchPortStatsAssemblers
     public static List<NBSwitchPortStats> toSwitchPortStatsList( List<SwitchPort> ports )
     {
         List<NBSwitchPortStats> lStatsList = new ArrayList<NBSwitchPortStats>();
+
         if ( ports == null )
             return null;
+
         for ( SwitchPort port : ports )
         {
             lStatsList.add( toSwitchPortStats( port ) );
         }
+
         return lStatsList;
     }
 
     public static NBSwitchPortStats toSwitchPortStats( SwitchPort port )
     {
         NBSwitchPortStats lStats = new NBSwitchPortStats();
+
         if ( port == null || port.getStatistics() == null )
             return null;
+
         lStats.setRxDroppedPackets( port.getStatistics().getRxDroppedPackets() );
         lStats.setRxErrors( port.getStatistics().getRxErrors() );
         lStats.setRxReceivedPackets( port.getStatistics().getRxReceivedPackets() );
@@ -48,6 +53,7 @@ public final class SwitchPortStatsAssemblers
         lStats.setTxErrors( port.getStatistics().getTxErrors() );
         lStats.setTxSentPackets( port.getStatistics().getTxSentPackets() );
         lStats.setPortName( port.getName() );
+
         return lStats;
     }
 }

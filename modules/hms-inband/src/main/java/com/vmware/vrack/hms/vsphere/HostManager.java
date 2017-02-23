@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere;
 
 import org.slf4j.Logger;
@@ -66,6 +67,7 @@ public class HostManager
         logger.info( "Connecting to standalone host {}", ipAddress );
         try
         {
+            password = password;
             VsphereClient client = VsphereClient.connect( httpsUrl + ipAddress + sdkPath, username, password );
             HostSystem host = getHostSystem( client );
             return new HostProxy( ipAddress, client, host );

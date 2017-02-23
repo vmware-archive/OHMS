@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * InbandServiceImpl.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,20 +13,25 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.boardservice.ib;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import com.vmware.vim.binding.vim.HostSystem;
 import com.vmware.vim.binding.vim.host.HardwareInfo;
 import com.vmware.vrack.hms.boardservice.ib.api.BiosInfoHelper;
 import com.vmware.vrack.hms.boardservice.ib.api.CpuInfoHelper;
+import com.vmware.vrack.hms.boardservice.ib.api.cim.CpuInfoOperationalStatusHelper;
 import com.vmware.vrack.hms.boardservice.ib.api.ESXIInfoHelper;
 import com.vmware.vrack.hms.boardservice.ib.api.HddInfoHelper;
 import com.vmware.vrack.hms.boardservice.ib.api.NicInfoHelper;
@@ -40,6 +45,7 @@ import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.resource.fru.EthernetController;
+import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 import com.vmware.vrack.hms.common.servernodes.api.HmsApi;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.bios.BiosInfo;
@@ -53,6 +59,7 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 import com.vmware.vrack.hms.common.util.HostProxyProvider;
 import com.vmware.vrack.hms.vsphere.HostProxy;
 import com.vmware.vrack.hms.vsphere.VsphereClient;
+import com.vmware.vrack.hms.common.StatusEnum;
 
 /**
  * @author Vmware
@@ -62,6 +69,9 @@ public class InbandServiceImpl
     implements IInbandService
 {
     private static Logger logger = LoggerFactory.getLogger( InbandServiceImpl.class );
+
+    // Map<nodeId, List<HddInfo>> to hold old hddInfoList for each node's storage components.
+    private Map<String, HddInfo> oldStorageInfoMap = new HashMap<String, HddInfo>();
 
     private List<HypervisorInfo> supportedHypervisor;
 
@@ -106,7 +116,7 @@ public class InbandServiceImpl
 
     /**
      * Overriden function to get CPU Info while reusing the HostProxy object
-     *
+     * 
      * @param serviceHmsNode
      * @param hostProxy
      * @return
@@ -117,7 +127,7 @@ public class InbandServiceImpl
     {
         if ( serviceHmsNode != null && serviceHmsNode instanceof ServiceServerNode && hostProxy != null )
         {
-            List<CPUInfo> cpuInfos = null;
+            List<CPUInfo> cpuInfoList = null;
             ServiceServerNode node = (ServiceServerNode) serviceHmsNode;
             try
             {
@@ -125,7 +135,54 @@ public class InbandServiceImpl
                 if ( hostSystem != null && hostSystem.getHardware() != null )
                 {
                     HardwareInfo hardwareInfo = hostSystem.getHardware();
-                    cpuInfos = CpuInfoHelper.getCpuInfo( hardwareInfo );
+                    logger.debug( "Got hardware info for node {} for getting CPU Info", serviceHmsNode.getNodeID() );
+                    cpuInfoList = CpuInfoHelper.getCpuInfo( hardwareInfo );
+                    if ( !CollectionUtils.isEmpty( cpuInfoList ) )
+                    {
+                        logger.debug( "Got cpu infolist of size {} for node {}", cpuInfoList.size(),
+                                      serviceHmsNode.getNodeID() );
+                    }
+                    else
+                    {
+                        logger.warn( "Got null cpu infolist for node {}", serviceHmsNode.getNodeID() );
+                    }
+
+                    // Get the Operational status using CIM client
+                    try
+                    {
+                        CpuInfoOperationalStatusHelper cpuInfoOperationalStatusHelper =
+                            new CpuInfoOperationalStatusHelper( node );
+                        cpuInfoList = cpuInfoOperationalStatusHelper.getCpuOperationalStatus( cpuInfoList );
+                        if ( !CollectionUtils.isEmpty( cpuInfoList ) )
+                        {
+                            logger.debug( "Got cpu infolist of size {} after getting CPU Operational Status for node {}",
+                                          cpuInfoList.size(), serviceHmsNode.getNodeID() );
+                        }
+                        else
+                        {
+                            logger.warn( "Got null cpu infolist for node {} after getting CPU Operational Status",
+                                         serviceHmsNode.getNodeID() );
+                        }
+                        logger.debug( "Got the CPU operational status for the node: {}", node.getNodeID() );
+                    }
+                    catch ( Exception e )
+                    {
+                        logger.error( "Cannot get CPU operational status for Node: {}", node.getNodeID(), e );
+                        // If you can't get the CPU Operational status then set is as "unknown"
+                        setCpuInfoOperationalStatus( cpuInfoList, FruOperationalStatus.UnKnown );
+                        logger.debug( "Cannot get CPU operational status for Node, setting the operational status to unknown for node : {}",
+                                      node.getNodeID() );
+                        if ( !CollectionUtils.isEmpty( cpuInfoList ) )
+                        {
+                            logger.debug( "Exception occurred while getting CPU operational status for node {}. Cpu infolist size is {}",
+                                          cpuInfoList.size(), serviceHmsNode.getNodeID() );
+                        }
+                        else
+                        {
+                            logger.warn( "Exception occurred while getting CPU operational status node {} . Got null cpu infolist.",
+                                         serviceHmsNode.getNodeID() );
+                        }
+                    }
                 }
             }
             catch ( Exception e )
@@ -134,7 +191,7 @@ public class InbandServiceImpl
                 logger.error( err, e );
                 throw new HmsException( err, e );
             }
-            return cpuInfos;
+            return cpuInfoList;
         }
         else
         {
@@ -145,38 +202,54 @@ public class InbandServiceImpl
         }
     }
 
+    /**
+     * If we can't get the CPU Operational status then set is as "unknown"
+     * 
+     * @param cpuInfoList
+     * @return
+     */
+    public List<CPUInfo> setCpuInfoOperationalStatus( List<CPUInfo> cpuInfoList,
+                                                      FruOperationalStatus operationalStatus )
+    {
+
+        for ( CPUInfo cpuInfo : cpuInfoList )
+        {
+            cpuInfo.setFruOperationalStatus( operationalStatus );
+        }
+        return cpuInfoList;
+    }
+
+    /**
+     * Overridden function to get Physical memory Information using the CIM client. We don't use the fallback option to
+     * get Memory Information via VSphere Client in case CIM Client fails as VSphere Client will only provide the total
+     * amount of physical memory not the full memory inventory.
+     *
+     * @param serviceHmsNode
+     * @return List<PhysicalMemory>
+     * @throws HmsException
+     */
     @Override
     public List<PhysicalMemory> getSystemMemoryInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException
     {
         if ( serviceHmsNode != null && serviceHmsNode instanceof ServiceServerNode )
         {
-            List<PhysicalMemory> physicalMemories = null;
+            List<PhysicalMemory> physicalMemoryList = null;
             ServiceServerNode node = (ServiceServerNode) serviceHmsNode;
+
             try
             {
-                try
-                {
-                    MemoryInfoHelper memoryInfoHelper = new MemoryInfoHelper( node );
-                    physicalMemories = memoryInfoHelper.getMemoryInfo();
-                }
-                catch ( Exception e )
-                {
-                    String err = "Cannot get Memory info for Node via CIM: " + node.getNodeID();
-                    logger.error( err, e );
-                    logger.warn( "Unable to get Memory info via CIM for node: " + node.getNodeID()
-                        + ", now trying with Vsphere." );
-                    HostProxy hostProxy = getHostProxy( node );
-                    physicalMemories = getSystemMemoryInfo( node, hostProxy );
-                }
+                MemoryInfoHelper memoryInfoHelper = new MemoryInfoHelper( node );
+                physicalMemoryList = memoryInfoHelper.getMemoryInfo();
             }
             catch ( Exception e )
             {
-                String err = "Cannot get Memory info for Node: " + node.getNodeID();
+                String err = "Cannot get Memory info for Node via CIM: " + node.getNodeID();
                 logger.error( err, e );
                 throw new HmsException( err, e );
             }
-            return physicalMemories;
+
+            return physicalMemoryList;
         }
         else
         {
@@ -187,7 +260,7 @@ public class InbandServiceImpl
 
     /**
      * Fallback option for Memory Information via VSphere Client, in case CIM Client fails
-     *
+     * 
      * @param serviceHmsNode
      * @param hostProxy
      * @return
@@ -203,6 +276,7 @@ public class InbandServiceImpl
             try
             {
                 HostSystem hostSystem = hostProxy.getHostSystem();
+
                 if ( hostSystem != null && hostSystem.getHardware() != null )
                 {
                     HardwareInfo hardwareInfo = hostSystem.getHardware();
@@ -216,6 +290,7 @@ public class InbandServiceImpl
                 logger.error( err, e );
                 throw new HmsException( err, e );
             }
+
             return physicalMemories;
         }
         else
@@ -231,6 +306,7 @@ public class InbandServiceImpl
     {
         if ( serviceHmsNode != null && serviceHmsNode instanceof ServiceServerNode )
         {
+            List<HddInfo> aggregatedHddInfoList = new ArrayList<HddInfo>();
             List<HddInfo> hddInfoList = null;
             ServiceServerNode node = (ServiceServerNode) serviceHmsNode;
             try
@@ -244,7 +320,9 @@ public class InbandServiceImpl
                 logger.error( err, e );
                 throw new HmsException( err, e );
             }
-            return hddInfoList;
+            Map<String, HddInfo> hddInfoMap = convertListToMap( hddInfoList );
+            aggregatedHddInfoList = getMissingHddInfo( node, hddInfoMap );
+            return aggregatedHddInfoList;
         }
         else
         {
@@ -253,9 +331,51 @@ public class InbandServiceImpl
         }
     }
 
+    private static Map<String, HddInfo> convertListToMap( List<HddInfo> hddInfoList )
+    {
+        Map<String, HddInfo> hddInfoMap = new HashMap<String, HddInfo>();
+        if ( hddInfoList == null || hddInfoList.isEmpty() )
+            return hddInfoMap;
+        else
+        {
+            for ( HddInfo hddInfo : hddInfoList )
+                hddInfoMap.put( hddInfo.getId(), hddInfo );
+
+            return hddInfoMap;
+        }
+    }
+
+    private List<HddInfo> getMissingHddInfo( ServiceServerNode node, Map<String, HddInfo> newHddInfoMap )
+    {
+
+        if ( newHddInfoMap == null )
+            newHddInfoMap = new HashMap<String, HddInfo>();
+
+        if ( oldStorageInfoMap.isEmpty() )
+        {
+            oldStorageInfoMap.putAll( newHddInfoMap );
+            return new ArrayList<HddInfo>( oldStorageInfoMap.values() );
+        }
+        else
+        {
+            for ( String key : oldStorageInfoMap.keySet() )
+            {
+                if ( newHddInfoMap.containsKey( key ) )
+                    continue;
+                logger.debug( "Adding Missing {}:{} to the hddInfoMap for host:{}",
+                              oldStorageInfoMap.get( key ).getType(), oldStorageInfoMap.get( key ).getId(),
+                              node.getNodeID() );
+                oldStorageInfoMap.get( key ).setState( StatusEnum.LOSTCOMMUNICATION );
+            }
+            oldStorageInfoMap.putAll( newHddInfoMap );
+            return new ArrayList<HddInfo>( oldStorageInfoMap.values() );
+        }
+
+    }
+
     /**
      * Overriden function to get HDD Info while reusing the HostProxy object
-     *
+     * 
      * @param serviceHmsNode
      * @param hostProxy
      * @return
@@ -320,11 +440,12 @@ public class InbandServiceImpl
             logger.error( SERVER_NODE_NULL_ERR + serviceHmsNode );
             throw new HmsException( SERVER_NODE_NULL_ERR + serviceHmsNode );
         }
+
     }
 
     /**
      * Overriden function to get NIC Info while reusing the HostProxy object
-     *
+     * 
      * @param serviceHmsNode
      * @param hostProxy
      * @return
@@ -361,6 +482,7 @@ public class InbandServiceImpl
     @Override
     public List<HypervisorInfo> getSupportedHypervisorInfo()
     {
+
         return supportedHypervisor;
     }
 
@@ -370,12 +492,13 @@ public class InbandServiceImpl
         {
             supportedHypervisor = new ArrayList<HypervisorInfo>();
         }
+
         return supportedHypervisor.add( hypervisor );
     }
 
     /**
      * Returns BIOS information
-     *
+     * 
      * @param serviceHmsNode
      * @return
      * @throws HmsException
@@ -392,6 +515,7 @@ public class InbandServiceImpl
             {
                 HostProxy hostProxy = getHostProxy( node );
                 // HostManager.getInstance().connect(node.getIbIpAddress(), node.getOsUserName(), node.getOsPassword());
+
                 HostSystem hostSystem = hostProxy.getHostSystem();
                 if ( hostSystem != null && hostSystem.getHardware() != null )
                 {
@@ -435,8 +559,8 @@ public class InbandServiceImpl
                 case STORAGE:
                     return HddInfoHelper.getHddSensor( serviceNode, component, this );
                 case STORAGE_CONTROLLER:
-                    return StorageControllerInfoHelper.getServerComponentStorageControllerEvent( serviceNode,
-                                                                                                 component, this );
+                    return StorageControllerInfoHelper.getServerComponentStorageControllerEvent( serviceNode, component,
+                                                                                                 this );
                 case CPU:
                     return CpuInfoHelper.getCpuSensor( serviceNode, component, this );
                 case MEMORY:
@@ -452,6 +576,7 @@ public class InbandServiceImpl
             logger.error( "The ServerComponent is null or invalid" );
             throw new HmsException( "The ServerComponent is null or invalid" );
         }
+
     }
 
     @Override
@@ -459,6 +584,7 @@ public class InbandServiceImpl
         throws HmsException
     {
         List<HmsApi> supportedAPI = new ArrayList<HmsApi>();
+
         supportedAPI.add( HmsApi.CPU_INFO );
         supportedAPI.add( HmsApi.MEMORY_INFO );
         supportedAPI.add( HmsApi.STORAGE_INFO );
@@ -474,7 +600,7 @@ public class InbandServiceImpl
 
     /**
      * Returns ESXi information
-     *
+     * 
      * @param serviceHmsNode
      * @return
      * @throws HmsException
@@ -491,6 +617,7 @@ public class InbandServiceImpl
             {
                 HostProxy hostProxy = getHostProxy( node );
                 // HostManager.getInstance().connect(node.getIbIpAddress(), node.getOsUserName(), node.getOsPassword());
+
                 HostSystem hostSystem = hostProxy.getHostSystem();
                 VsphereClient client = hostProxy.getVsphereClient();
                 if ( client != null )
@@ -524,6 +651,7 @@ public class InbandServiceImpl
         {
             ServiceServerNode node = (ServiceServerNode) serviceHmsNode;
             SystemDetails systemDetails = new SystemDetails();
+
             HostProxy hostProxy = null;
             try
             {
@@ -533,6 +661,7 @@ public class InbandServiceImpl
             {
                 logger.error( "Unable to create HostProxy object: " + node, e );
             }
+
             if ( hostProxy != null )
             {
                 try
@@ -543,14 +672,17 @@ public class InbandServiceImpl
                 {
                     logger.error( "Unable to get CPU details for node: " + node, e );
                 }
+
                 try
                 {
                     systemDetails.setNicInfos( getNicInfo( node, hostProxy ) );
                 }
+
                 catch ( Exception e )
                 {
                     logger.error( "Unable to get Nic details for node: " + node, e );
                 }
+
                 try
                 {
                     systemDetails.setHddInfos( getHddInfo( node, hostProxy ) );
@@ -560,6 +692,7 @@ public class InbandServiceImpl
                     logger.error( "Unable to get Hdd details for node: " + node, e );
                 }
             }
+
             try
             {
                 systemDetails.setMemoryInfos( getSystemMemoryInfo( node ) );
@@ -568,6 +701,7 @@ public class InbandServiceImpl
             {
                 logger.error( "Unable to get System Memory details for node: " + node, e );
             }
+
             return systemDetails;
         }
         else
@@ -575,11 +709,12 @@ public class InbandServiceImpl
             logger.error( SERVER_NODE_NULL_ERR + serviceHmsNode );
             throw new HmsException( SERVER_NODE_NULL_ERR + serviceHmsNode );
         }
+
     }
 
     /**
      * Gets the HostProxy object that can be reused by other function calls
-     *
+     * 
      * @param node
      * @return
      * @throws HmsException
@@ -593,6 +728,7 @@ public class InbandServiceImpl
             try
             {
                 HostProxy hostProxy = HostProxyProvider.getInstance().getHostProxy( node );
+
                 return hostProxy;
             }
             catch ( Exception e )
@@ -614,8 +750,10 @@ public class InbandServiceImpl
         if ( serviceHmsNode != null && serviceHmsNode instanceof ServiceHmsNode )
         {
             final ServiceServerNode node = (ServiceServerNode) serviceHmsNode;
+
             ExecutorService service = Executors.newFixedThreadPool( 1 );
             ;
+
             service.execute( new Runnable()
             {
                 @Override
@@ -631,6 +769,7 @@ public class InbandServiceImpl
                     }
                 }
             } );
+
             // Make sure Executor will NOT take any new tasks further and will close itself once tasks are completed
             service.shutdown();
         }
@@ -666,11 +805,12 @@ public class InbandServiceImpl
             logger.error( SERVER_NODE_NULL_ERR + serviceHmsNode );
             throw new HmsException( SERVER_NODE_NULL_ERR + serviceHmsNode );
         }
+
     }
 
     /**
      * Get Storage controller information
-     *
+     * 
      * @param serviceHmsNode
      * @return List<StorageControllerInfo>
      * @throws HmsException
@@ -705,7 +845,7 @@ public class InbandServiceImpl
 
     /**
      * Overridden function to get Storage Controller Info while reusing the HostProxy object
-     *
+     * 
      * @param serviceHmsNode
      * @param hostProxy
      * @return List<StorageControllerInfo>
@@ -744,4 +884,5 @@ public class InbandServiceImpl
                 + "Node: " + serviceHmsNode );
         }
     }
+
 }

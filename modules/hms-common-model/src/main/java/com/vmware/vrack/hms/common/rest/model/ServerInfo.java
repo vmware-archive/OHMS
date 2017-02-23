@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * ServerInfo.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -20,10 +20,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
 
 /**
  * Class for Server Information related properties
- *
+ * 
  * @author VMware Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -36,6 +37,10 @@ public class ServerInfo
     private String managementIpAddress;
 
     private String inBandIpAddress;
+
+    private String inBandUserName;
+
+    private String inBandPassword;
 
     @Deprecated
     private boolean isPowered; // Chassis Power State
@@ -59,7 +64,7 @@ public class ServerInfo
 
     private List<MemoryInfo> memoryInfo;
 
-    private String operationalStatus;
+    private FruOperationalStatus operationalStatus;
 
     private String adminStatus;
 
@@ -186,6 +191,7 @@ public class ServerInfo
         {
             getEthernetControllerList().add( ethernet );
         }
+
     }
 
     public List<StorageInfo> getStorageInfo()
@@ -208,12 +214,12 @@ public class ServerInfo
         this.memoryInfo = memoryInfo;
     }
 
-    public String getOperationalStatus()
+    public FruOperationalStatus getOperationalStatus()
     {
         return operationalStatus;
     }
 
-    public void setOperationalStatus( String operationalStatus )
+    public void setOperationalStatus( FruOperationalStatus operationalStatus )
     {
         this.operationalStatus = operationalStatus;
     }
@@ -247,4 +253,35 @@ public class ServerInfo
     {
         this.storageController = storageController;
     }
+
+    public String getInBandUserName()
+    {
+        return inBandUserName;
+    }
+
+    public void setInBandUserName( String inBandUserName )
+    {
+        this.inBandUserName = inBandUserName;
+    }
+
+    public String getInBandPassword()
+    {
+        return inBandPassword;
+    }
+
+    public void setInBandPassword( String inBandPassword )
+    {
+        this.inBandPassword = inBandPassword;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ServerInfo [nodeId=" + nodeId + ", managementIpAddress=" + managementIpAddress + ", inBandIpAddress="
+            + inBandIpAddress + ", inBandUserName=" + inBandUserName + ", inBandPassword=" + inBandPassword
+            + ", osName=" + osName + ", osVendor=" + osVendor + ", firmwareVersion=" + firmwareVersion
+            + ", operationalStatus=" + operationalStatus + ", adminStatus=" + adminStatus + ", validationStatus="
+            + validationStatus + "]";
+    }
+
 }

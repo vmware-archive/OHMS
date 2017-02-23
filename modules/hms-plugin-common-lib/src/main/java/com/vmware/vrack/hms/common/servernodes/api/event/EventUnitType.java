@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.event;
 
 /**
@@ -20,5 +21,7 @@ package com.vmware.vrack.hms.common.servernodes.api.event;
  */
 public enum EventUnitType
 {
+
     DEGREES_CELSIUS, DEGREES_FAHRENHEIT, VOLTS, RPM, WATTS, DISCRETE, MEGABYTES, PERCENT, COUNT, MILLISECOND, OTHER;
+
 }

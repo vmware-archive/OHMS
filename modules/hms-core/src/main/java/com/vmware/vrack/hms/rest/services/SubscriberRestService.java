@@ -40,12 +40,13 @@ import com.vmware.vrack.hms.common.util.HmsMessages;
 @Path( "/events" )
 public class SubscriberRestService
 {
+
     private static Logger logger = Logger.getLogger( SubscriberRestService.class );
 
     /**
      * Method to be called to get list of subscriber's notificationEndpoint, who registered for Non-Maskable Events
      * notifications.
-     *
+     * 
      * @return
      * @throws HMSRestException
      */
@@ -55,24 +56,28 @@ public class SubscriberRestService
     public List<BaseEventMonitoringSubscription> getNmeEvents()
         throws HMSRestException
     {
+
         List<BaseEventMonitoringSubscription> baseEventMonitoringSubscriptions =
             new ArrayList<BaseEventMonitoringSubscription>();
+
         for ( BaseEventMonitoringSubscription baseEventMonitoringSubscription : EventMonitoringSubscriptionHolder.getNmeMonitoringSubscriptionMap().values() )
         {
             baseEventMonitoringSubscriptions.add( baseEventMonitoringSubscription );
         }
+
         if ( baseEventMonitoringSubscriptions.isEmpty() )
         {
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), HmsMessages.SUCCESS_MSG,
                                         "No subscription for Non maskable events so far." );
         }
+
         return baseEventMonitoringSubscriptions;
     }
 
     /**
      * Method to be called to register for Non-Maskable Events notifications. Calling system will send is URL to be
      * called by HMS, when Non-maskable events are generated at HMS end for any Node/Switch.
-     *
+     * 
      * @param baseEventMonitoringSubscriptions
      * @return
      * @throws HMSRestException
@@ -84,8 +89,11 @@ public class SubscriberRestService
     public BaseResponse nme( List<BaseEventMonitoringSubscription> baseEventMonitoringSubscriptions )
         throws HMSRestException
     {
+
         BaseResponse response = new BaseResponse();
+
         List<BaseEventMonitoringSubscription> failedRegistrations = new ArrayList<BaseEventMonitoringSubscription>();
+
         if ( baseEventMonitoringSubscriptions != null && !baseEventMonitoringSubscriptions.isEmpty() )
         {
             response.setStatusCode( Status.ACCEPTED.getStatusCode() );
@@ -106,8 +114,10 @@ public class SubscriberRestService
                     response.setErrorMessage( HmsMessages.NME_SUBSCRIPTION_ERROR );
                 }
             }
+
             logger.debug( "Subscribed NME Events. Final NME subscriptions: "
                 + EventMonitoringSubscriptionHolder.getNmeMonitoringSubscriptionMap() );
+
             if ( failedRegistrations.isEmpty() )
             {
                 response.setStatusMessage( HmsMessages.NME_SUBSCRIPTION_SUCCESS );
@@ -117,13 +127,14 @@ public class SubscriberRestService
                 response.setStatusMessage( HmsMessages.NME_SUBSCRIPTION_SUCCESS_WITH_ERRORS );
             }
         }
+
         return response;
     }
 
     /**
      * Method to be called for Subscribing any Events by Subscriber for any Nodes, on a particular component instances
      * Subscriber can register for multiple nodes/component's instances in one single request though.
-     *
+     * 
      * @param eventRegistrations
      * @return
      * @throws HMSRestException
@@ -135,8 +146,11 @@ public class SubscriberRestService
     public BaseResponse subscribe( List<EventMonitoringSubscription> eventRegistrations )
         throws HMSRestException
     {
+
         BaseResponse response = new BaseResponse();
+
         List<EventMonitoringSubscription> failedRegistrations = new ArrayList<EventMonitoringSubscription>();
+
         if ( eventRegistrations != null && !eventRegistrations.isEmpty() )
         {
             response.setStatusCode( Status.ACCEPTED.getStatusCode() );
@@ -156,8 +170,10 @@ public class SubscriberRestService
                     response.setErrorMessage( HmsMessages.SUBSCRIPTION_ERROR );
                 }
             }
+
             logger.debug( "Registered Events. Final subscribed events: "
                 + EventMonitoringSubscriptionHolder.getEventMonitoringSubscriptionMap().keySet() );
+
             if ( failedRegistrations.isEmpty() )
             {
                 response.setStatusMessage( HmsMessages.SUBSCRIPTION_SUCCESS );
@@ -167,13 +183,14 @@ public class SubscriberRestService
                 response.setStatusMessage( HmsMessages.SUBSCRIPTION_SUCCESS_WITH_ERRORS );
             }
         }
+
         return response;
     }
 
     /**
      * Method to unsubscribe to any particular Event that might have been subscribed by a particular subscriber on a
      * particular component's instnace.
-     *
+     * 
      * @param eventRegistrations
      * @return
      * @throws HMSRestException
@@ -185,8 +202,11 @@ public class SubscriberRestService
     public BaseResponse unsubscribe( List<EventMonitoringSubscription> eventRegistrations )
         throws HMSRestException
     {
+
         BaseResponse response = new BaseResponse();
+
         List<EventMonitoringSubscription> failedRegistrations = new ArrayList<EventMonitoringSubscription>();
+
         if ( eventRegistrations != null && !eventRegistrations.isEmpty() )
         {
             response.setStatusCode( Status.ACCEPTED.getStatusCode() );
@@ -207,8 +227,10 @@ public class SubscriberRestService
                     response.setErrorMessage( HmsMessages.UNSUBSCRIPTION_ERROR );
                 }
             }
+
             logger.debug( "Unsubscribed Events. Final subscriptions: "
                 + EventMonitoringSubscriptionHolder.getEventMonitoringSubscriptionMap().keySet() );
+
             if ( failedRegistrations.isEmpty() )
             {
                 response.setStatusMessage( HmsMessages.SUCCESS_MSG );
@@ -218,12 +240,13 @@ public class SubscriberRestService
                 response.setStatusMessage( HmsMessages.ONE_OR_MORE_ITEMS_IN_REQ_FAILED );
             }
         }
+
         return response;
     }
 
     /**
      * Method to be called to get the list of Events subscribed by any particular subscriber.
-     *
+     * 
      * @param app_id
      * @return
      * @throws HMSRestException
@@ -231,10 +254,12 @@ public class SubscriberRestService
     @GET
     @Path( "/{subscriber_id}" )
     @Produces( "application/json" )
-    public List<EventMonitoringSubscription> getEventSubscriptionDetails( @PathParam( "subscriber_id" ) String subscriberId)
+    public List<EventMonitoringSubscription> getEventSubscriptionDetails( @PathParam( "subscriber_id" ) String subscriberId )
         throws HMSRestException
     {
+
         List<EventMonitoringSubscription> eventRegistrations = new ArrayList<EventMonitoringSubscription>();
+
         for ( EventMonitoringSubscription eventMonitoringSubscription : EventMonitoringSubscriptionHolder.getEventMonitoringSubscriptionMap().values() )
         {
             String subsId = eventMonitoringSubscription.getSubscriberId();
@@ -243,11 +268,13 @@ public class SubscriberRestService
                 eventRegistrations.add( eventMonitoringSubscription );
             }
         }
+
         if ( eventRegistrations.isEmpty() )
         {
             throw new HMSRestException( Status.NOT_FOUND.getStatusCode(), HmsMessages.FAILED_MSG,
                                         "Can't find subscriber with id:" + subscriberId );
         }
+
         return eventRegistrations;
     }
 
@@ -263,7 +290,10 @@ public class SubscriberRestService
     public List<Event> getAvailableEvents()
         throws HMSRestException
     {
+
         throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error",
                                     "Feature not implemented yet" );
+
     }
+
 }

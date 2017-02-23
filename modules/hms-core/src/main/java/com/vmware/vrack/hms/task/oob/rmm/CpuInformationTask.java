@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -37,6 +36,7 @@ import com.vmware.vrack.hms.common.servernodes.api.cpu.CPUInfo;
 public class CpuInformationTask
     extends RmmTask
 {
+
     private static Logger logger = Logger.getLogger( CpuInformationTask.class );
 
     public CpuInformationTask( TaskResponse response )
@@ -55,16 +55,17 @@ public class CpuInformationTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramArray = new Object[] { serviceServerNode };
-                List<CPUInfo> cpuInfos =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode, "getCpuInfo",
-                                                                        paramArray );
+                // Object[] paramArray = new Object[] { serviceServerNode };
+                List<CPUInfo> cpuInfos = boardService.getCpuInfo( serviceServerNode );
+                // List<CPUInfo> cpuInfos = HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                // serviceServerNode, "getCpuInfo", paramArray);
                 this.node.setCpuInfo( cpuInfos );
             }
             else
             {
                 throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -79,4 +80,5 @@ public class CpuInformationTask
             throw new HmsException( "Error while getting CPU Info for Node:" + node.getNodeID(), e );
         }
     }
+
 }

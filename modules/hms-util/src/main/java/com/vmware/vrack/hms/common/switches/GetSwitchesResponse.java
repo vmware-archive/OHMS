@@ -91,4 +91,5 @@ public class GetSwitchesResponse
             this.type = type;
         }
     }
+
 }

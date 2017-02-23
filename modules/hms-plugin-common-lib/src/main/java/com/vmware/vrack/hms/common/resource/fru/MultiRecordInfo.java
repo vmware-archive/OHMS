@@ -21,8 +21,10 @@ package com.vmware.vrack.hms.common.resource.fru;
 public abstract class MultiRecordInfo
     extends FruRecord
 {
+
     public MultiRecordInfo()
     {
         super();
     }
+
 }

@@ -18,6 +18,7 @@ package com.vmware.vrack.hms.common.exception;
 public class HmsResourceBusyException
     extends HmsException
 {
+
     static final long serialVersionUID = 4701639302322786248L;
 
     public HmsResourceBusyException()

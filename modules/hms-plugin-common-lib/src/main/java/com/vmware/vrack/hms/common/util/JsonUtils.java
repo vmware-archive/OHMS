@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class JsonUtils
         {
             logger.error( "Exception in getJsonString", e );
         }
+
         return contents;
     }
 
@@ -73,6 +75,7 @@ public class JsonUtils
         {
             logger.error( "Exception in getBeanCollectionFromJsonString", e );
         }
+
         return contents;
     }
 
@@ -80,7 +83,9 @@ public class JsonUtils
         throws IOException, JsonProcessingException
     {
         JsonNode jNode = null;
+
         jNode = getDefaultMapper().readTree( json );
+
         return jNode;
     }
 

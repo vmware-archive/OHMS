@@ -201,6 +201,7 @@ public class SwitchNodeConnectorTest
         logger.info( "[TS] : Expected result : ArrayIndexOutOfBoundsException" );
         SwitchNodeConnector.getInstance().changeSwitchPortStatus( switchId, portName, portStatus );
     }
+
     // /**
     // * Test of changeSwitchPortStatus method, of class SwitchNodeConnector for valid Switch Id and Port Name
     // */

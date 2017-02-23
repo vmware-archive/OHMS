@@ -33,10 +33,13 @@ public class HmsHealthMonitoringEventHandler
     @Value( "${hms.monitoring.id:HMS_0}" )
     private String hmsID;
 
+    @Value( "${hms.health.monitor.frequency:30000}" )
+    private Long frequency;
+
     @Override
     public void onApplicationEvent( ContextRefreshedEvent event )
     {
         ServerNode node = new ServerNode( hmsID, null, null, null );
-        MonitoringUtil.startHMSHealthMonitoring( node );
+        MonitoringUtil.startHMSHealthMonitoring( node, frequency );
     }
 }

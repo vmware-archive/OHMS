@@ -21,6 +21,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class PowerSupplyInfo
     extends MultiRecordInfo
 {
+
     /**
      * Overall Capacity in Watts
      */
@@ -159,4 +160,5 @@ public class PowerSupplyInfo
     {
         this.highEndInputFrequencyRange = highEndInputFrequencyRange;
     }
+
 }

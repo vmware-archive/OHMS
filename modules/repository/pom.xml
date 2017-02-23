@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- /* ********************************************************************************
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
@@ -17,7 +18,7 @@
     <parent>
         <groupId>com.vmware.vrack</groupId>
         <artifactId>hms</artifactId>
-        <version>1.0.0</version>
+        <version>2.0.0-RELEASE</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>repository</artifactId>
@@ -43,12 +44,27 @@
                         <configuration>
                             <groupId>com.vmware.vrack</groupId>
                             <artifactId>event-catalogue</artifactId>
-                            <version>${vrack-vrm.version}</version>
+                            <version>${event-catalogue.version}</version>
                             <packaging>jar</packaging>
-                            <file>${lib.dir}/event-catalogue-${vrack-vrm.version}.jar</file>
+                            <file>${lib.dir}/event-catalogue-${event-catalogue.version}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>
+					<execution>
+                        <id>com.vmware.vrack:httpSsoAuth</id>
+                        <phase>${maven-install-plugin.execution.phase}</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>com.vmware.vrack.vmware-clients</groupId>
+                            <artifactId>httpSsoAuth</artifactId>
+                            <version>${vrack-vrm.version}.${vrack-vrm.build.number}</version>
+                            <packaging>jar</packaging>
+                            <file>${lib.dir}/httpSsoAuth-${vrack-vrm.version}.${vrack-vrm.build.number}.jar</file>
+                            <generatePom>true</generatePom>
+                        </configuration>
+					</execution>
                     <execution>
                         <id>com.vmware.vrack:lcm-primitive-reference-model</id>
                         <phase>${maven-install-plugin.execution.phase}</phase>
@@ -86,11 +102,11 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <groupId>com.vmware.vrack</groupId>
+                            <groupId>com.vmware.vrack.vmware-clients</groupId>
                             <artifactId>vimVersions</artifactId>
-                            <version>${vrack-vrm.version}</version>
+                            <version>${vrack-vrm.version}.${vrack-vrm.build.number}</version>
                             <packaging>jar</packaging>
-                            <file>${lib.dir}/vimVersions-${vrack-vrm.version}.jar</file>
+                            <file>${lib.dir}/vimVersions-${vrack-vrm.version}.${vrack-vrm.build.number}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>
@@ -101,11 +117,11 @@
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <groupId>com.vmware.vrack</groupId>
+                            <groupId>com.vmware.vrack.vmware-clients</groupId>
                             <artifactId>vimVmodl</artifactId>
-                            <version>${vrack-vrm.version}</version>
+                            <version>${vrack-vrm.version}.${vrack-vrm.build.number}</version>
                             <packaging>jar</packaging>
-                            <file>${lib.dir}/vimVmodl-${vrack-vrm.version}.jar</file>
+                            <file>${lib.dir}/vimVmodl-${vrack-vrm.version}.${vrack-vrm.build.number}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>
@@ -124,7 +140,7 @@
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>
-                    <execution>
+                    <!-- <execution>
                         <id>com.vmware.vlsi:lcm-primitive-reference-model</id>
                         <phase>${maven-install-plugin.execution.phase}</phase>
                         <goals>
@@ -138,34 +154,34 @@
                             <file>${lib.dir}/httpSsoAuth-${vlsi.version}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
-                    </execution>
+                    </execution> -->
                     <execution>
-                        <id>com.vmware.vlsi:vlsi-client</id>
+                        <id>com.vmware.vrack:vlsi-client</id>
                         <phase>${maven-install-plugin.execution.phase}</phase>
                         <goals>
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <groupId>com.vmware.vlsi</groupId>
+                            <groupId>com.vmware.vrack.vmware-clients</groupId>
                             <artifactId>vlsi-client</artifactId>
-                            <version>${vlsi.version}</version>
+                            <version>${vrack-vrm.version}.${vrack-vrm.build.number}</version>
                             <packaging>jar</packaging>
-                            <file>${lib.dir}/vlsi-client-${vlsi.version}.jar</file>
+                            <file>${lib.dir}/vlsi-client-${vrack-vrm.version}.${vrack-vrm.build.number}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>com.vmware.vlsi:vlsi-core</id>
+                        <id>com.vmware.vrack:vlsi-core</id>
                         <phase>${maven-install-plugin.execution.phase}</phase>
                         <goals>
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <groupId>com.vmware.vlsi</groupId>
+                            <groupId>com.vmware.vrack.vmware-clients</groupId>
                             <artifactId>vlsi-core</artifactId>
-                            <version>${vlsi.version}</version>
+                            <version>${vrack-vrm.version}.${vrack-vrm.build.number}</version>
                             <packaging>jar</packaging>
-                            <file>${lib.dir}/vlsi-core-${vlsi.version}.jar</file>
+                            <file>${lib.dir}/vlsi-core-${vrack-vrm.version}.${vrack-vrm.build.number}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>
@@ -200,32 +216,32 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>com.vmware.vlsi:query-vmodl</id>
+                        <id>com.vmware.vrack:query-vmodl</id>
                         <phase>${maven-install-plugin.execution.phase}</phase>
                         <goals>
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <groupId>com.vmware.vlsi</groupId>
+                            <groupId>com.vmware.vrack.vmware-clients</groupId>
                             <artifactId>query-vmodl</artifactId>
-                            <version>${vlsi.version}</version>
+                            <version>${vrack-vrm.version}.${vrack-vrm.build.number}</version>
                             <packaging>jar</packaging>
-                            <file>${lib.dir}/query-vmodl-${vlsi.version}.jar</file>
+                            <file>${lib.dir}/query-vmodl-${vrack-vrm.version}.${vrack-vrm.build.number}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>com.vmware.vlsi:reflect-vmodl</id>
+                        <id>com.vmware.vrack:reflect-vmodl</id>
                         <phase>${maven-install-plugin.execution.phase}</phase>
                         <goals>
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
-                            <groupId>com.vmware.vlsi</groupId>
+                            <groupId>com.vmware.vrack.vmware-clients</groupId>
                             <artifactId>reflect-vmodl</artifactId>
-                            <version>${vim25.version}</version>
+                            <version>${vrack-vrm.version}.${vrack-vrm.build.number}</version>
                             <packaging>jar</packaging>
-                            <file>${lib.dir}/reflect-vmodl-${vim25.version}.jar</file>
+                            <file>${lib.dir}/reflect-vmodl-${vrack-vrm.version}.${vrack-vrm.build.number}.jar</file>
                             <generatePom>true</generatePom>
                         </configuration>
                     </execution>

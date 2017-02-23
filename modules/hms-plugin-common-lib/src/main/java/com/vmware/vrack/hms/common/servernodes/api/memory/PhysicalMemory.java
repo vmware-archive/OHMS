@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.memory;
 
 import java.math.BigInteger;
@@ -24,7 +25,7 @@ import com.vmware.vrack.hms.common.servernodes.api.AbstractServerComponent;
 /**
  * Class for Physical Memory PhysicalMemory has the FRU component indentifiers which helps to identify the Server
  * component MEMORY FRU
- *
+ * 
  * @author VMware, Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -67,4 +68,5 @@ public class PhysicalMemory
     {
         this.memoryType = memoryType;
     }
+
 }

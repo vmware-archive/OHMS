@@ -13,15 +13,17 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Class for Host Node Available user Name along with their user ID
- *
+ * 
  * @author VMware, Inc.
  */
+
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class BmcUser
 {
@@ -48,4 +50,5 @@ public class BmcUser
     {
         this.userName = userName;
     }
+
 }

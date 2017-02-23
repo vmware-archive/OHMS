@@ -52,4 +52,5 @@ public class HostNameInfo
     {
         this.hostName = hostName;
     }
+
 }

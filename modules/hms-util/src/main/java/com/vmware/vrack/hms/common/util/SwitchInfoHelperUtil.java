@@ -26,25 +26,31 @@ import com.vmware.vrack.hms.common.switches.GetSwitchResponse;
 import com.vmware.vrack.hms.common.switches.api.SwitchHardwareInfo;
 
 /*
-* Helper class to convert the Switch Node object to the Switch Info object as per the FRU Model
-* @author VMware Inc.
-*/
+ * Helper class to convert the Switch Node object to the Switch Info object as per the FRU Model
+ * @author VMware Inc.
+ */
 public class SwitchInfoHelperUtil
 {
     private static Logger logger = Logger.getLogger( SwitchInfoHelperUtil.class );
 
     public SwitchInfo convertSwitchNodeToSwitchInfo( GetSwitchResponse response )
     {
+
         SwitchInfo switchInfo = new SwitchInfo();
         SwitchHardwareInfo switchHardwareInfo = new SwitchHardwareInfo();
         Map<String, Object> osMap = new TreeMap<String, Object>();
         ComponentIdentifier switchComponentIdentifier = new ComponentIdentifier();
-        FruIdGeneratorUtil fruIdGeneratorUtil = new FruIdGeneratorUtil();
+
         try
         {
+
             switchInfo.setOperational_status( String.valueOf( response.isPowered() ) );
             switchInfo.setDiscoverable( response.isDiscoverable() );
             switchInfo.setPowered( response.isPowered() );
+            switchInfo.setRole( response.getRole() );
+            switchInfo.setSwitchId( response.getSwitchId() );
+            switchInfo.setIpAddress( response.getManagementIpAddress() );
+
             if ( switchInfo.isPowered() )
             {
                 osMap = response.getNodeOsDetails();
@@ -53,22 +59,26 @@ public class SwitchInfoHelperUtil
                 switchInfo.setOsName( osMap.get( "osName" ).toString() );
                 switchInfo.setOsVersion( osMap.get( "osVersion" ).toString() );
                 switchInfo.setLocation( response.getLocation() );
+
                 switchHardwareInfo = response.getHardwareInfo();
                 switchComponentIdentifier.setProduct( switchHardwareInfo.getModel() );
                 switchComponentIdentifier.setSerialNumber( switchHardwareInfo.getChassisSerialId() );
                 switchComponentIdentifier.setManufacturer( switchHardwareInfo.getManufacturer() );
                 switchComponentIdentifier.setPartNumber( switchHardwareInfo.getPartNumber() );
                 switchComponentIdentifier.setManufacturingDate( switchHardwareInfo.getManufactureDate() );
+
                 switchInfo.setComponentIdentifier( switchComponentIdentifier );
-                switchInfo.setFruId( String.valueOf( fruIdGeneratorUtil.generateFruIdHashCode( switchInfo.getComponentIdentifier(),
-                                                                                               switchInfo.getLocation() ) ) );
+                switchInfo.setFruId( FruIdGeneratorUtil.generateFruIdHashCode( switchInfo.getComponentIdentifier(),
+                                                                               switchInfo.getLocation() ) );
+
                 switchInfo.setManagementMacAddress( switchHardwareInfo.getManagementMacAddress() );
-                switchInfo.setRole( response.getRole() );
-                switchInfo.setIpAddress( response.getManagementIpAddress() );
-                switchInfo.setMangementPort( response.getPort().toString() );
-                switchInfo.setSwitchId( response.getSwitchId() );
+
+                if ( response.getPort() != null )
+                    switchInfo.setMangementPort( response.getPort().toString() );
+
                 switchInfo.setSwitchPorts( response.getSwitchPortList() );
             }
+
             return switchInfo;
         }
         catch ( Exception e )
@@ -76,6 +86,8 @@ public class SwitchInfoHelperUtil
             logger.error( " Error while converting the SwitchNode to SwitchInfo object for switch "
                 + response.getSwitchId(), e );
         }
+
         return null;
     }
+
 }

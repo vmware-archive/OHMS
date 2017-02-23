@@ -19,7 +19,9 @@ import com.vmware.vrack.hms.common.notification.TaskResponse;
 
 public interface ITaskResponseLifecycleHandler
 {
+
     public void init( TaskResponse taskResponse );
 
     public void onTaskComplete( TaskResponse taskResponse );
+
 }

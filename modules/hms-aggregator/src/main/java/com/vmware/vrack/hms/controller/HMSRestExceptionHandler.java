@@ -32,11 +32,13 @@ import javax.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class HMSRestExceptionHandler
 {
+
     @ExceptionHandler( HMSRestException.class )
     @ResponseStatus( value = HttpStatus.INTERNAL_SERVER_ERROR )
     @ResponseBody
     public BaseResponse hmsException( HttpServletRequest req, HMSRestException exception )
     {
+
         return new BaseResponse( exception.getResponseErrorCode(), exception.getMessage(), exception.getReason() );
     }
 
@@ -45,6 +47,7 @@ public class HMSRestExceptionHandler
     @ResponseBody
     public BaseResponse hmsException( HttpServletRequest req, NoHandlerFoundException exception )
     {
+
         return new BaseResponse( HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
                                  exception.getMessage() );
     }
@@ -54,6 +57,7 @@ public class HMSRestExceptionHandler
     @ResponseBody
     public BaseResponse hmsException( HttpServletRequest req, ServletException exception )
     {
+
         return new BaseResponse( HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                  HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), exception.getMessage() );
     }
@@ -63,6 +67,7 @@ public class HMSRestExceptionHandler
     @ResponseBody
     public BaseResponse hmsException( HttpServletRequest req, IllegalStateException exception )
     {
+
         return new BaseResponse( HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                  HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), exception.getMessage() );
     }
@@ -72,6 +77,7 @@ public class HMSRestExceptionHandler
     @ResponseBody
     public BaseResponse hmsException( HttpServletRequest req, BeanInitializationException exception )
     {
+
         return new BaseResponse( HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                  HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), exception.getMessage() );
     }
@@ -81,7 +87,9 @@ public class HMSRestExceptionHandler
     @ResponseBody
     public BaseResponse hmsException( HttpServletRequest req, Exception exception )
     {
+
         return new BaseResponse( HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                  HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), exception.getMessage() );
     }
+
 }

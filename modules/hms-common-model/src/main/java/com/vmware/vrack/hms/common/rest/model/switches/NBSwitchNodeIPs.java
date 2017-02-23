@@ -24,6 +24,7 @@ import com.vmware.vrack.hms.common.resource.SwitchList;
  */
 public class NBSwitchNodeIPs
 {
+
     List<SwitchList> switchList;
 
     public List<SwitchList> getSwitchList()
@@ -35,4 +36,5 @@ public class NBSwitchNodeIPs
     {
         this.switchList = switchList;
     }
+
 }

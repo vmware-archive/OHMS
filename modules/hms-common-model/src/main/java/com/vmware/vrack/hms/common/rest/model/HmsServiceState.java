@@ -19,11 +19,12 @@ import com.vmware.vrack.hms.common.service.ServiceState;
 
 /**
  * Class for HMS Service State
- *
+ * 
  * @author VMware Inc.
  */
 public class HmsServiceState
 {
+
     ServiceState hmsServiceState;
 
     public ServiceState getHmsServiceState()

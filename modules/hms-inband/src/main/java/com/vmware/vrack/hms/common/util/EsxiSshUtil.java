@@ -16,6 +16,8 @@
 package com.vmware.vrack.hms.common.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,9 +34,11 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
+import com.vmware.vrack.hms.boardservice.ib.InbandConstants;
 
 public class EsxiSshUtil
 {
+
     private static Logger logger = LoggerFactory.getLogger( EsxiSshUtil.class );
 
     /**
@@ -51,7 +55,9 @@ public class EsxiSshUtil
     public static Session getSessionObject( String userName, String password, String hostName, int port,
                                             Properties sessionConfig )
     {
+
         Session session = null;
+
         // logger.debug("In getSessionObject");
         if ( userName != null && !"".equals( userName ) && password != null && hostName != null
             && !"".equals( hostName ) )
@@ -59,12 +65,34 @@ public class EsxiSshUtil
             JSch jsch = new JSch();
             try
             {
+                if ( sessionConfig != null
+                    && InbandConstants.STRICT_HOST_KEY_CHECK_YES.equals( sessionConfig.getProperty( InbandConstants.STRICT_HOST_KEY_CHECKING ) ) )
+                {
+                    /*
+                     * Getting location of .ssh/known_hosts to create session for only known hosts.
+                     */
+                    String fileLocation = InbandProperties.getKnownHostsLocation();
+                    File f = new File( fileLocation );
+                    if ( f.exists() && !f.isDirectory() )
+                    {
+                        jsch.setKnownHosts( fileLocation );
+                    }
+                    else
+                    {
+                        logger.debug( "The file: {} for getting .ssh/known_hosts doesn't exist", fileLocation );
+                        throw new FileNotFoundException( "The file: " + fileLocation
+                            + " for getting .ssh/known_hosts doesn't exist" );
+                    }
+                }
+
                 session = jsch.getSession( userName, hostName, port );
                 session.setPassword( password );
+
                 if ( sessionConfig != null )
                 {
                     session.setConfig( sessionConfig );
                 }
+
                 // logger.debug("COnfig set");
             }
             catch ( Exception e )
@@ -92,11 +120,14 @@ public class EsxiSshUtil
     {
         StringBuilder builder = null;
         logger.debug( "Starting to execute command [" + command + "]" );
+
         if ( sessionObj != null && command != null && !"".equals( command ) )
         {
             builder = new StringBuilder();
             Channel channel = null;
+
             int arrMaxSize = 1024;
+
             try
             {
                 channel = sessionObj.openChannel( "exec" );
@@ -105,7 +136,9 @@ public class EsxiSshUtil
                 ( (ChannelExec) channel ).setErrStream( System.err );
                 InputStream in = channel.getInputStream();
                 channel.connect();
+
                 byte[] tmp = new byte[arrMaxSize];
+
                 while ( true )
                 {
                     while ( in.available() > 0 )
@@ -115,6 +148,7 @@ public class EsxiSshUtil
                             break;
                         builder.append( new String( tmp, 0, i ) );
                     }
+
                     if ( channel.isClosed() )
                     {
                         break;
@@ -125,8 +159,10 @@ public class EsxiSshUtil
                     }
                     catch ( Exception ee )
                     {
+
                     }
                 }
+
                 if ( channel.isClosed() && channel.getExitStatus() != 0 )
                 {
                     logger.debug( "Command exited with error code " + channel.getExitStatus() );
@@ -156,30 +192,37 @@ public class EsxiSshUtil
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
         long startTime = 0;
         long endTime = 0;
+
         if ( command == null || command.trim().length() == 0 )
         {
             logger.warn( "Cannot execute null or invalid command specified [" + command + "]" );
             return result;
         }
+
         if ( session == null || !session.isConnected() )
         {
             logger.warn( "Cannot execute null or invalid session specified [" + session + "]" );
             return result;
         }
+
         ChannelExec channel = null;
+
         try
         {
             channel = (ChannelExec) session.openChannel( "exec" );
             channel.setCommand( command );
             channel.setOutputStream( stdout );
             channel.setErrStream( stderr );
+
             startTime = System.currentTimeMillis();
+
             channel.connect();
             while ( !channel.isClosed() )
             {
                 endTime = System.currentTimeMillis();
             }
             ;
+
             result = new EsxiSshExecResult();
             result.setCommand( command );
             result.setStdout( stdout.toByteArray() );
@@ -199,6 +242,7 @@ public class EsxiSshUtil
                 channel.disconnect();
             }
         }
+
         return ( result );
     }
 
@@ -206,9 +250,11 @@ public class EsxiSshUtil
         throws JSchException, IOException
     {
         logger.debug( "Starting to execute command [" + command + "]" );
+
         if ( sessionObj != null && command != null && !"".equals( command ) )
         {
             Channel channel = null;
+
             try
             {
                 channel = sessionObj.openChannel( "exec" );
@@ -218,6 +264,7 @@ public class EsxiSshUtil
                 channel.getInputStream();
                 channel.connect();
                 /* We do not care about whether the command succeeds or not */
+
                 if ( channel.isClosed() && channel.getExitStatus() != 0 )
                 {
                     logger.debug( "Command exited with error code " + channel.getExitStatus() );
@@ -313,11 +360,14 @@ public class EsxiSshUtil
         StringBuilder builder = null;
         int index = 0;
         String lastOutput = null;
+
         if ( sessionObj != null && commands != null )
         {
             builder = new StringBuilder();
             Channel channel = null;
+
             int arrMaxSize = 1024;
+
             try
             {
                 channel = sessionObj.openChannel( "shell" );
@@ -325,7 +375,9 @@ public class EsxiSshUtil
                 InputStream in = channel.getInputStream();
                 OutputStream out = channel.getOutputStream();
                 channel.connect();
+
                 byte[] tmp = new byte[arrMaxSize];
+
                 while ( true )
                 {
                     while ( in.available() > 0 )
@@ -335,6 +387,7 @@ public class EsxiSshUtil
                             break;
                         builder.append( new String( tmp, 0, i ) );
                     }
+
                     if ( channel.isEOF() )
                     {
                         try
@@ -343,6 +396,7 @@ public class EsxiSshUtil
                         }
                         catch ( Exception ee )
                         {
+
                         }
                     }
                     else
@@ -359,12 +413,14 @@ public class EsxiSshUtil
                             {
                                 builder.setLength( 0 ); // reset builder
                             }
+
                             // send next command
                             out.write( ( commands[index++] + "\n" ).getBytes() );
                             out.flush();
                         }
                     }
                 }
+
                 if ( channel.isClosed() && channel.getExitStatus() != 0 )
                 {
                     logger.debug( "Command exited with error code " + channel.getExitStatus() );

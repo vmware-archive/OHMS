@@ -1,0 +1,176 @@
+lease 192.168.0.50 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:77:94;
+  uid "\001,`\014\374w\224";
+  client-hostname "QCT2C600CFC7794";
+}
+lease 192.168.0.51 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:76:1d;
+  uid "\001,`\014\374v\035";
+  client-hostname "QCT2C600CFC761D";
+}
+lease 192.168.0.52 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:78:f9;
+  uid "\001,`\014\374x\371";
+  client-hostname "QCT2C600CFC78F9";
+}
+lease 192.168.0.53 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:75:84;
+  uid "\001,`\014\374u\204";
+  client-hostname "QCT2C600CFC7584";
+}
+lease 192.168.0.54 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:78:8a;
+  uid "\001,`\014\374x\212";
+  client-hostname "QCT2C600CFC788A";
+}
+lease 192.168.0.55 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:74:c4;
+  uid "\001,`\014\374t\304";
+  client-hostname "QCT2C600CFC74C4";
+}
+lease 192.168.0.56 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:74:4f;
+  uid "\001,`\014\374tO";
+  client-hostname "QCT2C600CFC744F";
+}
+lease 192.168.0.57 {
+  starts 0 2016/06/19 09:53:15;
+  ends 1 2016/06/20 09:53:15;
+  cltt 0 2016/06/19 09:53:15;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:77:5e;
+  uid "\001,`\014\374w^";
+  client-hostname "QCT2C600CFC775E";
+}
+lease 192.168.0.50 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:77:94;
+  uid "\001,`\014\374w\224";
+  client-hostname "QCT2C600CFC7794";
+}
+lease 192.168.0.51 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:76:1d;
+  uid "\001,`\014\374v\035";
+  client-hostname "QCT2C600CFC761D";
+}
+lease 192.168.0.52 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:78:f9;
+  uid "\001,`\014\374x\371";
+  client-hostname "QCT2C600CFC78F9";
+}
+lease 192.168.0.53 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:75:84;
+  uid "\001,`\014\374u\204";
+  client-hostname "QCT2C600CFC7584";
+}
+lease 192.168.0.54 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:78:8a;
+  uid "\001,`\014\374x\212";
+  client-hostname "QCT2C600CFC788A";
+}
+lease 192.168.0.55 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:74:c4;
+  uid "\001,`\014\374t\304";
+  client-hostname "QCT2C600CFC74C4";
+}
+lease 192.168.0.56 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:74:4f;
+  uid "\001,`\014\374tO";
+  client-hostname "QCT2C600CFC744F";
+}
+lease 192.168.0.57 {
+  starts 0 2016/06/19 09:55:11;
+  ends 1 2016/06/20 09:55:11;
+  cltt 0 2016/06/19 09:55:11;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 2c:60:0c:fc:77:5e;
+  uid "\001,`\014\374w^";
+  client-hostname "QCT2C600CFC775E";
+}

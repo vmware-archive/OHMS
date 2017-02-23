@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.chassis;
 
 /**
@@ -23,6 +24,7 @@ package com.vmware.vrack.hms.common.resource.chassis;
 public enum BiosBootType
 {
     Legacy( (byte) 0x00 ), EFI( (byte) 0x20 );
+
     private byte code;
 
     private BiosBootType( byte code )
@@ -45,5 +47,7 @@ public enum BiosBootType
         {
             return Legacy;
         }
+
     }
+
 }

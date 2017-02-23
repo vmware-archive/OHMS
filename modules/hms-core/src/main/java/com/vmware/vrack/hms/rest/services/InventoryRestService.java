@@ -15,6 +15,10 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.rest.services;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -24,12 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.hms.common.HmsConfigHolder;
-import com.vmware.vrack.hms.common.configuration.HmsInventoryConfiguration;
 import com.vmware.vrack.hms.common.exception.HMSRestException;
-import com.vmware.vrack.hms.common.monitoring.MonitoringTaskRequestHandler;
 import com.vmware.vrack.hms.common.notification.BaseResponse;
+import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
+import com.vmware.vrack.hms.common.switches.api.SwitchNode;
+import com.vmware.vrack.hms.common.util.HmsGenericUtil;
 import com.vmware.vrack.hms.node.server.ServerNodeConnector;
 import com.vmware.vrack.hms.node.switches.SwitchNodeConnector;
+import com.vmware.vrack.hms.utils.OobUtil;
 
 /**
  * <code>InventoryRestService</code><br>
@@ -39,6 +45,7 @@ import com.vmware.vrack.hms.node.switches.SwitchNodeConnector;
 @Path( "/inventory" )
 public class InventoryRestService
 {
+
     /** The logger. */
     private Logger logger = LoggerFactory.getLogger( InventoryRestService.class );
 
@@ -49,51 +56,78 @@ public class InventoryRestService
     private SwitchNodeConnector switchConnector = SwitchNodeConnector.getInstance();
 
     /**
-     * Reloads inventory.
+     * API to be consumed by Aggregator for inventory refresh
      *
-     * @param hic HmsInventoryConfiguration
+     * @param inventoryMap
      * @return the base response
      * @throws HMSRestException the HMS rest exception
      */
     @PUT
     @Path( "/reload" )
     @Produces( "application/json" )
-    public BaseResponse reloadInventory( HmsInventoryConfiguration hic )
+    public BaseResponse reloadInventory( Map<String, Object[]> inventoryMap )
         throws HMSRestException
     {
         BaseResponse response = new BaseResponse();
+        String msg = null;
+
         try
         {
-            logger.debug( "Received HMS inventory configuration." );
-            if ( hic != null )
+
+            if ( inventoryMap == null || inventoryMap.size() == 0 )
             {
-                HmsConfigHolder.setHmsInventoryConfiguration( hic );
-                Long monitoringFrequency =
-                    Long.parseLong( HmsConfigHolder.getHMSConfigProperty( "HOST_NODE_MONITOR_FREQUENCY" ) );
-                Long additionalWaitTime =
-                    Long.parseLong( HmsConfigHolder.getHMSConfigProperty( "SHUTDOWN_MONITORING_ADDITIONAL_WAITITME" ) );
-                MonitoringTaskRequestHandler.getInstance().shutMonitoring( monitoringFrequency + additionalWaitTime );
-                serverConnector.parseRackInventoryConfig();
-                // Re-parse switch configuration
-                switchConnector.parseRackInventoryConfig();
+                msg = "Invalid inventory. Inventory is either null or blank.";
+                response = HmsGenericUtil.getBaseResponse( Status.BAD_REQUEST, msg );
+                return response;
+            }
+
+            logger.debug( "Received HMS inventory configuration." );
+
+            if ( !HmsConfigHolder.isHmsInventoryFileExists() )
+            {
+
+                List<ServerNode> serverNodes = OobUtil.extractServerNodes( inventoryMap );
+                List<SwitchNode> switchNodes = OobUtil.extractSwitchNodes( inventoryMap );
+
+                serverConnector.executeServerNodeRefresh( serverNodes );
+                switchConnector.executeSwitchNodeRefresh( switchNodes );
+
+                HmsConfigHolder.setInvRefreshedFromAggregator( true );
+
                 logger.debug( "Successfully set HMS Inventory config file." );
+
             }
             else
             {
-                String err = "Unable to set Inventory in HMS OOB, as HmsInventoryConfig is null.";
-                logger.error( err );
-                response.setErrorMessage( err );
-                response.setStatusCode( Status.INTERNAL_SERVER_ERROR.getStatusCode() );
-                return response;
+                logger.warn( "Inventory file already exists under config, so not reloading the inventory" );
             }
+
         }
         catch ( Exception e )
         {
-            logger.error( "Exception received while re-parsing HMS inventory configuration file.", e );
-            throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Server Error", e.getMessage() );
+            msg = "Exception received while loading HMS inventory configuration.";
+            logger.error( msg, e );
+            throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), msg, e.getMessage() );
         }
-        response.setStatusCode( Status.ACCEPTED.getStatusCode() );
-        response.setStatusMessage( "Requested operation triggered successfully." );
+
+        msg = "Requested operation triggered successfully.";
+        response = HmsGenericUtil.getBaseResponse( Status.ACCEPTED, msg );
+
         return response;
+    }
+
+    /**
+     * This method will specify if the aggregator's inventory is loaded to Out of band or not
+     *
+     * @return
+     * @throws HMSRestException
+     */
+    @GET
+    @Path( "/isloaded" )
+    @Produces( "application/json" )
+    public boolean isAggregatorInventoryLoadedToOutOfBand()
+        throws HMSRestException
+    {
+        return HmsConfigHolder.isInvRefreshedFromAggregator();
     }
 }

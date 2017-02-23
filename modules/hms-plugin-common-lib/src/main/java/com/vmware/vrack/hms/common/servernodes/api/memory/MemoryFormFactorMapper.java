@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.memory;
 
 /**
@@ -121,6 +122,9 @@ public class MemoryFormFactorMapper
             return FPBGA;
         if ( formFactorCode == 23 )
             return LGA;
+
         return null;
+
     }
+
 }

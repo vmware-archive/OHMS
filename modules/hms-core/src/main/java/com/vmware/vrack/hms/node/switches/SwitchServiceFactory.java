@@ -33,6 +33,7 @@ import com.vmware.vrack.hms.common.switches.api.ISwitchService;
  */
 public class SwitchServiceFactory
 {
+
     private Logger logger = Logger.getLogger( SwitchServiceFactory.class );
 
     private volatile static SwitchServiceFactory switchServicefactory = null;
@@ -69,6 +70,7 @@ public class SwitchServiceFactory
         {
             switchServicefactory = new SwitchServiceFactory();
         }
+
         return switchServicefactory;
     }
 
@@ -80,12 +82,15 @@ public class SwitchServiceFactory
     public static void initialize()
     {
         SwitchServiceFactory switchServiceFactory = getSwitchServiceFactory();
+
         // TODO Suppose that the properties file has been read.
         String basePackage = HmsConfigHolder.getHMSConfigProperty( SWITCH_SERVICE_BASE_PACKAGES_PROP );
+
         if ( basePackage == null || "".equals( basePackage.trim() ) )
         {
             basePackage = "com.vmware";
         }
+
         switchServiceFactory.prepareSwitchServiceImplementationClassesList( basePackage );
         switchServiceFactory.prepareSwitchServiceList();
     }
@@ -94,7 +99,7 @@ public class SwitchServiceFactory
      * Prepares list of all classes in the class path which are in the package/subpackage as mentioned in
      * serverBoardBasePackage and having annotation as mentioned in the switchServiceImplementationAnnotations and
      * stores it in switchServiceImplementationClasses
-     *
+     * 
      * @param basePackage
      */
     public void prepareSwitchServiceImplementationClassesList( String basePackage )
@@ -104,6 +109,7 @@ public class SwitchServiceFactory
         {
             classScanner.withAnnotationFilter( annotation );
         }
+
         switchServiceImplementationClasses = classScanner.findClasses();
     }
 
@@ -115,9 +121,11 @@ public class SwitchServiceFactory
     private void prepareSwitchServiceList()
     {
         logger.debug( "Initializing ToR switch implementations." );
+
         if ( switchServiceImplementationClasses != null && switchServiceImplementationClasses.size() > 0 )
         {
             switchServiceList = new ArrayList<ISwitchService>();
+
             for ( Class<?> c : switchServiceImplementationClasses )
             {
                 try

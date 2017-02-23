@@ -27,7 +27,9 @@ public class IpUtils
     {
         Integer mask = 0x7fffffff; /* To avoid interpretation of this variable as -ve value */
         String netmask = "";
+
         mask = ( mask >> ( 32 - prefixLen ) ) << ( 32 - prefixLen );
+
         for ( Integer i = 3; i >= 0; --i )
         {
             Integer tmp = ( mask & ( 0xFF << ( i * 8 ) ) ) >> ( i * 8 );
@@ -41,6 +43,7 @@ public class IpUtils
             if ( i > 0 )
                 netmask += ".";
         }
+
         return netmask;
     }
 
@@ -54,15 +57,19 @@ public class IpUtils
     {
         Integer mask = 0, prefixLen = 0;
         String tokens[] = netmask.split( "\\." );
+
         if ( tokens.length != 4 )
         {
             return -1;
         }
+
         for ( int i = 3; i >= 0; i-- )
         {
             mask |= ( Integer.parseInt( tokens[3 - i] ) << ( i * 8 ) );
         }
+
         prefixLen = 32 - Integer.numberOfTrailingZeros( mask );
+
         return prefixLen;
     }
 
@@ -76,14 +83,17 @@ public class IpUtils
     public static Boolean isValidIpv4Address( String address )
     {
         String tokens[] = address.split( "\\." );
+
         if ( tokens.length != 4 )
             return false;
+
         for ( String token : tokens )
         {
             Integer val = Integer.parseInt( token );
             if ( val < 0 || val > 255 )
                 return false;
         }
+
         return true;
     }
 }

@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
  */
 public enum ChassisType
 {
+
     Other( ChassisType.OTHER ),
     Notebook( ChassisType.NOTEBOOK ),
     HandHeld( ChassisType.HANDHELD ),
@@ -160,4 +161,5 @@ public enum ChassisType
                 return Other;
         }
     }
+
 }

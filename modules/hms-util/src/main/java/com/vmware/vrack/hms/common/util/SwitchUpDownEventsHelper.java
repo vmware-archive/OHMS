@@ -25,11 +25,13 @@ import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode.SwitchRoleType;
 
-public class SwitchUpDownEventsHelper{
+public class SwitchUpDownEventsHelper
+{
 
-    private static Logger logger = Logger.getLogger(SwitchUpDownEventsHelper.class);
-    
+    private static Logger logger = Logger.getLogger( SwitchUpDownEventsHelper.class );
+
     private static final String SWITCH_UP = "Switch is up";
+
     private static final String SWITCH_DOWN = "Switch is Down";
 
     /**
@@ -40,53 +42,69 @@ public class SwitchUpDownEventsHelper{
      * @return List<Event>
      * @throws HmsException
      */
-    public static List<ServerComponentEvent> getSwitchUpDownEvents(List<ServerComponentEvent> events, SwitchRoleType switchRole) throws HmsException {
+    public static List<ServerComponentEvent> getSwitchUpDownEvents( List<ServerComponentEvent> events,
+                                                                    SwitchRoleType switchRole )
+        throws HmsException
+    {
 
-        if (events != null && switchRole != null) {
+        if ( events != null && switchRole != null )
+        {
             List<ServerComponentEvent> serverComponentSensorlist = new ArrayList<>();
-            try {
-            	for (ServerComponentEvent serverComponentEvent : events) {
-                	boolean switchRoleFound = false;
-            		if (serverComponentEvent.getDiscreteValue().equals(SWITCH_UP)) {
-	            		switch (switchRole) {
-	            		case TOR:
-	            			serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_UP);
-	            			switchRoleFound = true;
-	            			break;
-	            		case SPINE:
-	            			serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_UP);
-	            			switchRoleFound = true;
-	            			break;
-						default:
-							break;
-	            		}
-            		}
-            		else if (serverComponentEvent.getDiscreteValue().equals(SWITCH_DOWN)) {
-	            		switch (switchRole) {
-	            		case TOR:
-	            			serverComponentEvent.setEventName(NodeEvent.TOR_SWITCH_DOWN);
-	            			switchRoleFound = true;
-	            			break;
-	            		case SPINE:
-	            			serverComponentEvent.setEventName(NodeEvent.SPINE_SWITCH_DOWN);
-	            			switchRoleFound = true;
-	            			break;
-						default:
-							break;
-	            		}
-            		}
-            		if (switchRoleFound) {
-            			serverComponentEvent.setEventId(switchRole.name());
-            			serverComponentSensorlist.add(serverComponentEvent);
-            		}
-            	}
-            	return serverComponentSensorlist;
-            } catch (Exception e) {
-                logger.error("Cannot get switch Up or Down event Information at getSwitchUpDownEvents", e);
-                throw new HmsException("Unable to get switch Up or Down event information at getSwitchUpDownEvents", e);
+            try
+            {
+                for ( ServerComponentEvent serverComponentEvent : events )
+                {
+                    boolean switchRoleFound = false;
+                    if ( serverComponentEvent.getDiscreteValue().equals( SWITCH_UP ) )
+                    {
+                        switch ( switchRole )
+                        {
+                            case TOR:
+                                serverComponentEvent.setEventName( NodeEvent.TOR_SWITCH_UP );
+                                switchRoleFound = true;
+                                break;
+                            case SPINE:
+                                serverComponentEvent.setEventName( NodeEvent.SPINE_SWITCH_UP );
+                                switchRoleFound = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else if ( serverComponentEvent.getDiscreteValue().equals( SWITCH_DOWN ) )
+                    {
+                        switch ( switchRole )
+                        {
+                            case TOR:
+                                serverComponentEvent.setEventName( NodeEvent.TOR_SWITCH_DOWN );
+                                switchRoleFound = true;
+                                break;
+                            case SPINE:
+                                serverComponentEvent.setEventName( NodeEvent.SPINE_SWITCH_DOWN );
+                                switchRoleFound = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if ( switchRoleFound )
+                    {
+                        serverComponentEvent.setEventId( switchRole.name() );
+                        serverComponentSensorlist.add( serverComponentEvent );
+                    }
+                }
+                return serverComponentSensorlist;
             }
-        } else {
-            throw new HmsException("Server Component Event Null to generate the switch up or down or invalid");
+            catch ( Exception e )
+            {
+                logger.error( "Cannot get switch Up or Down event Information at getSwitchUpDownEvents", e );
+                throw new HmsException( "Unable to get switch Up or Down event information at getSwitchUpDownEvents",
+                                        e );
+            }
+        }
+        else
+        {
+            throw new HmsException( "Server Component Event Null to generate the switch up or down or invalid" );
         }
     }
 

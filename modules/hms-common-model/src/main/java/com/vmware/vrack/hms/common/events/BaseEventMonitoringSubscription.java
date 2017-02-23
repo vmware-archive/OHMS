@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.events;
 
 import com.vmware.vrack.hms.common.RequestMethod;
@@ -20,7 +21,7 @@ import com.vmware.vrack.hms.common.notification.BaseResponse;
 
 /**
  * Base Class for Event Registration subscription
- *
+ * 
  * @author VMware Inc.
  */
 public class BaseEventMonitoringSubscription
@@ -38,7 +39,7 @@ public class BaseEventMonitoringSubscription
 
     /**
      * Absolute URl to be called by HMS to send the Events to the subscriber
-     *
+     * 
      * @return
      */
     public String getNotificationEndpoint()
@@ -66,6 +67,7 @@ public class BaseEventMonitoringSubscription
     {
         if ( this == object )
             return true;
+
         boolean result = false;
         if ( object == null || object.getClass() != getClass() )
         {
@@ -92,10 +94,13 @@ public class BaseEventMonitoringSubscription
         {
             hash = 7 * hash + this.requestMethod.hashCode();
         }
+
         if ( notificationEndpoint != null )
         {
             hash = 7 * hash + this.notificationEndpoint.hashCode();
         }
+
         return hash;
     }
+
 }

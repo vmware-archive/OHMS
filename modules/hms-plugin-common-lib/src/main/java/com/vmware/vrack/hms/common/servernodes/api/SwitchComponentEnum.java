@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api;
 
 import com.vmware.vrack.common.event.enums.EventComponent;
@@ -20,18 +21,29 @@ import com.vmware.vrack.common.event.enums.EventComponent;
 /**
  * ENUM to list various HW components available on the Switch
  */
+
 public enum SwitchComponentEnum
 {
-    SWITCH( EventComponent.SWITCH ), SWITCH_PORT( EventComponent.SWITCH_PORT );
+
+    SWITCH( EventComponent.SWITCH, 0 ), SWITCH_PORT( EventComponent.SWITCH_PORT, 10 );
+
     private EventComponent source;
 
     private HmsApi infoAPI;
 
     private HmsApi sensorAPI;
 
+    private int priority;
+
     private SwitchComponentEnum( EventComponent source )
     {
         this.source = source;
+    }
+
+    private SwitchComponentEnum( EventComponent source, int priority )
+    {
+        this.source = source;
+        this.priority = priority;
     }
 
     private SwitchComponentEnum( EventComponent source, HmsApi infoAPI, HmsApi sensorAPI )
@@ -54,5 +66,10 @@ public enum SwitchComponentEnum
     public HmsApi getComponentSensorAPI()
     {
         return this.sensorAPI;
+    }
+
+    public int getPriority()
+    {
+        return this.priority;
     }
 }

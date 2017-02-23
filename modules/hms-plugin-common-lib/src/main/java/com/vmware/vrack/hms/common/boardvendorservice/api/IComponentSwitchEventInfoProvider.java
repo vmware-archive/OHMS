@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.boardvendorservice.api;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 public interface IComponentSwitchEventInfoProvider
     extends IHmsComponentService
 {
+
     /**
      * Get Switch Component Specific Event Data
      *
@@ -39,7 +41,7 @@ public interface IComponentSwitchEventInfoProvider
      */
     public List<ServerComponentEvent> getComponentSwitchEventList( ServiceHmsNode serviceNode,
                                                                    SwitchComponentEnum component )
-                                                                       throws HmsException;
+        throws HmsException;
 
     /**
      * Get HMS Switch Api supported by various OOB or IB plugin for a given node.

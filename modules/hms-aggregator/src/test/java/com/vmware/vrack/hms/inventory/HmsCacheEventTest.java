@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import static org.junit.Assert.assertNotNull;
@@ -51,11 +52,13 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
  *
  * @author VMware Inc
  */
+
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration( locations = { "/hms-aggregator-test.xml" } )
 public class HmsCacheEventTest
     implements ApplicationEventPublisherAware
 {
+
     private ApplicationEventPublisher eventPublisher;
 
     /**
@@ -64,12 +67,17 @@ public class HmsCacheEventTest
     @Test
     public void serverCacheEventTest()
     {
+
         HmsDataCache cache = new HmsDataCache();
+
         ServerCacheUpdateListener listener = new ServerCacheUpdateListener();
         listener.setHmsDataCache( cache );
+
         StaticApplicationContext context = new StaticApplicationContext();
         context.addApplicationListener( listener );
+
         context.refresh();
+
         // Adding dummy Server Information
         ServerInfo serverInfo = new ServerInfo();
         ComponentIdentifier serverComponentIdentifier = new ComponentIdentifier();
@@ -83,13 +91,18 @@ public class HmsCacheEventTest
         serverInfo.setLocation( "2U" );
         serverInfo.setManagementIpAddress( "127.0.0.1" );
         serverInfo.setNodeId( "TestNode" );
-        serverInfo.setOperationalStatus( "operational" );
+        serverInfo.setOperationalStatus( FruOperationalStatus.Operational );
+
         ServerDataChangeMessage event = new ServerDataChangeMessage( serverInfo, ServerComponent.SERVER );
+
         context.publishEvent( event );
+
         assertNotNull( listener.getHmsDataCache().getServerInfoMap().containsKey( "TestNode" ) );
         assertNotNull( listener.getHmsDataCache().getServerInfoMap().get( "TestNode" ).getNodeId() );
+
         context.close();
         context.destroy();
+
     }
 
     /**
@@ -98,12 +111,17 @@ public class HmsCacheEventTest
     @Test
     public void switchCacheEventTest()
     {
+
         HmsDataCache cache = new HmsDataCache();
+
         SwitchCacheUpdateListener listener = new SwitchCacheUpdateListener();
         listener.setHmsDataCache( cache );
+
         StaticApplicationContext context = new StaticApplicationContext();
         context.addApplicationListener( listener );
+
         context.refresh();
+
         // Adding dummy Switch Information
         NBSwitchInfo switchInfo = new NBSwitchInfo();
         ComponentIdentifier switchComponentIdentifier = new ComponentIdentifier();
@@ -119,12 +137,17 @@ public class HmsCacheEventTest
         switchInfo.setOperationalStatus( FruOperationalStatus.Operational );
         switchInfo.setSwitchId( "TestSwitch" );
         // switchInfo.setRole(SwitchRoleType.MANAGEMENT);
+
         SwitchDataChangeMessage event = new SwitchDataChangeMessage( switchInfo, SwitchComponentEnum.SWITCH );
+
         context.publishEvent( event );
+
         assertNotNull( listener.getHmsDataCache().getServerInfoMap().containsKey( "TestSwitch" ) );
         assertNotNull( listener.getHmsDataCache().getSwitchInfoMap().get( "TestSwitch" ).getSwitchId() );
+
         context.close();
         context.destroy();
+
     }
 
     /**
@@ -133,12 +156,17 @@ public class HmsCacheEventTest
     @Test
     public void fruCacheEventTest()
     {
+
         HmsDataCache cache = new HmsDataCache();
+
         FruCacheUpdateListener listener = new FruCacheUpdateListener();
         listener.setHmsDataCache( cache );
+
         StaticApplicationContext context = new StaticApplicationContext();
         context.addApplicationListener( listener );
+
         context.refresh();
+
         // Adding dummy CPU Information
         List<CpuInfo> listCpu = new ArrayList<CpuInfo>();
         CpuInfo cpu1 = new CpuInfo();
@@ -150,13 +178,17 @@ public class HmsCacheEventTest
         cpu1.setCpuFrequencyInHertz( 2600 );
         cpu1.setNumOfCores( 4 );
         listCpu.add( cpu1 );
+
         FruDataChangeMessage event =
             new FruDataChangeMessage( (List<FruComponent>) (List<?>) listCpu, "TestNode", ServerComponent.CPU );
         context.publishEvent( event );
+
         assertNotNull( listener.getHmsDataCache().getServerInfoMap().containsKey( "TestNode" ) );
         // assertNotNull(listener.getHmsDataCache().getServerInfoMap().get("TestNode").getCpuInfo().get(0).getComponentIdentifier().getManufacturer());
+
         context.close();
         context.destroy();
+
     }
 
     /**
@@ -165,18 +197,24 @@ public class HmsCacheEventTest
     @Test
     public void fruHmsEventCacheEventTest()
     {
+
         HmsDataCache cache = new HmsDataCache();
+
         FruEventDataUpdateListener listener = new FruEventDataUpdateListener();
         listener.setHmsDataCache( cache );
+
         StaticApplicationContext context = new StaticApplicationContext();
         context.addApplicationListener( listener );
+
         context.refresh();
+
         List<Event> events = new ArrayList<Event>();
         Event event = new Event();
         Body body = new Body();
         Header header = new Header();
         Map<EventComponent, String> componentIdentifier = new HashMap<EventComponent, String>();
         componentIdentifier.put( EventComponent.SERVER, "N9" );
+
         // Adding dummy Event
         body.setDescription( "CPU for rack EVO:RACK node N5 and CPU processor 1 has shutdown due to POST Failure." );
         header.setAgent( "HMS" );
@@ -184,14 +222,20 @@ public class HmsCacheEventTest
         header.setSeverity( EventSeverity.CRITICAL );
         header.setVersion( "1.0" );
         header.addComponentIdentifier( componentIdentifier );
+
         event.setBody( body );
         event.setHeader( header );
+
         events.add( event );
+
         FruEventStateChangeMessage eventMessage = new FruEventStateChangeMessage( events, ServerComponent.CPU );
         context.publishEvent( eventMessage );
+
         assertNotNull( listener.getHmsDataCache().getServerInfoMap().containsKey( "TestNode" ) );
+
         context.close();
         context.destroy();
+
     }
 
     /**
@@ -202,5 +246,7 @@ public class HmsCacheEventTest
     public void setApplicationEventPublisher( ApplicationEventPublisher applicationEventPublisher )
     {
         this.eventPublisher = applicationEventPublisher;
+
     }
+
 }

@@ -31,9 +31,10 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 /**
  * Health Monitor Task for HMS Agent
- * 
+ *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class HmsLocalHealthMonitorTask
     extends MonitorTask
 {
@@ -66,9 +67,12 @@ public class HmsLocalHealthMonitorTask
             if ( node != null && node instanceof ServerNode && component != null )
             {
                 ServerNode serverNode = (ServerNode) node;
+
                 IEventAggregatorTask eventAggregatorTask = new HealthMonitorEventAggregatorTask();
-                List<Event> events = eventAggregatorTask.getAggregatedEvents( serverNode, component );
+
+                List<Event> events = eventAggregatorTask.processEvents( serverNode, component );
                 List<Event> monitoringTaskRespEvents = response.getEvents();
+
                 if ( monitoringTaskRespEvents == null )
                 {
                     monitoringTaskRespEvents = new ArrayList<Event>();

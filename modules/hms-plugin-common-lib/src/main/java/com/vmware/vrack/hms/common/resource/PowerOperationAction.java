@@ -13,15 +13,18 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource;
 
 public enum PowerOperationAction
 {
+
     POWERUP( "power_up" ),
     POWERDOWN( "power_down" ),
     POWERCYCLE( "power_cycle" ),
     HARDRESET( "hard_reset" ),
     COLDRESET( "cold_reset" );
+
     private String powerActionString;
 
     private PowerOperationAction( String powerActionString )

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -30,14 +31,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class OobUpgradeSpec
 {
-    /** The scripts location. */
-    private String scriptsLocation;
 
     /** The HMS token. */
     private String id;
-
-    /** Upgrade binary location. */
-    private String location;
 
     /** Upgrade binary file name. */
     private String fileName;
@@ -63,26 +59,6 @@ public class OobUpgradeSpec
     public void setId( String id )
     {
         this.id = id;
-    }
-
-    /**
-     * Gets the location.
-     *
-     * @return the location
-     */
-    public String getLocation()
-    {
-        return location;
-    }
-
-    /**
-     * Sets the location.
-     *
-     * @param location the new location
-     */
-    public void setLocation( String location )
-    {
-        this.location = location;
     }
 
     /**
@@ -126,26 +102,6 @@ public class OobUpgradeSpec
     }
 
     /**
-     * Gets the scripts location.
-     *
-     * @return the scriptsLocation
-     */
-    public String getScriptsLocation()
-    {
-        return scriptsLocation;
-    }
-
-    /**
-     * Sets the scripts location.
-     *
-     * @param scriptsLocation the scriptsLocation to set
-     */
-    public void setScriptsLocation( String scriptsLocation )
-    {
-        this.scriptsLocation = scriptsLocation;
-    }
-
-    /**
      * To string.
      *
      * @return the string
@@ -154,14 +110,14 @@ public class OobUpgradeSpec
     @Override
     public String toString()
     {
+
         StringBuffer sb = new StringBuffer();
         sb.append( "[ " );
         sb.append( "id = " + this.id + ", " );
         sb.append( "fileName = " + this.fileName + ", " );
-        sb.append( "checksum = " + this.checksum + ", " );
-        sb.append( "location = " + this.location + ", " );
-        sb.append( "scriptsLocation = " + this.scriptsLocation );
+        sb.append( "checksum = " + this.checksum );
         sb.append( " ]" );
         return sb.toString();
     }
+
 }

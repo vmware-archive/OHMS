@@ -34,6 +34,7 @@ import com.vmware.vrack.hms.common.util.Constants;
  */
 public class HMSAboutResponseAggregator
 {
+
     private static Logger logger = Logger.getLogger( HMSAboutResponseAggregator.class );
 
     /**
@@ -80,8 +81,10 @@ public class HMSAboutResponseAggregator
     private AboutResponse getInBandAboutResponse()
     {
         AboutResponse response = new AboutResponse();
+
         String classPath = HMSAboutResponseAggregator.class.getResource( "/" ).getPath();
         logger.debug( "Found HMSAboutResponseAggregator.class from " + classPath );
+
         String manifestPath =
             "file:" + classPath.substring( 0, classPath.lastIndexOf( "/WEB-INF" ) ) + "/META-INF/MANIFEST.MF";
         logger.debug( "MANIFEST path is " + manifestPath );
@@ -89,6 +92,7 @@ public class HMSAboutResponseAggregator
         {
             Manifest mf = new Manifest( new URL( manifestPath ).openStream() );
             Attributes attributes = mf.getMainAttributes();
+
             if ( attributes != null )
             {
                 response.setBuildVersion( attributes.getValue( BUILD_VERSION ) );
@@ -111,4 +115,5 @@ public class HMSAboutResponseAggregator
     public static final String BUILD_DATE = "Build-Date";
 
     public static final String BUILD_JDK = "Build-Jdk";
+
 }

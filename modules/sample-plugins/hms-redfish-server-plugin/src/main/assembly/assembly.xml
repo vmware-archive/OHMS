@@ -39,25 +39,18 @@
         <!-- Third-party Library jars for runtime dependencies -->
         <!-- Uncomment the fileSet items below if there are libraries
          the plugin needs at runtime
-        <fileSet>
-          <directory>${project.basedir}/lib</directory>
-          <outputDirectory>/plugin-jars</outputDirectory>
-          <fileMode>0644</fileMode>
-          <directoryMode>0755</directoryMode>
-          <includes>
-            <include>*.jar</include>
-          </includes>
-        </fileSet-->
-    </fileSets>
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <useProjectArtifact>true</useProjectArtifact>
+        -->
+        <!--<fileSet>
+            <directory>${project.basedir}/lib</directory>
+            <outputDirectory>/plugin-jars</outputDirectory>
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
-            <unpack>false</unpack>
-            <scope>compile</scope>
-        </dependencySet>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>-->
+    </fileSets>
+    <dependencySets>
 
         <!-- Third-party API jars for runtime dependencies -->
         <dependencySet>
@@ -67,9 +60,6 @@
             <directoryMode>0755</directoryMode>
             <unpack>false</unpack>
             <scope>runtime</scope>
-            <includes>
-                <include>com.intel.plugin:hms-redfish-server-plugin</include>
-            </includes>
         </dependencySet>
     </dependencySets>
 </assembly>

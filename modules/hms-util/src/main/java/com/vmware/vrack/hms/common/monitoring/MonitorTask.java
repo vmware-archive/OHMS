@@ -18,7 +18,8 @@ package com.vmware.vrack.hms.common.monitoring;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.hms.common.HmsNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -27,31 +28,51 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 import com.vmware.vrack.hms.common.util.EventsUtil;
 
+/**
+ * The Class MonitorTask.
+ */
 public class MonitorTask
     implements Callable<MonitoringTaskResponse>
 {
+
+    /** The logger. */
+    private static Logger logger = LoggerFactory.getLogger( MonitorTask.class );
+
     /**
+     * The node.
+     *
      * @ServerNode serverNode for which monitoring is to be done
      */
     public HmsNode node;
 
     /**
+     * The response.
+     *
      * @MonitoringTaskResponse response contains sensorProvide and references to nodes and components
      */
     public MonitoringTaskResponse response;
 
     /**
+     * The component.
+     *
      * @ServerComponent component for node HMSNode to be monitored
      */
     public ServerComponent component;
 
-    private static Logger logger = Logger.getLogger( MonitorTask.class );
-
+    /**
+     * Instantiates a new monitor task.
+     */
     public MonitorTask()
     {
         super();
     }
 
+    /**
+     * Instantiates a new monitor task.
+     *
+     * @param response the response
+     * @param component the component
+     */
     public MonitorTask( MonitoringTaskResponse response, ServerComponent component )
     {
         this.response = response;
@@ -59,6 +80,11 @@ public class MonitorTask
         this.component = component;
     }
 
+    /**
+     * Instantiates a new monitor task.
+     *
+     * @param response the response
+     */
     public MonitorTask( MonitoringTaskResponse response )
     {
         this.response = response;
@@ -66,6 +92,10 @@ public class MonitorTask
         component = response.getComponentList().get( 0 );
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.util.concurrent.Callable#call()
+     */
     public MonitoringTaskResponse call()
         throws Exception
     {
@@ -73,11 +103,15 @@ public class MonitorTask
     }
 
     /**
-     * Retrieves Sensor data using specified Provide to get Component Sensor List
+     * Retrieves Sensor data using specified Provide to get Component Sensor List.
+     *
+     * @return the monitoring task response
+     * @throws HmsException the hms exception
      */
     public MonitoringTaskResponse executeTask()
         throws HmsException
     {
+        String message = null;
         try
         {
             if ( node != null && component != null && node.isNodeOperational() )
@@ -91,17 +125,17 @@ public class MonitorTask
                 }
                 else
                 {
-                    String error = String.format( "Operation is not supported for Component %s of Node %s", component,
-                                                  node.getNodeID() );
-                    logger.error( error );
-                    throw new HmsOperationNotSupportedException( error );
+                    message = String.format( "Operation is not supported for Component %s of Node %s", component,
+                                             node.getNodeID() );
+                    logger.error( message );
+                    throw new HmsOperationNotSupportedException( message );
                 }
             }
         }
         catch ( Exception e )
         {
-            logger.error( "Error while getting Sensor information for Node:" + node.getNodeID(), e );
-            throw new HmsException( "Error while getting Sensor information for Node:" + node.getNodeID(), e );
+            message = String.format( "Error while getting Sensor information for Node '%s'.", node.getNodeID() );
+            throw new HmsException( message, e );
         }
         return response;
     }

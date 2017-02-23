@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,24 @@ import org.springframework.stereotype.Component;
 public class InbandProperties
 {
     private static int vsphereClientTimeoutInMs;
+
+    private static String knownHostsLocation;
+
+    public static String getKnownHostsLocation()
+    {
+        return knownHostsLocation;
+    }
+
+    /**
+     * Location of known_hosts file to check if the host is known..
+     * 
+     * @param knownHostsLocation
+     */
+    @Value( "${known.hosts.location:/home/vrack/.ssh/known_hosts}" )
+    public void setKnownHostsLocation( String knownHostsLocation )
+    {
+        InbandProperties.knownHostsLocation = knownHostsLocation;
+    }
 
     public static int getVsphereClientTimeoutInMs()
     {

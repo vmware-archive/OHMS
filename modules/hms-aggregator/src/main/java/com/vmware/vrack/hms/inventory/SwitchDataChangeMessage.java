@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import org.springframework.context.ApplicationEvent;
@@ -26,6 +27,7 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
 public class SwitchDataChangeMessage
     extends ApplicationEvent
 {
+
     private NBSwitchInfo switchInfo;
 
     SwitchComponentEnum component;
@@ -80,4 +82,5 @@ public class SwitchDataChangeMessage
     {
         this.component = component;
     }
+
 }

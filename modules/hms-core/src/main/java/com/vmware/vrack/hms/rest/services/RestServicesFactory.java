@@ -26,10 +26,12 @@ import com.vmware.vrack.hms.rest.exception.HMSRestExceptionHandler;
 public class RestServicesFactory
     extends Application
 {
+
     private static Set<Class<?>> classes = new HashSet<Class<?>>();
 
     public RestServicesFactory()
     {
+
         // initialize restful services
         classes.add( ServerRestService.class );
         classes.add( SwitchRestService.class );
@@ -42,6 +44,9 @@ public class RestServicesFactory
         classes.add( ExceptionHandler.class );
         classes.add( ComponentEventRestService.class );
         classes.add( UpgradeRestService.class );
+        classes.add( HmsNodeRateLimiterFilter.class );
+        classes.add( HmsCertficateMgmtRestService.class );
+        classes.add( HmsSshKeyMgmtRestService.class );
     }
 
     @Override

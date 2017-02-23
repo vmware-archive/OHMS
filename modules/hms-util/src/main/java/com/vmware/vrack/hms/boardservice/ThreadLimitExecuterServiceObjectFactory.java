@@ -31,6 +31,7 @@ public class ThreadLimitExecuterServiceObjectFactory
     {
         ThreadLimitExecuterServiceObject rateLimitExecuterServiceObject = new ThreadLimitExecuterServiceObject();
         rateLimitExecuterServiceObject.setName( key );
+
         logger.debug( "\n[Created object" + rateLimitExecuterServiceObject + "]" );
         return rateLimitExecuterServiceObject;
     }
@@ -44,10 +45,12 @@ public class ThreadLimitExecuterServiceObjectFactory
     @Override
     public boolean validateObject( String key, PooledObject<ThreadLimitExecuterServiceObject> pooledObject )
     {
+
         if ( pooledObject.getObject().getName() == null )
         {
             return false;
         }
         return true;
     }
+
 }

@@ -25,6 +25,7 @@ import com.vmware.vrack.hms.common.servernodes.api.NodeAdminStatus;
 public class NBSwitchInfo
     extends FruComponent
 {
+
     public enum SwitchRoleType
     {
         TOR, MANAGEMENT, SPINE

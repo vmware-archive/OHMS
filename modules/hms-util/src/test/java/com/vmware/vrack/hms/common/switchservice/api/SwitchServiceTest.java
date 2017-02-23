@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SwitchServiceTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,10 +13,8 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
-package com.vmware.vrack.hms.common.switchservice.api;
 
-import java.util.ArrayList;
-import java.util.List;
+package com.vmware.vrack.hms.common.switchservice.api;
 
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -38,11 +36,15 @@ import com.vmware.vrack.hms.common.switches.api.SwitchPort.PortStatus;
 import com.vmware.vrack.hms.common.switches.api.SwitchSensorInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchServiceImplementation;
 import com.vmware.vrack.hms.common.switches.api.SwitchSession;
+import com.vmware.vrack.hms.common.switches.api.SwitchSnmpConfig;
 import com.vmware.vrack.hms.common.switches.api.SwitchType;
 import com.vmware.vrack.hms.common.switches.api.SwitchUpgradeInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchVlan;
 import com.vmware.vrack.hms.common.switches.api.SwitchVxlan;
 import com.vmware.vrack.hms.common.switches.model.bulk.PluginSwitchBulkConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vmware Inc.
@@ -51,6 +53,7 @@ import com.vmware.vrack.hms.common.switches.model.bulk.PluginSwitchBulkConfig;
 public class SwitchServiceTest
     implements ISwitchService
 {
+
     @Override
     public String getSwitchType()
     {
@@ -65,6 +68,7 @@ public class SwitchServiceTest
         s1.setManufacturer( "Arista" );
         s1.setModel( "*" );
         s1.setRegexMatching( true );
+
         ArrayList<SwitchType> retList = new ArrayList<SwitchType>();
         retList.add( s1 );
         return retList;
@@ -110,6 +114,14 @@ public class SwitchServiceTest
 
     @Override
     public boolean updateSwitchIpAddress( SwitchNode switchNode, String ipAddress, String netmask, String gateway )
+        throws HmsException
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean setPassword( SwitchNode switchNode, String username, String newPassword )
         throws HmsException
     {
         // TODO Auto-generated method stub
@@ -262,6 +274,14 @@ public class SwitchServiceTest
     }
 
     @Override
+    public boolean applyNetworkConfiguration( SwitchNode switchNode, SwitchNetworkConfiguration networkConfiguration )
+        throws HmsException
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
     public List<SwitchVxlan> getSwitchVxlans( SwitchNode switchNode )
     {
         // TODO Auto-generated method stub
@@ -357,6 +377,7 @@ public class SwitchServiceTest
         throws HmsOobNetworkException
     {
         // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -364,6 +385,7 @@ public class SwitchServiceTest
         throws HmsOobNetworkException
     {
         // TODO Auto-generated method stub
+
     }
 
     /**
@@ -398,10 +420,44 @@ public class SwitchServiceTest
         return null;
     }
 
-	@Override
-	public boolean applyNetworkConfiguration(SwitchNode switchNode, SwitchNetworkConfiguration networkConfiguration)
-			throws HmsException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public void deletePortOrBondFromVlan( SwitchNode switchNode, String vlanId, String portOrBondName )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void deletePortFromLacpGroup( SwitchNode switchNode, String lacpGroupName, String portName )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setSwitchTime( SwitchNode switchNode, long time )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void configureSnmp( SwitchNode switchNode, SwitchSnmpConfig config )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public SwitchSnmpConfig getSnmp( SwitchNode switchNode )
+        throws HmsOobNetworkException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

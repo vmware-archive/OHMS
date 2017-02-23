@@ -24,6 +24,7 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 public class ServerComponentAggregator
 {
+
     private static Logger logger = Logger.getLogger( ServerComponentAggregator.class );
 
     /**
@@ -41,4 +42,5 @@ public class ServerComponentAggregator
         else
             AggregatorUtil.getServerComponentIB( node, component );
     }
+
 }

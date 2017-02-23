@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HmsApp.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -37,17 +37,22 @@ public class HmsApp
 
     public static void main( String[] args )
     {
+
         try
         {
             ThreadStackLogger.enableShutdownHook();
+
             @SuppressWarnings( "unused" )
             ApplicationContext context = new ClassPathXmlApplicationContext( "hms-config.xml" );
         }
         catch ( Exception e )
         {
             logger.error( "Shutting down HMS application due to exception", e );
+
             ServerNodeConnector.notifyHMSFailure( "APP_INITIALIZATION_ERROR", "Shutting down HMS : " + e.getMessage() );
+
             System.exit( SHUTDOWN_HMS );
         }
     }
+
 }

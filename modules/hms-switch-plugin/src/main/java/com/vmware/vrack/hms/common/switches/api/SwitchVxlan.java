@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SwitchVxlan.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -16,29 +16,41 @@
 
 package com.vmware.vrack.hms.common.switches.api;
 
-public class SwitchVxlan {
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public String getVni() {
-		return vni;
-	}
-	public void setVni(String vni) {
-		this.vni = vni;
-	}
-	
-	public String getVlanName() {
-		return vlanName;
-	}
-	public void setVlanName(String vlanName) {
-		this.vlanName = vlanName;
-	}
-	
-	private String name;
-	private String vni;
-	private String vlanName;
+public class SwitchVxlan
+{
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName( String name )
+    {
+        this.name = name;
+    }
+
+    public String getVni()
+    {
+        return vni;
+    }
+
+    public void setVni( String vni )
+    {
+        this.vni = vni;
+    }
+
+    public String getVlanName()
+    {
+        return vlanName;
+    }
+
+    public void setVlanName( String vlanName )
+    {
+        this.vlanName = vlanName;
+    }
+
+    private String name;
+
+    private String vni;
+
+    private String vlanName;
 }

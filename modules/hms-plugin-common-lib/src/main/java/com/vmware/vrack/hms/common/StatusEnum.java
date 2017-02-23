@@ -13,10 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common;
 
 public enum StatusEnum
 {
+
     UNKNOWNSTATE( StatusEnum._UNKNOWN_STATE ),
     OK( StatusEnum._OK ),
     ERROR( StatusEnum._ERROR ),
@@ -31,6 +33,7 @@ public enum StatusEnum
     POST_FAILURE( StatusEnum._POST_FAILURE ),
     POWER_UP( StatusEnum._POWER_UP ),
     POWER_DOWN( StatusEnum._POWER_DOWN );
+
     private static final String _UNKNOWN_STATE = "unknownstate";
 
     private static final String _OK = "ok";
@@ -113,5 +116,7 @@ public enum StatusEnum
         {
             throw new IllegalArgumentException( "Invalid value: " + value );
         }
+
     }
+
 }

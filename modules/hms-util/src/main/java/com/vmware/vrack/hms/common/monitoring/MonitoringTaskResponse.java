@@ -32,6 +32,7 @@ import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
  */
 public class MonitoringTaskResponse
 {
+
     /**
      * @HmsNode node for which monitoring is to be done
      */

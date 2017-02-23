@@ -22,6 +22,8 @@ import com.vmware.vrack.hms.common.notification.TaskResponse;
 public interface IHmsTask
     extends Callable<TaskResponse>
 {
+
     public void executeTask()
         throws Exception;
+
 }

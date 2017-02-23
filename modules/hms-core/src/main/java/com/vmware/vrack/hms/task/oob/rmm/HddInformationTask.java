@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -37,6 +36,7 @@ import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
 public class HddInformationTask
     extends RmmTask
 {
+
     private static Logger logger = Logger.getLogger( HddInformationTask.class );
 
     public HddInformationTask( TaskResponse response )
@@ -55,16 +55,17 @@ public class HddInformationTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramsArray = new Object[] { serviceServerNode };
-                List<HddInfo> info =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode, "getHddInfo",
-                                                                        paramsArray );
+                // Object[] paramsArray = new Object[] { serviceServerNode };
+                List<HddInfo> info = boardService.getHddInfo( serviceServerNode );
+                // List<HddInfo> info = HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                // serviceServerNode, "getHddInfo", paramsArray);
                 this.node.setHddInfo( info );
             }
             else
             {
                 throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -79,4 +80,5 @@ public class HddInformationTask
             throw new HmsException( "Error while getting HDD Info for Node:" + node.getNodeID(), e );
         }
     }
+
 }

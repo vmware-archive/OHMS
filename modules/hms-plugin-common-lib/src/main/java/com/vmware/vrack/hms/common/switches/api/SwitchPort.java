@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.switches.api;
 
 import java.util.HashMap;
@@ -199,6 +200,7 @@ public class SwitchPort
     public Map<String, String> getObjMap()
     {
         Map<String, String> valueMap = new HashMap<String, String>();
+
         valueMap.put( "number", Integer.toString( ifNumber ) );
         valueMap.put( "name", name );
         valueMap.put( "speed", speed );
@@ -206,6 +208,7 @@ public class SwitchPort
         valueMap.put( "status", status.toString() );
         valueMap.put( "type", type.toString() );
         valueMap.put( "macAddress", macAddress );
+
         return valueMap;
     }
 

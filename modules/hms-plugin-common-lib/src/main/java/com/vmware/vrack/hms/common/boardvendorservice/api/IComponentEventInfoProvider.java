@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.boardvendorservice.api;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 public interface IComponentEventInfoProvider
     extends IHmsComponentService
 {
+
     /**
      * Get Server Component Specific Event Data
      * 
@@ -47,4 +49,5 @@ public interface IComponentEventInfoProvider
      */
     public List<HmsApi> getSupportedHmsApi( ServiceHmsNode serviceNode )
         throws HmsException;
+
 }
