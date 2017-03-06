@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.hdd;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,7 +25,7 @@ import com.vmware.vrack.hms.common.servernodes.api.AbstractServerComponent;
 /**
  * Class for HDD/Storage related properties HddInfo has the FRU component indentifiers which helps to identify the
  * Server component HDD FRU
- *
+ * 
  * @author VMware, Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -32,6 +33,7 @@ import com.vmware.vrack.hms.common.servernodes.api.AbstractServerComponent;
 public class HddInfo
     extends AbstractServerComponent
 {
+
     private long diskCapacityInMB;
 
     private StatusEnum state;
@@ -39,6 +41,12 @@ public class HddInfo
     private String type;
 
     private String firmwareInfo;
+
+    /**
+     * isCapacityDisk - Used in the AllFalsh Environment where we mark the SSD Disk to IsCapacityFlash Based on this
+     * flag we can confirm whether we use this SSD Disk for the capacity or cache.
+     */
+    private boolean isCapacityDisk;
 
     /**
      * Canonical name of the hard disk e.g "naa.55cd2e404b6483b5" Required because we wanted SMART Data for HDDs
@@ -95,4 +103,15 @@ public class HddInfo
     {
         this.firmwareInfo = firmwareInfo;
     }
+
+    public boolean isCapacityDisk()
+    {
+        return isCapacityDisk;
+    }
+
+    public void setCapacityDisk( boolean isCapacityDisk )
+    {
+        this.isCapacityDisk = isCapacityDisk;
+    }
+
 }

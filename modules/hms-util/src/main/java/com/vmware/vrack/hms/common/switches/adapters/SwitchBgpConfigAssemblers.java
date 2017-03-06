@@ -23,16 +23,20 @@ import com.vmware.vrack.hms.common.switches.api.SwitchBgpConfig;
 
 public final class SwitchBgpConfigAssemblers
 {
+
     public static NBSwitchBgpConfig toSwitchBgpConfig( SwitchBgpConfig config )
     {
         NBSwitchBgpConfig lConfig = new NBSwitchBgpConfig();
+
         if ( config == null || config.isEnabled() == false )
             return null;
+
         lConfig.setLocalAsn( config.getLocalAsn() );
         lConfig.setLocalIpAddress( config.getLocalIpAddress() );
         lConfig.setPeerAsn( config.getPeerAsn() );
         lConfig.setPeerIpAddress( config.getPeerIpAddress() );
         lConfig.setExportedNetworks( new ArrayList<NBSwitchNetworkPrefix>() );
+
         if ( config.getExportedNetworks() != null )
         {
             for ( String prefix : config.getExportedNetworks() )
@@ -40,6 +44,7 @@ public final class SwitchBgpConfigAssemblers
                 lConfig.getExportedNetworks().add( SwitchNetworkPrefixAssemblers.toSwitchNetworkPrefix( prefix ) );
             }
         }
+
         return lConfig;
     }
 }

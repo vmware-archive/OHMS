@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -31,9 +30,10 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 /**
  * This will populate the BMC user list, based on the maximum number of enabled users for that bmc
- * 
+ *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class ListBmcUsersTask
     extends IpmiTask
 {
@@ -55,11 +55,12 @@ public class ListBmcUsersTask
         try
         {
             ServiceServerNode serviceServerNode = (ServiceServerNode) node.getServiceObject();
-            Object[] paramsArray = new Object[] { serviceServerNode };
+            // Object[] paramsArray = new Object[] { serviceServerNode };
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
-            List<BmcUser> bmcUsers =
-                HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                    "getManagementUsers", paramsArray );
+            // List<BmcUser> bmcUsers =
+            // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+            // serviceServerNode, "getManagementUsers", paramsArray);
+            List<BmcUser> bmcUsers = boardService.getManagementUsers( serviceServerNode );
             node.setBmcUserList( bmcUsers );
         }
         catch ( HmsResourceBusyException e )
@@ -71,8 +72,8 @@ public class ListBmcUsersTask
         }
         catch ( Exception e )
         {
-            logger.error( "Error while getting BMC Users for Node:" + node.getNodeID(), e );
-            throw new HmsException( "Error while getting BMC Users for Node:" + node.getNodeID(), e );
+            throw new HmsException( "Error while getting BMC Users for Node: " + node.getNodeID(), e );
         }
     }
+
 }

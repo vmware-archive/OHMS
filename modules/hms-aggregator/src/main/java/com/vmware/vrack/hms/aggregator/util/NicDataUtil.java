@@ -37,14 +37,14 @@ import com.vmware.vrack.hms.common.topology.NetTopElement;
 
 /**
  * Enriches the NIC info retuned by Inband API
- *
+ * 
  * @author Yagnesh Chawda
  */
 public class NicDataUtil
 {
     private static Logger logger = LoggerFactory.getLogger( NicDataUtil.class );
 
-    private static final String TOPOLOGY_PATH = "/hms-local/api/1.0/hms/topology";
+    private static final String TOPOLOGY_PATH = "/hms-aggregator/api/1.0/hms/topology";
 
     public static final String hmsIpAddr = "localhost";
 
@@ -53,7 +53,7 @@ public class NicDataUtil
     /**
      * Gets additional info for NIC like, getting topology info for switch and mapping that in to the NIC info for the
      * host to figure-out which switch and port on the switch, which nic port is connected to.
-     *
+     * 
      * @param ethernetControllers
      * @param nodeId
      * @return
@@ -61,17 +61,19 @@ public class NicDataUtil
      */
     public static List<EthernetController> getAdditionalNicInfo( List<EthernetController> ethernetControllers,
                                                                  String nodeId )
-                                                                     throws HmsException
+        throws HmsException
     {
         if ( ethernetControllers != null && !ethernetControllers.isEmpty() && nodeId != null
             && !"".equals( nodeId.trim() ) )
         {
             Map<String, NetTopElement> netTopologyMap = getConnectedNetTopElementMap();
+
             // If netTopologyMap is found null, exit with Exception
             if ( netTopologyMap == null )
             {
                 throw new HmsException( ErrorMessages.NO_ADDITIONAL_NIC_DETAILS_FOUND );
             }
+
             for ( EthernetController ethController : ethernetControllers )
             {
                 List<PortInfo> portInfos = ethController.getPortInfos();
@@ -81,6 +83,7 @@ public class NicDataUtil
                     if ( key != null && netTopologyMap.containsKey( key ) )
                     {
                         NetTopElement netTopElement = netTopologyMap.get( key );
+
                         portInfo.setSwitchName( netTopElement.getDeviceId() );
                         portInfo.setSwitchPort( netTopElement.getPortName() );
                         portInfo.setSwitchPortMac( netTopElement.getMacAddress() );
@@ -93,6 +96,7 @@ public class NicDataUtil
         {
             throw new HmsException( ErrorMessages.ETHERNET_CONTROLLER_LIST_EMPTY );
         }
+
     }
 
     /**
@@ -105,6 +109,7 @@ public class NicDataUtil
     {
         Map<String, NetTopElement> connectedElementsList = null;
         List<NetTopElement> netTopElements = null;
+
         try
         {
             netTopElements = getNetTopologyList();
@@ -113,9 +118,11 @@ public class NicDataUtil
         {
             logger.error( ErrorMessages.ERROR_GETTING_NET_TOPOLOGY_LIST + e );
         }
+
         if ( netTopElements != null )
         {
             connectedElementsList = new HashMap<String, NetTopElement>();
+
             for ( NetTopElement netTopElement : netTopElements )
             {
                 NetTopElement connectedElement = netTopElement.getConnectedElement();
@@ -123,7 +130,9 @@ public class NicDataUtil
                 {
                     String connElemDeviceId = connectedElement.getDeviceId();
                     String connElemPortName = connectedElement.getPortName();
+
                     String key = getKeyForConnectedElementHashMap( connElemDeviceId, connElemPortName );
+
                     // If both device Id and PortName are present then only add in Map
                     if ( key != null )
                     {
@@ -156,10 +165,14 @@ public class NicDataUtil
                 new ParameterizedTypeReference<List<NetTopElement>>()
                 {
                 };
+
             ResponseEntity<List<NetTopElement>> oobResponse =
                 restTemplate.exchange( uri, HttpMethod.GET, entity, typeRef );
+
             List<NetTopElement> netTopElements = oobResponse.getBody();
+
             return netTopElements;
+
         }
         catch ( Exception e )
         {

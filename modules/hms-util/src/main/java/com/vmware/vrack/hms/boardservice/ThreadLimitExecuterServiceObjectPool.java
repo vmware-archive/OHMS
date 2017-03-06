@@ -21,7 +21,7 @@ import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
 
 /**
  * This class represents a thread pool for each node
- *
+ * 
  * @author Vmware Inc
  */
 public class ThreadLimitExecuterServiceObjectPool
@@ -76,8 +76,11 @@ public class ThreadLimitExecuterServiceObjectPool
         config.setMinIdlePerKey( minIdlePerKey );
         config.setMaxIdlePerKey( maxIdlePerKey );
         config.setBlockWhenExhausted( false );
+
         pool =
             new GenericKeyedObjectPool<String, ThreadLimitExecuterServiceObject>( new ThreadLimitExecuterServiceObjectFactory(),
                                                                                   config );
+
     }
+
 }

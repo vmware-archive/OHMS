@@ -1,0 +1,424 @@
+{
+  "name": "OneClould VMworld Rack1 example",
+  "description": "Advanced network configuration for OneClould",
+  "version": "1.0.0",
+  "applicableSwitchTypes": [
+    "cumulus"
+  ],
+  "ports": [
+    {
+      "name": "swp1",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp2",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp3",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp4",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp5",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp6",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp7",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp8",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp9",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp10",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp11",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp12",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp13",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp14",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp15",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp16",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp17",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp18",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp19",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp20",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp21",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp22",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp23",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp24",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp25",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp26",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp27",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp28",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp29",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp30",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp31",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp32",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp33",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp34",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp35",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp36",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp37",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp38",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp39",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp40",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp41",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp42",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp43",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp44",
+      "type": "SERVER",
+      "lacpMode": false
+    },
+    {
+      "name": "swp45",
+      "type": "SYNC",
+      "lacpMode": true,
+      "lacpGroup": "bond0"
+    },
+    {
+      "name": "swp46",
+      "type": "SYNC",
+      "lacpMode": true,
+      "lacpGroup": "bond0"
+    },
+    {
+      "name": "swp47",
+      "type": "SYNC",
+      "lacpMode": true,
+      "lacpGroup": "bond0"
+    },
+    {
+      "name": "swp48",
+      "type": "SYNC",
+      "lacpMode": true,
+      "lacpGroup": "bond0"
+    },
+    {
+      "name": "swp49",
+      "type": "UPLINK",
+      "lacpMode": false
+    },
+    {
+      "name": "swp50",
+      "type": "UPLINK",
+      "lacpMode": false
+    },
+    {
+      "name": "swp51",
+      "type": "UPLINK",
+      "lacpMode": false
+    },
+    {
+      "name": "swp52",
+      "type": "UPLINK",
+      "lacpMode": false
+    }
+  ],
+  "lacpGroups": [
+    {
+      "name": "bond0",
+      "type": "LACPGROUP",
+      "mode": "802.3ad"
+    }
+  ],
+  "vlans": [
+    {
+      "name": "bridge-400",
+      "vlanId": 400,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp1","swp2","swp3","swp4","swp5","swp6","swp7","swp8","swp9","swp10","swp11","swp12","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-300",
+      "vlanId": 300,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp1","swp2","swp3","swp4","swp5","swp6","swp7","swp8","swp9","swp10","swp11","swp12","swp13","swp14","swp15","swp16","swp17","swp18","swp19","swp20","swp21","swp22","swp23","swp24","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-200",
+      "vlanId": 200,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp1","swp2","swp3","swp4","swp5","swp6","swp7","swp8","swp9","swp10","swp11","swp12","swp13","swp14","swp15","swp16","swp17","swp18","swp19","swp20","swp21","swp22","swp23","swp24","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-201",
+      "vlanId": 201,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp1","swp2","swp3","swp4","swp5","swp6","swp7","swp8","swp9","swp10","swp11","swp12","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-202",
+      "vlanId": 202,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp1","swp2","swp3","swp4","swp5","swp6","swp7","swp8","swp9","swp10","swp11","swp12","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-203",
+      "vlanId": 203,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp1","swp2","swp3","swp4","swp5","swp6","swp7","swp8","swp9","swp10","swp11","swp12","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-204",
+      "vlanId": 204,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp1","swp2","swp3","swp4","swp5","swp6","swp7","swp8","swp9","swp10","swp11","swp12","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-211",
+      "vlanId": 211,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp13","swp14","swp15","swp16","swp17","swp18","swp19","swp20","swp21","swp22","swp23","swp24","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-212",
+      "vlanId": 212,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp13","swp14","swp15","swp16","swp17","swp18","swp19","swp20","swp21","swp22","swp23","swp24","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-213",
+      "vlanId": 213,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp13","swp14","swp15","swp16","swp17","swp18","swp19","swp20","swp21","swp22","swp23","swp24","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    },
+    {
+      "name": "bridge-214",
+      "vlanId": 214,
+      "type": "VLAN",
+      "taggedPorts": [ "bond0","swp13","swp14","swp15","swp16","swp17","swp18","swp19","swp20","swp21","swp22","swp23","swp24","swp49","swp50","swp51","swp52" ],
+      "untaggedPorts": [],
+      "stp": {
+        "enabled": true,
+        "protocol": "pvrst"
+      }
+    }
+  ],
+  "ipv4": [],
+  "routes": {
+    "static": [],
+    "vrr": [],
+    "clag": [],
+    "ospf": [],
+    "bgp": []
+  },
+  "management": {
+    "username": "cumulus",
+    "password": "root123",
+    "newPassword": "root123",
+    "newPasswordConfirm": "root123",
+    "ipv4": {
+      "interface": "eth0",
+      "address": "10.28.197.242",
+      "netmask": "255.255.255.0",
+      "gateway": "10.28.197.253"
+    }
+  }
+}

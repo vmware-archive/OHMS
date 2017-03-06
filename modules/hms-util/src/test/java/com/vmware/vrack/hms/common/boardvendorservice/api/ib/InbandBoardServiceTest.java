@@ -35,12 +35,13 @@ import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
 import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 
 /*
-* InbandBoardServiceTest class is dummy class to unit test InBandServiceFactory
-*/
+ * InbandBoardServiceTest class is dummy class to unit test InBandServiceFactory
+ */
 @InBandServiceImplementation( name = "TEST_ESXI" )
 public class InbandBoardServiceTest
     implements IInbandService
 {
+
     private List<HypervisorInfo> supportedHypervisor;
 
     public InbandBoardServiceTest()
@@ -58,6 +59,7 @@ public class InbandBoardServiceTest
         {
             supportedHypervisor = new ArrayList<HypervisorInfo>();
         }
+
         return supportedHypervisor.add( hypervisor );
     }
 
@@ -91,6 +93,7 @@ public class InbandBoardServiceTest
         cpu1.setMaxClockFrequency( (long) 2600 );
         cpu1.setTotalCpuCores( 4 );
         cpus.add( cpu1 );
+
         CPUInfo cpu2 = new CPUInfo();
         ComponentIdentifier cpuIdentifier2 = new ComponentIdentifier();
         cpuIdentifier2.setManufacturer( "INTEL" );
@@ -100,6 +103,7 @@ public class InbandBoardServiceTest
         cpu2.setMaxClockFrequency( (long) 2600 );
         cpu2.setTotalCpuCores( 4 );
         cpus.add( cpu2 );
+
         return cpus;
     }
 
@@ -117,6 +121,7 @@ public class InbandBoardServiceTest
         memory1.setId( "1" );
         memory1.setMaxMemorySpeedInHertz( (long) 1600000 );
         memories.add( memory1 );
+
         PhysicalMemory memory2 = new PhysicalMemory();
         ComponentIdentifier memoryIdentifier2 = new ComponentIdentifier();
         memoryIdentifier2.setProduct( "DIMM" );
@@ -126,6 +131,7 @@ public class InbandBoardServiceTest
         memory2.setId( "2" );
         memory2.setMaxMemorySpeedInHertz( (long) 1600000 );
         memories.add( memory2 );
+
         try
         {
             Thread.sleep( 7000L );
@@ -133,6 +139,7 @@ public class InbandBoardServiceTest
         catch ( InterruptedException e )
         {
         }
+
         return memories;
     }
 
@@ -155,6 +162,7 @@ public class InbandBoardServiceTest
     @Override
     public List<HypervisorInfo> getSupportedHypervisorInfo()
     {
+
         return supportedHypervisor;
     }
 
@@ -187,6 +195,7 @@ public class InbandBoardServiceTest
         throws HmsException
     {
         // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -204,4 +213,5 @@ public class InbandBoardServiceTest
         // TODO Auto-generated method stub
         return null;
     }
+
 }

@@ -19,7 +19,8 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThreadStackLogger
     implements Runnable
@@ -32,7 +33,7 @@ public class ThreadStackLogger
 
     public ThreadStackLogger()
     {
-        this( Logger.getLogger( ThreadStackLogger.class ) );
+        this( LoggerFactory.getLogger( ThreadStackLogger.class ) );
     }
 
     public ThreadStackLogger( Logger logger )
@@ -49,6 +50,7 @@ public class ThreadStackLogger
         {
             shutdownThreadStackLogger = new ThreadStackLogger();
             shutdownThread = new Thread( shutdownThreadStackLogger, "thread-stack-logger" );
+
             shutdownThreadStackLogger.logger.info( "Registering ThreadStackLogger with the shutdown hook ..." );
             Runtime.getRuntime().addShutdownHook( shutdownThread );
         }
@@ -63,6 +65,7 @@ public class ThreadStackLogger
         {
             shutdownThreadStackLogger.logger.info( "De-registering ThreadStackLogger with the shutdown hook ..." );
             Runtime.getRuntime().removeShutdownHook( shutdownThread );
+
             shutdownThreadStackLogger = null;
             shutdownThread = null;
         }
@@ -89,11 +92,14 @@ public class ThreadStackLogger
         StringBuffer threadDump = new StringBuffer();
         Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
         threadDump.append( "Logging threads and stack trace, thread count = " + allStackTraces.size() );
+
         ThreadMXBean threadMxBean = ManagementFactory.getThreadMXBean();
         boolean isCpuInfoAvailable = threadMxBean.isThreadCpuTimeSupported();
+
         for ( Map.Entry<Thread, StackTraceElement[]> entry : allStackTraces.entrySet() )
         {
             Thread t = entry.getKey();
+
             threadDump.append( "\nThread: \"" + t.getName() + "\"" );
             threadDump.append( t.isDaemon() ? " daemon" : "" );
             threadDump.append( isCpuInfoAvailable
@@ -101,11 +107,13 @@ public class ThreadStackLogger
             threadDump.append( " prio=" + t.getPriority() );
             threadDump.append( " state=" + t.getState() );
             threadDump.append( "\n" );
+
             for ( StackTraceElement s : entry.getValue() )
             {
                 threadDump.append( "    at " + s.toString() + "\n" );
             }
         }
+
         return ( threadDump.toString() );
     }
 }

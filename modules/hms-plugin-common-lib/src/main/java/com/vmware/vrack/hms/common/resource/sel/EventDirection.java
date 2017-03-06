@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.sel;
 
 /**
@@ -20,7 +21,9 @@ package com.vmware.vrack.hms.common.resource.sel;
  */
 public enum EventDirection
 {
+
     Assertion( EventDirection.ASSERTION ), Deassertion( EventDirection.DEASSERTION ),;
+
     private static final int ASSERTION = 0;
 
     private static final int DEASSERTION = 1;

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.chassis;
 
 /**
@@ -27,6 +28,7 @@ public enum BootDeviceSelector
     Default_Hard_Disk( (byte) 0x08 ),
     Default_Hard_Disk_Safe_Mode( (byte) 0x0C ),
     Boot_From_Remotely_Connected_Hard_Disk( (byte) 0x2C );
+
     private byte code;
 
     private final static byte MASK_BITS = 0x3C;
@@ -55,6 +57,7 @@ public enum BootDeviceSelector
         {
             return Default_Hard_Disk_Safe_Mode;
         }
+
         else if ( ( TypeConverter.intToByte( MASK_BITS )
             & inputCode ) == Boot_From_Remotely_Connected_Hard_Disk.getCode() )
         {
@@ -64,5 +67,6 @@ public enum BootDeviceSelector
         {
             return No_Override;
         }
+
     }
 }

@@ -23,13 +23,16 @@ public final class SwitchMcLagConfigAssemblers
     public static NBSwitchMcLagConfig toSwitchMcLagConfig( SwitchMclagInfo config )
     {
         NBSwitchMcLagConfig lConfig = new NBSwitchMcLagConfig();
+
         if ( config == null )
             return null;
+
         lConfig.setInterfaceName( config.getInterfaceName() );
         lConfig.setMyIp( config.getIpAddress() );
         lConfig.setNetmask( config.getNetmask() );
         lConfig.setPeerIp( config.getPeerIp() );
         lConfig.setSystemId( config.getSharedMac() );
+
         return lConfig;
     }
 }

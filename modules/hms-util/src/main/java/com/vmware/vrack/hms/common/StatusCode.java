@@ -18,6 +18,7 @@ package com.vmware.vrack.hms.common;
 public enum StatusCode
 {
     OK( 200 ), FAILED( -1 ), NOT_MODIFIED( 304 );
+
     private int value;
 
     private StatusCode( int value )
@@ -29,4 +30,5 @@ public enum StatusCode
     {
         return value;
     }
+
 }

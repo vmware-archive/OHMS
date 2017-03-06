@@ -29,6 +29,7 @@ import com.vmware.vrack.hms.common.switches.api.SwitchPort.PortType;
 public class HMSSwitchNode
     extends HmsNode
 {
+
     private String managementMacAddress;
 
     private String hardwareModel;
@@ -141,6 +142,7 @@ public class HMSSwitchNode
     public void setPortList( List<SwitchPort> portList )
     {
         this.portList = portList;
+
         ArrayList<Map<String, String>> ports = new ArrayList<Map<String, String>>();
         // Set management MAC address
         for ( SwitchPort p : portList )
@@ -152,6 +154,7 @@ public class HMSSwitchNode
                 break;
             }
         }
+
         this.setChanged();
         this.notifyObservers( CallbackRequestFactory.getNotificationRequest( EventType.SWITCH_MONITOR, this.nodeID,
                                                                              ports ) );

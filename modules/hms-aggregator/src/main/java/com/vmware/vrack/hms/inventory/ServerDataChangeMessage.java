@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
 import org.springframework.context.ApplicationEvent;
@@ -26,9 +27,10 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 public class ServerDataChangeMessage
     extends ApplicationEvent
 {
+
     private ServerInfo serverInfo;
 
-    ServerComponent component;
+    private ServerComponent component;
 
     /**
      * @param source
@@ -52,7 +54,7 @@ public class ServerDataChangeMessage
 
     /**
      * Get Server data Info
-     *
+     * 
      * @return serverInfo
      */
     public ServerInfo getServerInfo()
@@ -62,7 +64,7 @@ public class ServerDataChangeMessage
 
     /**
      * Set the Server Info
-     *
+     * 
      * @param serverInfo
      */
     public void setServerInfo( ServerInfo serverInfo )
@@ -82,11 +84,12 @@ public class ServerDataChangeMessage
 
     /**
      * Set the server component
-     *
+     * 
      * @param component
      */
     public void setComponent( ServerComponent component )
     {
         this.component = component;
     }
+
 }

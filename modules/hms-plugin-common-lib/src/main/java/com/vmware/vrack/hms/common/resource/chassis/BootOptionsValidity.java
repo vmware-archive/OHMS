@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.chassis;
 
 /**
@@ -23,6 +24,7 @@ package com.vmware.vrack.hms.common.resource.chassis;
 public enum BootOptionsValidity
 {
     NextBootOnly( (byte) 0x00 ), Persistent( (byte) 0x01 );
+
     private byte code;
 
     private BootOptionsValidity( byte code )

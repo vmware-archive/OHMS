@@ -19,7 +19,7 @@ import com.vmware.vrack.hms.common.servernodes.api.ComponentIdentifier;
 
 /**
  * Class for FRU component identifiers All the Server component (CPU/MEMORY/HDD/NIC) will have FRU component Identifies
- *
+ * 
  * @author VMware Inc.
  */
 public class FruComponent
@@ -59,4 +59,5 @@ public class FruComponent
     {
         this.fruId = fruId;
     }
+
 }

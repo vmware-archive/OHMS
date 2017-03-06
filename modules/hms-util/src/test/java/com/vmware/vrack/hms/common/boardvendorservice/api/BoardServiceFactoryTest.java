@@ -22,23 +22,29 @@ import org.junit.Test;
 
 public class BoardServiceFactoryTest
 {
+
     private static Logger logger = Logger.getLogger( BoardServiceFactoryTest.class );
 
     @Test
     public void test()
     {
         logger.info( "Test hmsutil BoardServiceFactoryTest" );
+
         try
         {
             BoardServiceFactory boardServiceFactory = BoardServiceFactory.getBoardServiceFactory();
+
             boardServiceFactory.getBoardServiceImplementationClasses();
             BoardServiceFactory.initialize();
             assertNotNull( boardServiceFactory.getBoardServiceImplementationClasses() );
+
         }
         catch ( Exception e )
         {
             logger.info( "Test hmsutil BoardServiceFactoryTest Failed!" );
             e.printStackTrace();
         }
+
     }
+
 }

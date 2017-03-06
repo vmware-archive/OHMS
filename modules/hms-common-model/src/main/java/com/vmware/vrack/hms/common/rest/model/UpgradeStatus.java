@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,6 +29,7 @@ import com.vmware.vrack.hms.common.resource.UpgradeStatusCode;
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class UpgradeStatus
 {
+
     /** The id. */
     private String id;
 
@@ -129,6 +131,7 @@ public class UpgradeStatus
     @Override
     public String toString()
     {
+
         StringBuffer sb = new StringBuffer();
         sb.append( "[ " );
         sb.append( "id = " + this.id + ", " );

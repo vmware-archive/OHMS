@@ -88,6 +88,7 @@ public class CLITaskConnectorTest
         instance.createConnection();
         instance.destroy();
         logger.info( "[TS] : Expected Result: Session = NULL, Actual Result: Session=" + instance.getSession() );
+
         assertNull( instance.getSession() );
     }
 }

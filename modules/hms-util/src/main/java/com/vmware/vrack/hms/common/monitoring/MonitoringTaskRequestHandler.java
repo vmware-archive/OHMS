@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MonitoringTaskRequestHandler
 {
+
     /** The logger. */
     private static Logger logger = LoggerFactory.getLogger( MonitoringTaskRequestHandler.class );
 
@@ -56,12 +57,16 @@ public class MonitoringTaskRequestHandler
      */
     private MonitoringTaskRequestHandler()
     {
+
         try
         {
+
             initailizeServerMonitoringThreadPool();
+
         }
         catch ( Exception e )
         {
+
             logger.error( "Error while initializing monitoring ThreadPool.", e );
         }
     }
@@ -73,6 +78,7 @@ public class MonitoringTaskRequestHandler
      */
     public static void init( int threadPoolSize )
     {
+
         MONITORING_THREAD_POOL_SIZE = threadPoolSize;
     }
 
@@ -83,6 +89,7 @@ public class MonitoringTaskRequestHandler
      */
     public static MonitoringTaskRequestHandler getInstance()
     {
+
         return instance;
     }
 
@@ -95,6 +102,7 @@ public class MonitoringTaskRequestHandler
     public void initailizeServerMonitoringThreadPool()
         throws ExecutionException, InterruptedException
     {
+
         executorService = Executors.newFixedThreadPool( MONITORING_THREAD_POOL_SIZE );
         completionService = new ExecutorCompletionService<MonitoringTaskResponse>( executorService );
     }
@@ -108,6 +116,7 @@ public class MonitoringTaskRequestHandler
     public void executeServerMonitorTask( MonitorTaskSuite task )
         throws Exception
     {
+
         completionService.submit( task );
         monitoringTasks.add( task );
     }
@@ -122,8 +131,10 @@ public class MonitoringTaskRequestHandler
      */
     public void shutMonitoring( Long timeoutInMilliSeconds )
     {
+
         if ( executorService != null )
         {
+
             /*
              * For all the MonitorTaskSuite instances, set stopMonitoring to true.
              */
@@ -131,27 +142,38 @@ public class MonitoringTaskRequestHandler
             {
                 monitoringTask.setStopMonitoring( true );
             }
+
             boolean terminated = false;
             executorService.shutdown();
+
             try
             {
+
                 logger.debug( "Waiting for {} seconds for all the monitoring threads are stopped.",
                               ( timeoutInMilliSeconds ) / 1000 );
+
                 terminated = executorService.awaitTermination( timeoutInMilliSeconds, TimeUnit.MILLISECONDS );
+
                 logger.debug( "Finished waiting for all the monitoring threads to get stopped. "
                     + "[All monitoring threads stopped ?: {} ].", terminated );
+
             }
             catch ( InterruptedException e )
             {
+
                 logger.error( "Error while awaiting for terminating monitoring threads.", e );
             }
+
             if ( !terminated || !executorService.isTerminated() )
             {
+
                 logger.debug( "All the monitoring threads have not stopped. Retrying to stop them." );
                 executorService.shutdownNow();
+
             }
             else
             {
+
                 logger.debug( "Successfully stopped all the monitoring threads." );
             }
             executorService = null;
@@ -166,10 +188,12 @@ public class MonitoringTaskRequestHandler
      * @throws ExecutionException the execution exception
      * @throws InterruptedException the interrupted exception
      */
-    public void restratMonitoring( Long timeoutInMilliSeconds )
+    public void restartMonitoring( Long timeoutInMilliSeconds )
         throws ExecutionException, InterruptedException
     {
+
         shutMonitoring( timeoutInMilliSeconds );
+        initailizeServerMonitoringThreadPool();
         for ( MonitorTaskSuite task : monitoringTasks )
         {
             completionService.submit( task );
@@ -181,6 +205,7 @@ public class MonitoringTaskRequestHandler
      */
     public void destroy()
     {
+
         executorService.shutdownNow();
     }
 }

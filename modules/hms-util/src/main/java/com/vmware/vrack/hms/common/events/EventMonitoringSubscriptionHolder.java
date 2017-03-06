@@ -22,7 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vmware.vrack.common.event.Body;
 import com.vmware.vrack.common.event.Event;
@@ -30,6 +31,7 @@ import com.vmware.vrack.common.event.Header;
 import com.vmware.vrack.common.event.enums.EventCatalog;
 import com.vmware.vrack.common.event.enums.EventComponent;
 import com.vmware.vrack.common.event.enums.EventSeverity;
+import com.vmware.vrack.hms.common.HmsConfigHolder;
 import com.vmware.vrack.hms.common.HmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IComponentEventInfoProvider;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -47,9 +49,10 @@ import com.vmware.vrack.hms.common.util.EventsUtil;
  *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class EventMonitoringSubscriptionHolder
 {
-    private static Logger logger = Logger.getLogger( EventMonitoringSubscriptionHolder.class );
+    private static Logger logger = LoggerFactory.getLogger( EventMonitoringSubscriptionHolder.class );
 
     public static final String APP_TYPE = "subscriberId";
 
@@ -59,6 +62,7 @@ public class EventMonitoringSubscriptionHolder
 
     private EventMonitoringSubscriptionHolder()
     {
+
     }
 
     static EventMonitoringSubscriptionHolder eventMonitoringSubscriptionHolder = null;
@@ -125,6 +129,7 @@ public class EventMonitoringSubscriptionHolder
                 logger.error( "Error while getting Event Monitoring Subscription Key." );
             }
         }
+
         if ( key != null )
         {
             eventMonitoringSubscriptionMap.put( key, eventMonitoringSubscription );
@@ -145,6 +150,7 @@ public class EventMonitoringSubscriptionHolder
                                                      eventMonitoringSubscription.getNodeId(),
                                                      eventMonitoringSubscription.getComponent() );
         }
+
         if ( key != null )
         {
             eventMonitoringSubscriptionMap.remove( key );
@@ -175,6 +181,7 @@ public class EventMonitoringSubscriptionHolder
                 key = getNmeEventKey();
             }
         }
+
         if ( key != null )
         {
             nmeMonitoringSubscriptionMap.put( key, baseEventMonitoringSubscription );
@@ -215,12 +222,13 @@ public class EventMonitoringSubscriptionHolder
      */
     public static String getEventMonitoringSubscriptionKey( String subscriberId, String nodeId,
                                                             EventComponent component )
-                                                                throws IllegalArgumentException
+        throws IllegalArgumentException
     {
         if ( EventComponent.HMS.equals( component ) )
         {
             nodeId = "";
         }
+
         if ( subscriberId != null && nodeId != null && component != null )
         {
             if ( !"".equals( subscriberId.trim() ) )
@@ -298,21 +306,27 @@ public class EventMonitoringSubscriptionHolder
         List<Event> events = new ArrayList<Event>();
         List<ServerComponentEvent> componentSensors;
         boolean isServer = ( node instanceof ServerNode );
+
         if ( criticalEventOnly )
             componentSensors = node.getCriticalComponentSensor( component );
         else
             componentSensors = node.getComponentSensor( component );
+
         if ( componentSensors != null )
         {
             for ( ServerComponentEvent sensor : componentSensors )
             {
-                if ( sensor.getEventName().getEventID() == null )
+                if ( sensor.getEventName() == null || sensor.getEventName().getEventID() == null )
                     continue;
+
                 String description = sensor.getEventName().getEventID().getEventText();
                 if ( description == null )
                     description = "";
+
                 List<EventComponent> eventSourceList = sensor.getEventName().getEventID().getComponentList();
+
                 Map<EventComponent, String> source = new HashMap<EventComponent, String>();
+
                 if ( component.getEventComponent() != EventComponent.HMS )
                 {
                     if ( isServer )
@@ -320,21 +334,46 @@ public class EventMonitoringSubscriptionHolder
                         source.put( EventComponent.SERVER, node.getNodeID() );
                         description = description.replace( "{" + EventComponent.SERVER + "}", node.getNodeID() );
                     }
+
                     if ( component.getEventComponent() != null )
                     {
                         source.put( component.getEventComponent(), sensor.getComponentId() );
+
+                        if ( sensor.getEventName().getEventID() == EventCatalog.NIC_PORT_DOWN
+                            || sensor.getEventName().getEventID() == EventCatalog.NIC_PORT_UP )
+                        {
+                            // For NIC NIC_PORT_DOWN and NIC_PORT_UP has Event
+                            // Resource Hierarchy NIC and PORT
+                            source.put( EventComponent.PORT, sensor.getEventId() );
+                        }
                     }
                 }
+
                 if ( ( eventSourceList != null ) && eventSourceList.size() > 0 )
                 {
                     EventComponent eventComponent = eventSourceList.get( eventSourceList.size() - 1 );
+
                     // Below piece of code will be executed in all the cases
                     // except if the eventComponent is RACK
                     if ( !EventComponent.RACK.equals( eventComponent ) )
                     {
                         if ( sensor.getComponentId() != null )
                         {
-                            description = description.replace( "{" + eventComponent + "}", sensor.getComponentId() );
+                            if ( sensor.getEventName().getEventID() == EventCatalog.NIC_PORT_DOWN
+                                || sensor.getEventName().getEventID() == EventCatalog.NIC_PORT_UP )
+                            {
+                                // For NIC NIC_PORT_DOWN and NIC_PORT_UP Event
+                                // description has NIC and PORT
+                                description =
+                                    description.replace( "{" + EventComponent.NIC + "}", sensor.getComponentId() );
+                                description =
+                                    description.replace( "{" + EventComponent.PORT + "}", sensor.getEventId() );
+                            }
+                            else
+                            {
+                                description =
+                                    description.replace( "{" + eventComponent + "}", sensor.getComponentId() );
+                            }
                         }
                         else
                         {
@@ -342,6 +381,7 @@ public class EventMonitoringSubscriptionHolder
                         }
                     }
                 }
+
                 Header header = new Header();
                 header.setEventName( sensor.getEventName().getEventID() );
                 header.setEventCategoryList( sensor.getEventName().getEventID().getCategoryList() );
@@ -349,9 +389,12 @@ public class EventMonitoringSubscriptionHolder
                 header.setEventType( sensor.getEventName().getEventID().getEventType() );
                 header.setAgent( Constants.HMS_EVENT_GENERATOR_ID );
                 header.addComponentIdentifier( source );
+
                 Body body = new Body();
                 body.setData( sensor.toEventDataMap() );
+
                 description = formatString( body.getData(), description );
+
                 body.setDescription( description );
                 Event event = new Event();
                 event.setHeader( header );
@@ -359,7 +402,48 @@ public class EventMonitoringSubscriptionHolder
                 events.add( event );
             }
         }
+
+        if ( component != null && component.getEventComponent() == EventComponent.HMS )
+        {
+            populateInventoryAvailabilityStatus( events );
+        }
+
         return events;
+    }
+
+    /**
+     * This method is responsible for adding the inventory availability status at Oob in the response.
+     *
+     * @param eventList
+     */
+    private static void populateInventoryAvailabilityStatus( List<Event> eventList )
+    {
+        logger.debug( "starts populating inventory availablity status, eventList: {}", eventList );
+
+        if ( eventList != null && eventList.size() > 0 )
+        {
+            Event event = eventList.get( 0 );
+            Body body = event.getBody();
+
+            if ( body != null )
+            {
+                Map<String, String> data = body.getData();
+                if ( data != null )
+                {
+                    data.put( Constants.HMS_INV_FROM_AGG_AVAILABILITY_STATUS,
+                              String.valueOf( HmsConfigHolder.isInvRefreshedFromAggregator() ) );
+                }
+                else
+                {
+                    logger.debug( "data Map under Body obj. is null, so populating a fresh Map" );
+
+                    Map<String, String> tmpData = new HashMap<String, String>();
+                    tmpData.put( Constants.HMS_INV_FROM_AGG_AVAILABILITY_STATUS,
+                                 String.valueOf( HmsConfigHolder.isInvRefreshedFromAggregator() ) );
+                    body.setData( tmpData );
+                }
+            }
+        }
     }
 
     /**
@@ -370,35 +454,43 @@ public class EventMonitoringSubscriptionHolder
      * @param criticalEventOnly
      * @return List<Event>
      */
+
     public static List<Event> getSwitchEventList( HmsNode node, SwitchComponentEnum component,
                                                   boolean criticalEventOnly )
     {
         List<Event> events = new ArrayList<Event>();
         List<ServerComponentEvent> componentSensors;
+
         if ( criticalEventOnly )
             componentSensors = node.getCriticalSwitchComponentSensor( component );
         else
             componentSensors = node.getSwitchComponentSensor( component );
+
         if ( componentSensors != null )
         {
             for ( ServerComponentEvent sensor : componentSensors )
             {
-                if ( sensor.getEventName().getEventID() == null )
+                if ( sensor.getEventName() == null || sensor.getEventName().getEventID() == null )
                     continue;
+
                 String description = sensor.getEventName().getEventID().getEventText();
                 if ( description == null )
                     description = "";
+
                 List<EventComponent> eventSourceList = sensor.getEventName().getEventID().getComponentList();
+
                 Map<EventComponent, String> source = new HashMap<EventComponent, String>();
                 if ( component.getEventComponent() != EventComponent.HMS )
                 {
                     source.put( EventComponent.SWITCH, node.getNodeID() );
                     description = description.replace( "{" + EventComponent.SWITCH + "}", node.getNodeID() );
                 }
+
                 if ( component.getEventComponent() != null )
                 {
                     source.put( component.getEventComponent(), sensor.getComponentId() );
                 }
+
                 if ( ( eventSourceList != null ) && eventSourceList.size() > 0 )
                 {
                     EventComponent eventComponent = eventSourceList.get( eventSourceList.size() - 1 );
@@ -411,6 +503,7 @@ public class EventMonitoringSubscriptionHolder
                         description = description.replace( "{" + eventComponent + "}", "NA" );
                     }
                 }
+
                 Header header = new Header();
                 header.setEventName( sensor.getEventName().getEventID() );
                 header.setEventCategoryList( sensor.getEventName().getEventID().getCategoryList() );
@@ -418,9 +511,12 @@ public class EventMonitoringSubscriptionHolder
                 header.setEventType( sensor.getEventName().getEventID().getEventType() );
                 header.setAgent( Constants.HMS_EVENT_GENERATOR_ID );
                 header.addComponentIdentifier( source );
+
                 Body body = new Body();
                 body.setData( sensor.toEventDataMap() );
+
                 description = formatString( body.getData(), description );
+
                 body.setDescription( description );
                 Event event = new Event();
                 event.setHeader( header );
@@ -428,6 +524,7 @@ public class EventMonitoringSubscriptionHolder
                 events.add( event );
             }
         }
+
         return events;
     }
 
@@ -466,6 +563,7 @@ public class EventMonitoringSubscriptionHolder
 
     public static String formatString( Map<String, String> valueMap, String str )
     {
+
         for ( Map.Entry<String, String> e : valueMap.entrySet() )
         {
             if ( e != null )
@@ -473,6 +571,7 @@ public class EventMonitoringSubscriptionHolder
                 str = str.replace( "{" + e.getKey() + "}", ( e.getValue() != null ) ? e.getValue() : "" );
             }
         }
+
         return str;
     }
 
@@ -488,6 +587,7 @@ public class EventMonitoringSubscriptionHolder
                                                                     String componentTarget )
     {
         List<EventMonitoringSubscription> subscribedEvents = new ArrayList<EventMonitoringSubscription>();
+
         for ( EventMonitoringSubscription eventSub : eventMonitoringSubscriptionMap.values() )
         {
             // Check if nodeID is not empty, if it is empty it means caller wants Events for all Nodes with the
@@ -505,6 +605,7 @@ public class EventMonitoringSubscriptionHolder
                 }
             }
         }
+
         return subscribedEvents;
     }
 
@@ -519,10 +620,12 @@ public class EventMonitoringSubscriptionHolder
     {
         // Event List that will be the filtered list of events from totalevents
         List<Event> filteredEvents = new ArrayList<Event>();
+
         if ( subscription != null && totalEvents != null )
         {
             String subsNodeId = subscription.getNodeId();
             EventComponent subsComponent = subscription.getComponent();
+
             // Iterate through the list of the events
             for ( Event event : totalEvents )
             {
@@ -531,6 +634,7 @@ public class EventMonitoringSubscriptionHolder
                 {
                     String eventNodeId = null;
                     EventComponent eventComponent = null;
+
                     // Required to get the nodeId , Component and the Component Target Id
                     for ( EventComponent key : eventHeader.getComponentIdentifier().keySet() )
                     {
@@ -554,7 +658,9 @@ public class EventMonitoringSubscriptionHolder
                             eventHeader.getComponentIdentifier().get( key );
                         }
                     }
+
                     EventCatalog eventName = eventHeader.getEventName();
+
                     // Now we have event's required info to map it with Events Registration
                     // Check if the subscription node Id matches with the one in the events.
                     logger.debug( "subNodeId:" + subsNodeId + "::subsComponent: " + subsComponent + "::eventComponent:"
@@ -573,12 +679,14 @@ public class EventMonitoringSubscriptionHolder
                 {
                     logger.error( "Event Header and event source Should not be null" );
                 }
+
             }
         }
         else
         {
             logger.error( "Either EventMonitoringSubscription object or events List is empty." );
         }
+
         return filteredEvents;
     }
 
@@ -597,12 +705,15 @@ public class EventMonitoringSubscriptionHolder
             logger.error( "Cannot get filtered Events, as the events list to be filtered is null" );
             throw new HmsException( "Cannot get filtered Events, as the events list to be filtered is null" );
         }
+
         Map<BaseEventMonitoringSubscription, List<Event>> filteredMap =
             new HashMap<BaseEventMonitoringSubscription, List<Event>>();
+
         for ( EventMonitoringSubscription eventSubscription : eventMonitoringSubscriptionMap.values() )
         {
             // Null checks will be done in the following functions
             List<Event> filteredEvent = getFilteredEvents( eventSubscription, totalEvents );
+
             // If filtered events list is empty there is no point going forward
             if ( !filteredEvent.isEmpty() )
             {
@@ -611,6 +722,7 @@ public class EventMonitoringSubscriptionHolder
                 BaseEventMonitoringSubscription subscriberEndpointDetails = new BaseEventMonitoringSubscription();
                 subscriberEndpointDetails.setRequestMethod( eventSubscription.getRequestMethod() );
                 subscriberEndpointDetails.setNotificationEndpoint( eventSubscription.getNotificationEndpoint() );
+
                 // If the subscriber endpoint is already present in the Hashmap,
                 // it will just add the list received just now to the already in the hashmap
                 if ( filteredMap.containsKey( subscriberEndpointDetails ) )
@@ -635,6 +747,7 @@ public class EventMonitoringSubscriptionHolder
                                                                            IComponentEventInfoProvider provider )
     {
         List<ServerComponent> sensorComponents = new ArrayList<ServerComponent>();
+
         try
         {
             List<HmsApi> supportedAPI = provider.getSupportedHmsApi( node.getServiceObject() );
@@ -673,6 +786,7 @@ public class EventMonitoringSubscriptionHolder
         {
             logger.info( "error generating sensor componnets supported by board.", e );
         }
+
         return sensorComponents;
     }
 
@@ -694,5 +808,24 @@ public class EventMonitoringSubscriptionHolder
                 return comp;
         }
         return null;
+    }
+
+    /**
+     * Removes all event monitoring subscriptions
+     */
+    public void removeAllMonitoringSubscriptions()
+    {
+        logger.debug( "forcefully clearing all the subscritiptions" );
+        if ( eventMonitoringSubscriptionMap != null )
+        {
+            eventMonitoringSubscriptionMap.clear();
+            logger.debug( "cleared eventMonitoringSubscriptionMap" );
+        }
+
+        if ( nmeMonitoringSubscriptionMap != null )
+        {
+            nmeMonitoringSubscriptionMap.clear();
+            logger.debug( "cleared nmeMonitoringSubscriptionMap" );
+        }
     }
 }

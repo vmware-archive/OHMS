@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import java.io.File;
@@ -32,6 +33,7 @@ import com.vmware.vrack.hms.common.rest.model.UpgradeStatus;
  */
 public class HmsUpgradeUtil
 {
+
     /** The Constant mapper. */
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -43,6 +45,7 @@ public class HmsUpgradeUtil
      */
     private HmsUpgradeUtil()
     {
+
         throw new AssertionError();
     }
 
@@ -55,6 +58,7 @@ public class HmsUpgradeUtil
      */
     public static boolean saveUpgradeStatus( final String fileNameAbsPath, final UpgradeStatus upgradeStatus )
     {
+
         if ( StringUtils.isBlank( fileNameAbsPath ) || upgradeStatus == null )
         {
             return false;
@@ -71,6 +75,7 @@ public class HmsUpgradeUtil
      */
     public static boolean saveUpgradeStatus( final File upgradeStatusFile, final UpgradeStatus upgradeStatus )
     {
+
         if ( upgradeStatusFile == null || upgradeStatus == null )
         {
             return false;
@@ -87,6 +92,7 @@ public class HmsUpgradeUtil
         }
         catch ( IOException e )
         {
+
             logger.error( "Error saving upgrade status to file - {}", upgradeStatusFile.getAbsolutePath(), e );
             return false;
         }
@@ -100,17 +106,22 @@ public class HmsUpgradeUtil
      */
     public static UpgradeStatus loadUpgradeStatus( final String fileNameAbsPath )
     {
+
         if ( StringUtils.isBlank( fileNameAbsPath ) )
         {
             return null;
         }
+
         File upgradeStatusFile = new File( fileNameAbsPath );
         if ( upgradeStatusFile.exists() && upgradeStatusFile.isFile() )
         {
+
             return HmsUpgradeUtil.loadUpgradeStatus( new File( fileNameAbsPath ) );
+
         }
         else
         {
+
             logger.error( "Either '{}' does not exist or is not a file.", fileNameAbsPath );
             return null;
         }
@@ -124,6 +135,7 @@ public class HmsUpgradeUtil
      */
     public static UpgradeStatus loadUpgradeStatus( final File upgradeStatusFile )
     {
+
         if ( upgradeStatusFile == null )
         {
             return null;
@@ -131,18 +143,23 @@ public class HmsUpgradeUtil
         String fileName = upgradeStatusFile.getAbsolutePath();
         if ( upgradeStatusFile.exists() && upgradeStatusFile.isFile() )
         {
+
             try
             {
+
                 return mapper.readValue( upgradeStatusFile, UpgradeStatus.class );
+
             }
             catch ( IOException e )
             {
+
                 logger.error( "Error reading '{}' as UpgradeStatus.", fileName, e );
                 return null;
             }
         }
         else
         {
+
             logger.error( "'{}' is either does not exist or not a file.", fileName );
             return null;
         }

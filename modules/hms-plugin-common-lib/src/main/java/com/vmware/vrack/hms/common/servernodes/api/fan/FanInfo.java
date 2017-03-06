@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.fan;
 
 import com.vmware.vrack.hms.common.servernodes.api.AbstractServerComponent;
@@ -25,4 +26,5 @@ import com.vmware.vrack.hms.common.servernodes.api.AbstractServerComponent;
 public class FanInfo
     extends AbstractServerComponent
 {
+
 }

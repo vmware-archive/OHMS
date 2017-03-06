@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere.vmkping;
 
 import java.io.Serializable;
@@ -23,6 +24,7 @@ import java.io.Serializable;
 public class VmkPingInputSpec
     implements Serializable
 {
+
     /*
      * Re-factor hard code string 2014-08-07
      */

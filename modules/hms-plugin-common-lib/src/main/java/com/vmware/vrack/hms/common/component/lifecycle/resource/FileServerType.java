@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.component.lifecycle.resource;
 
 /**
@@ -22,9 +23,14 @@ package com.vmware.vrack.hms.common.component.lifecycle.resource;
 public enum FileServerType
 {
     /** The tftp. */
-    TFTP( "tftp" ), /** The sftp. */
-    SFTP( "sftp" ), /** The ftp. */
+    TFTP( "tftp" ),
+
+    /** The sftp. */
+    SFTP( "sftp" ),
+
+    /** The ftp. */
     FTP( "ftp" );
+
     /** The file server type. */
     private String fileServerType;
 

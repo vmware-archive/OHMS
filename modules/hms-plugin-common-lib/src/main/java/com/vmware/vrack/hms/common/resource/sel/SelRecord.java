@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.sel;
 
 import java.util.Date;
@@ -26,6 +27,7 @@ import com.vmware.vrack.hms.common.resource.fru.SensorType;
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class SelRecord
 {
+
     private int recordId;
 
     private SelRecordType recordType;
@@ -65,6 +67,7 @@ public class SelRecord
      * record.setEvent(ReadingType.parseInt(record.getSensorType(), eventType, eventOffset));
      * record.setReading(data[14]); return record; }
      */
+
     public void setRecordId( int recordId )
     {
         this.recordId = recordId;

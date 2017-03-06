@@ -34,8 +34,6 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.com.bytecode.opencsv.CSVReader;
-
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.vmware.vim.binding.vim.HostSystem;
@@ -45,6 +43,7 @@ import com.vmware.vim.binding.vim.host.HostBusAdapter;
 import com.vmware.vim.binding.vim.host.PciDevice;
 import com.vmware.vim.binding.vim.host.StorageSystem;
 import com.vmware.vim.binding.vmodl.ManagedObjectReference;
+import com.vmware.vrack.hms.boardservice.ib.InbandConstants;
 import com.vmware.vrack.hms.boardservice.ib.InbandServiceImpl;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
@@ -59,6 +58,8 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 import com.vmware.vrack.hms.common.util.EsxiSshUtil;
 import com.vmware.vrack.hms.vsphere.HostProxy;
 import com.vmware.vrack.hms.vsphere.VsphereClient;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Helper class get the Storage controller Information using the vSphere API's and esxicli interface
@@ -87,21 +88,26 @@ public class StorageControllerInfoHelper
      */
     public static List<StorageControllerInfo> getStorageControllerInfo( HostSystem hostSystem, VsphereClient client,
                                                                         HostProxy hostProxy, ServiceServerNode node )
-                                                                            throws Exception
+        throws Exception
     {
         if ( hostSystem != null && hostSystem.getConfigManager() != null )
         {
             List<StorageControllerInfo> storageControllerInfoList = new ArrayList<>();
             ConfigManager configManager = hostSystem.getConfigManager();
+
             ManagedObjectReference ssmor = configManager.getStorageSystem();
+
             if ( ssmor != null )
             {
                 StorageSystem ss = client.createStub( StorageSystem.class, ssmor );
+
                 if ( ss != null && ss.getStorageDeviceInfo() != null )
                 {
                     HostBusAdapter[] hostBusAdapterList = ss.getStorageDeviceInfo().getHostBusAdapter();
+
                     // Call the get physical Host Bus Adapter
                     HostBusAdapter[] physicalHostBusAdapterList = getPhysicalHostBusAdapter( hostBusAdapterList );
+
                     if ( physicalHostBusAdapterList != null )
                     {
                         for ( int i = 0; i < physicalHostBusAdapterList.length; i++ )
@@ -110,8 +116,10 @@ public class StorageControllerInfoHelper
                             ComponentIdentifier storageControllerComponentIdentifier = new ComponentIdentifier();
                             Map<String, String> pciInfo = null;
                             Session session = null;
+
                             storageControllerInfo.setDeviceName( physicalHostBusAdapterList[i].getDevice() );
                             storageControllerInfo.setDriver( physicalHostBusAdapterList[i].getDriver() );
+
                             switch ( physicalHostBusAdapterList[i].getStatus() )
                             {
                                 case Constants.OFFLINE:
@@ -125,6 +133,7 @@ public class StorageControllerInfoHelper
                                 default:
                                     break;
                             }
+
                             try
                             {
                                 // Call the Peripheral Component Interconnect (PCI)
@@ -136,10 +145,12 @@ public class StorageControllerInfoHelper
                                 logger.error( "Error getting Pci Device Id for Storage controller: "
                                     + physicalHostBusAdapterList[i].getDevice() );
                             }
+
                             storageControllerInfo.setPciDeviceId( pciInfo.get( DEVICEID ) );
                             storageControllerComponentIdentifier.setManufacturer( pciInfo.get( VENDOR ) );
                             storageControllerComponentIdentifier.setProduct( pciInfo.get( PRODUCT ) );
                             storageControllerInfo.setComponentIdentifier( storageControllerComponentIdentifier );
+
                             try
                             {
                                 try
@@ -153,6 +164,7 @@ public class StorageControllerInfoHelper
                                     logger.error( "Cannot create ssh session Object for node : "
                                         + ( node != null ? node.getNodeID() : null ), e );
                                 }
+
                                 try
                                 {
                                     int numOfDevices =
@@ -167,11 +179,13 @@ public class StorageControllerInfoHelper
                                                        physicalHostBusAdapterList[i].getDevice(), node.getNodeID() );
                                     logger.debug( err, e );
                                 }
+
                             }
                             finally
                             {
                                 destroySession( session );
                             }
+
                             storageControllerInfoList.add( storageControllerInfo );
                         }
                     }
@@ -197,7 +211,9 @@ public class StorageControllerInfoHelper
      */
     private static HostBusAdapter[] getPhysicalHostBusAdapter( HostBusAdapter[] hostBusAdapterList )
     {
+
         HostBusAdapter[] hostBusAdapterArray = null;
+
         try
         {
             // Sort HostBusAdapter based on the device
@@ -210,7 +226,9 @@ public class StorageControllerInfoHelper
                 {
                     return hostBusAdapter0.device.compareTo( hostBusAdapter1.device );
                 }
+
             } );
+
             // Filter HostBusAdapter object based on the PCI ID....to get only
             // Physical Host Bus adapter
             SortedSet<HostBusAdapter> hostBusAdapterSortedSet =
@@ -222,6 +240,7 @@ public class StorageControllerInfoHelper
                         return hostBusAdapter0.getPci().compareTo( hostBusAdapter1.getPci() );
                     }
                 } );
+
             Iterator<HostBusAdapter> iterator = hostBusAdapterArrayList.iterator();
             while ( iterator.hasNext() )
             {
@@ -229,7 +248,9 @@ public class StorageControllerInfoHelper
             }
             hostBusAdapterArrayList.clear();
             hostBusAdapterArrayList.addAll( hostBusAdapterSortedSet );
+
             hostBusAdapterArray = hostBusAdapterArrayList.toArray( new HostBusAdapter[hostBusAdapterArrayList.size()] );
+
             return hostBusAdapterArray;
         }
         catch ( Exception e )
@@ -251,6 +272,7 @@ public class StorageControllerInfoHelper
         throws HmsException
     {
         Map<String, String> pciDeviceInfo = new HashMap<>();
+
         if ( pciHash != null && !"".equals( pciHash ) && hostProxy != null )
         {
             HostSystem hostSystem = hostProxy.getHostSystem();
@@ -262,6 +284,7 @@ public class StorageControllerInfoHelper
                     for ( PciDevice device : hardwareInfo.getPciDevice() )
                     {
                         String pciDeviceId = null;
+
                         if ( device.getId() != null && device.getId().equals( pciHash ) )
                         {
                             // The device ID might be a negative value as
@@ -271,16 +294,20 @@ public class StorageControllerInfoHelper
                             // will convert the ID to its two's complement for
                             // the WSDL representation.
                             int pciDeviceid = device.getDeviceId();
+
                             // If it's 2's complement value...convert into
                             // decimal
                             if ( pciDeviceid < 0 )
                                 pciDeviceid = pciDeviceid + 65536;
+
                             pciDeviceId = String.valueOf( pciDeviceid );
                             String pciManufacturer = device.getVendorName();
                             String pciProductName = device.getDeviceName();
+
                             pciDeviceInfo.put( DEVICEID, pciDeviceId );
                             pciDeviceInfo.put( VENDOR, pciManufacturer );
                             pciDeviceInfo.put( PRODUCT, pciProductName );
+
                             return pciDeviceInfo;
                         }
                     }
@@ -315,9 +342,10 @@ public class StorageControllerInfoHelper
             && node.getOsPassword() != null )
         {
             Properties sessionConfig = new java.util.Properties();
-            sessionConfig.put( "StrictHostKeyChecking", "no" );
+            sessionConfig.put( InbandConstants.STRICT_HOST_KEY_CHECKING, InbandConstants.STRICT_HOST_KEY_CHECK_YES );
             Session session = EsxiSshUtil.getSessionObject( node.getOsUserName(), node.getOsPassword(),
                                                             node.getIbIpAddress(), node.getSshPort(), sessionConfig );
+
             try
             {
                 session.connect( 30000 );
@@ -359,6 +387,7 @@ public class StorageControllerInfoHelper
         {
             logger.error( "Unable to destroy SSH Session " + session );
         }
+
     }
 
     /**
@@ -375,11 +404,14 @@ public class StorageControllerInfoHelper
     {
         logger.debug( "Getting number of storage devices connected to storage controller hbaDevice [ " + hbaDevice
             + " ] for node [ " + nodeId + " ]" );
+
         int numOfDevices = 0;
+
         if ( hbaDevice != null && session != null )
         {
             String command = Constants.GET_STORAGE_DEVICE_CONNECTED;
             String result = EsxiSshUtil.executeCommand( session, command );
+
             // if result String ends with '\n' We need to remove that extra
             // character,
             // else it will appear as last character while parsing
@@ -387,17 +419,24 @@ public class StorageControllerInfoHelper
             {
                 result = result.substring( 0, result.length() - 1 );
             }
+
             logger.debug( "Storage Controller connected devices details as CSV: " + result );
+
             CSVReader csvReader = null;
+
             try
             {
                 // Covert String into InputStream
                 InputStream is = new ByteArrayInputStream( result.getBytes() );
+
                 // Reading it with BufferedReader
                 BufferedReader br = new BufferedReader( new InputStreamReader( is ) );
+
                 csvReader = new CSVReader( br );
+
                 // Reading all lines at once
                 List<String[]> records = csvReader.readAll();
+
                 // Parse to get the number of devices connected a storage
                 // controller for HBA device
                 for ( int i = 0; i < records.size(); i++ )
@@ -424,6 +463,7 @@ public class StorageControllerInfoHelper
                     csvReader.close();
                 }
             }
+
             return numOfDevices;
         }
         else
@@ -447,12 +487,15 @@ public class StorageControllerInfoHelper
     public static List<ServerComponentEvent> getServerComponentStorageControllerEvent( ServiceHmsNode serviceNode,
                                                                                        ServerComponent component,
                                                                                        InbandServiceImpl inbandServiceImpl )
-                                                                                           throws HmsException
+        throws HmsException
     {
+
         if ( serviceNode != null && serviceNode instanceof ServiceServerNode )
         {
+
             List<StorageControllerInfo> storageControllerInfoList = null;
             List<ServerComponentEvent> serverComponentStorageControllerEvent = new ArrayList<ServerComponentEvent>();
+
             try
             {
                 if ( inbandServiceImpl != null )
@@ -473,11 +516,14 @@ public class StorageControllerInfoHelper
                     + serviceNode != null ? serviceNode.getNodeID() : serviceNode + "]" );
                 throw e;
             }
+
             if ( storageControllerInfoList != null )
             {
                 ServiceServerNode node = null;
+
                 if ( serviceNode instanceof ServiceServerNode )
                     node = (ServiceServerNode) serviceNode;
+
                 try
                 {
                     for ( StorageControllerInfo storageControllerInfo : storageControllerInfoList )
@@ -539,6 +585,7 @@ public class StorageControllerInfoHelper
                 logger.error( "Could Not find any Storage Controller info on node [" + serviceNode != null
                                 ? serviceNode.getNodeID() : serviceNode + "]" );
             }
+
             return serverComponentStorageControllerEvent;
         }
         else
@@ -548,4 +595,5 @@ public class StorageControllerInfoHelper
             throw new HmsException( err );
         }
     }
+
 }

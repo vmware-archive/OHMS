@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.switches.pluginName;
 
 import com.vmware.vrack.hms.common.switches.SshTorSwitchSession;
@@ -20,4 +21,5 @@ import com.vmware.vrack.hms.common.switches.SshTorSwitchSession;
 public class SwitchPluginTorSwitchSession
     extends SshTorSwitchSession
 {
+
 }

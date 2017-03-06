@@ -2,7 +2,6 @@
 
 <!-- /* ********************************************************************************
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
- * Copyright (c) 2016 Intel Corporation
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,11 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.vmware.vrack</groupId>
         <artifactId>hms</artifactId>
-        <version>1.0.0</version>
+        <version>2.0.0-RELEASE</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -48,10 +48,10 @@
         <dependency>
             <groupId>com.intel.plugin</groupId>
             <artifactId>hms-redfish-server-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${hms.redfish.server.plugin.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
+		<dependency>
             <groupId>com.vmware.vrack</groupId>
             <artifactId>quanta-dummy-plugin</artifactId>
             <version>${project.version}</version>
@@ -65,24 +65,45 @@
         </dependency>
         <!-- External Dependencies -->
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson-annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-spring</artifactId>
             <version>${jetty-spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring-beans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring-context.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-aop</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
             <version>${resteasy-jaxrs.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jackson-provider</artifactId>
-            <version>${resteasy-jackson-provider.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -116,11 +137,20 @@
             <!--scope>test</scope-->
             <type>jar</type>
         </dependency>
+		<dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock-module-junit4.version}</version>
+        </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito-all.version}</version>
-            <scope>test</scope>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock-api-mockito.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-core</artifactId>
+            <version>${powermock-core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
@@ -169,6 +199,8 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
+                        <argLine>-Dhms.config.file=src/test/resources/test-config.properties</argLine>
+                        <workingDirectory>${project.basedir}</workingDirectory>
                         <skipTests>false</skipTests>
                     </configuration>
                 </plugin>
@@ -281,6 +313,7 @@
                         <id>zip-with-dependencies</id>
                         <phase>package</phase>
                         <configuration>
+                            <tarLongFileMode>posix</tarLongFileMode>
                             <descriptor>src/main/assembly/bin.xml</descriptor>
                             <finalName>hms-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>

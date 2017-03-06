@@ -20,7 +20,7 @@ import com.vmware.vrack.common.event.enums.EventComponent;
 
 /**
  * Detailed Event Registration object to be used for Event Subscription
- *
+ * 
  * @author Yagnesh Chawda
  */
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -35,7 +35,7 @@ public class EventMonitoringSubscription
 
     /**
      * Node on to be monitored for Event. Could be Server node or Switch Node
-     *
+     * 
      * @return
      */
     public String getNodeId()
@@ -50,7 +50,7 @@ public class EventMonitoringSubscription
 
     /**
      * Logical identification of the subscriber of the Events
-     *
+     * 
      * @return
      */
     public String getSubscriberId()
@@ -65,7 +65,7 @@ public class EventMonitoringSubscription
 
     /**
      * Components to be monitored on the Host/switch
-     *
+     * 
      * @return
      */
     public EventComponent getComponent()
@@ -77,4 +77,5 @@ public class EventMonitoringSubscription
     {
         this.component = component;
     }
+
 }

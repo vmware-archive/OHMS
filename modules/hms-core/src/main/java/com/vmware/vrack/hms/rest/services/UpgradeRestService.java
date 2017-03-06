@@ -13,11 +13,13 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.rest.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -47,8 +50,11 @@ import com.vmware.vrack.hms.common.rest.model.OobUpgradeSpec;
 import com.vmware.vrack.hms.common.rest.model.RollbackSpec;
 import com.vmware.vrack.hms.common.rest.model.UpgradeStatus;
 import com.vmware.vrack.hms.common.service.ServiceState;
+import com.vmware.vrack.hms.common.util.Constants;
 import com.vmware.vrack.hms.common.util.FileUtil;
+import com.vmware.vrack.hms.common.util.HmsGenericUtil;
 import com.vmware.vrack.hms.common.util.HmsUpgradeUtil;
+import com.vmware.vrack.hms.common.util.ProcessUtil;
 import com.vmware.vrack.hms.utils.UpgradeUtil;
 
 /**
@@ -61,8 +67,11 @@ import com.vmware.vrack.hms.utils.UpgradeUtil;
 @Consumes( MediaType.APPLICATION_JSON )
 public class UpgradeRestService
 {
+
     /** The logger. */
     private final Logger logger = LoggerFactory.getLogger( getClass() );
+
+    private static final String RESTART_PROXY_SCRIPT = "hms_oob_restart_lighttpd_wrapper.sh";
 
     /**
      * Upgrade.
@@ -75,58 +84,80 @@ public class UpgradeRestService
     public Response upgrade( OobUpgradeSpec upgradeSpec )
         throws HMSRestException
     {
+
         String message = null;
+
         // validate upgrade request.
         Response validationResponse = UpgradeUtil.validateUpgradeRequest( upgradeSpec );
         if ( validationResponse != null )
         {
             // delete upgrade scripts and upgrade bundle files
-            UpgradeUtil.deleteUpgradeFiles( upgradeSpec );
+            if ( upgradeSpec != null )
+            {
+                UpgradeUtil.deleteUpgradeFiles( upgradeSpec.getId() );
+            }
             return validationResponse;
         }
+
+        final String upgradeId = upgradeSpec.getId();
+        final String upgradeDir = UpgradeUtil.getUpgradeDir( upgradeId );
+
         UpgradeStatus status = new UpgradeStatus();
-        status.setId( upgradeSpec.getId() );
-        boolean scriptsExecutable = FileUtil.setFilesExecutable( upgradeSpec.getScriptsLocation(), "sh" );
+        status.setId( upgradeId );
+
+        boolean scriptsExecutable = FileUtil.setFilesExecutable( upgradeDir, "sh" );
         if ( !scriptsExecutable )
         {
+
             // delete upgrade scripts and upgrade bundle files
-            UpgradeUtil.deleteUpgradeFiles( upgradeSpec );
-            message = String.format( "Failed to grant execute rights to upgrade scripts at '%s'.",
-                                     upgradeSpec.getScriptsLocation() );
+            UpgradeUtil.deleteUpgradeFiles( upgradeId );
+
+            message = String.format( "Failed to grant execute rights to upgrade scripts at '%s'.", upgradeDir );
             logger.error( message );
+
             status.setStatusCode( UpgradeStatusCode.HMS_OOB_UPGRADE_INTERNAL_ERROR );
             status.setStatusMessage( UpgradeStatusCode.HMS_OOB_UPGRADE_INTERNAL_ERROR.getStatusMessage() );
             status.setMoreInfo( message );
             return Response.status( Status.INTERNAL_SERVER_ERROR ).entity( status ).build();
         }
+
         /*
          * 1. Put Service under maintenance 2. Drain/Post all events in queue 3. Shut off monitoring threads
          */
         boolean serviceInMaintenance = ServiceManager.putServiceInMaintenance();
         if ( serviceInMaintenance )
         {
+
             // Invoke upgrade-hms-oob script
-            boolean upgradeInitiated = UpgradeUtil.initiateUpgrade( upgradeSpec );
+            boolean upgradeInitiated = UpgradeUtil.initiateUpgrade( upgradeId, upgradeSpec.getFileName() );
+
             if ( upgradeInitiated )
             {
+
                 if ( ( ServiceManager.getServiceState().equals( ServiceState.NORMAL_MAINTENANCE ) )
                     && ( ServiceManager.getActiveRequests() == 1 ) )
                 {
+
                     message =
                         "Upgrade initiated after Out-of-band agent in " + ServiceState.NORMAL_MAINTENANCE.toString();
+
                 }
                 else if ( ( ServiceManager.getServiceState().equals( ServiceState.FORCE_MAINTENANCE ) )
                     && ( ServiceManager.getActiveRequests() > 1 ) )
                 {
+
                     message =
                         String.format( "Upgrade initiated after Out-of-band agent " + "in %s with %s active requests.",
                                        ServiceState.FORCE_MAINTENANCE.toString(), ServiceManager.getActiveRequests() );
                 }
+
                 logger.info( message );
+
                 // save upgradeStatus to json file.
                 status.setStatusCode( UpgradeStatusCode.HMS_OOB_UPGRADE_INITIATED );
-                String hmsUpgradeDir = HmsConfigHolder.getHMSConfigProperty( "hms.upgrade.dir" );
-                String upgradeStatusFileAbsPath = String.format( "%1$s/%2$s.json", hmsUpgradeDir, upgradeSpec.getId() );
+
+                final String hmsUpgradeDir = UpgradeUtil.getHmsUpgradeDir();
+                String upgradeStatusFileAbsPath = String.format( "%1$s/%2$s.json", hmsUpgradeDir, upgradeId );
                 boolean saved = HmsUpgradeUtil.saveUpgradeStatus( upgradeStatusFileAbsPath, status );
                 if ( saved )
                 {
@@ -136,20 +167,26 @@ public class UpgradeRestService
                 {
                     logger.warn( "Unable to save upgrade status to '{}'.", upgradeStatusFileAbsPath );
                 }
+
                 status.setStatusMessage( UpgradeStatusCode.HMS_OOB_UPGRADE_INITIATED.getStatusMessage() );
                 status.setMoreInfo( message );
                 return Response.status( Status.ACCEPTED ).entity( status ).build();
+
             }
             else
             {
+
                 // delete upgrade scripts and upgrade bundle files
-                UpgradeUtil.deleteUpgradeFiles( upgradeSpec );
+                UpgradeUtil.deleteUpgradeFiles( upgradeId );
+
                 message = "Executing Out-of-band Agent upgrade script failed.";
                 logger.error( message );
+
                 /*
                  * put back service in running state and reset activeRequests and restart monitoring.
                  */
                 ServiceManager.putServiceInRunning();
+
                 status.setStatusCode( UpgradeStatusCode.HMS_OOB_UPGRADE_INTERNAL_ERROR );
                 status.setStatusMessage( UpgradeStatusCode.HMS_OOB_UPGRADE_INTERNAL_ERROR.getStatusMessage() );
                 status.setMoreInfo( message );
@@ -158,8 +195,10 @@ public class UpgradeRestService
         }
         else
         {
+
             // delete upgrade scripts and upgrade bundle files
-            UpgradeUtil.deleteUpgradeFiles( upgradeSpec );
+            UpgradeUtil.deleteUpgradeFiles( upgradeId );
+
             message = "Setting Out-of-band Agent Service in MAINTENANCE failed.";
             logger.error( message );
             status.setStatusCode( UpgradeStatusCode.HMS_OOB_UPGRADE_INTERNAL_ERROR );
@@ -181,9 +220,12 @@ public class UpgradeRestService
     public Response rollback( RollbackSpec rollbackSpec )
         throws HMSRestException
     {
+
         // validate rollback upgrade request
         UpgradeUtil.validateRollbackRequest( rollbackSpec );
+
         boolean rollbackInitiated = UpgradeUtil.rollbackUpgrade( rollbackSpec );
+
         if ( rollbackInitiated )
         {
             // respond as rollback request accepted
@@ -191,9 +233,11 @@ public class UpgradeRestService
                 new BaseResponse( Status.ACCEPTED.getStatusCode(), Status.ACCEPTED.getReasonPhrase(),
                                   "Rollback of upgrade initiated." );
             return Response.accepted().entity( response ).build();
+
         }
         else
         {
+
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                                         Status.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                                         "Initiating rollback of upgrade failed." );
@@ -218,18 +262,35 @@ public class UpgradeRestService
     public Response uploadFile( MultipartFormDataInput multipartFormDataInput )
         throws HMSRestException
     {
+
         Map<String, List<InputPart>> formDataMap = multipartFormDataInput.getFormDataMap();
+
+        String upgradeId = UpgradeUtil.getUpgradeId( formDataMap );
+        if ( upgradeId == null )
+        {
+
+            logger.error( "Form data does not contain 'upgradeId' input." );
+            throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                                        "Error while saving uploaded file. Form data does not contain 'upgradeId' input.",
+                                        Status.INTERNAL_SERVER_ERROR.toString() );
+        }
         String fileName = UpgradeUtil.getFileName( formDataMap );
         if ( fileName == null )
         {
+
             logger.error( "Form data does not contain 'fileName' input." );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                                         "Error while saving uploaded file. Form data does not contain 'fileName' input.",
                                         Status.INTERNAL_SERVER_ERROR.toString() );
         }
+
+        final String upgradeDir = UpgradeUtil.getUpgradeDir( upgradeId );
+        final String destFileNameAbsPath = FilenameUtils.concat( upgradeDir, fileName );
+
         byte[] bytes = UpgradeUtil.getFileContent( formDataMap );
         if ( bytes == null )
         {
+
             logger.error( "Form data either does not contain 'fileContent' input or "
                 + "there was an error converting it into bytes." );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -237,32 +298,42 @@ public class UpgradeRestService
                                             + "there was an error converting it into bytes.",
                                         Status.INTERNAL_SERVER_ERROR.toString() );
         }
+
         try
         {
-            File file = new File( fileName );
+
+            File file = new File( destFileNameAbsPath );
             String dirAbsPath = file.getParent();
             File dir = new File( dirAbsPath );
             if ( !dir.exists() )
             {
                 dir.mkdirs();
             }
+
             if ( !file.exists() )
             {
+
                 file.createNewFile();
+
             }
             else
             {
+
                 file.delete();
                 file.createNewFile();
             }
+
             FileOutputStream fop = new FileOutputStream( file );
             fop.write( bytes );
             fop.flush();
             fop.close();
+
             return Response.ok().build();
+
         }
         catch ( IOException e )
         {
+
             logger.error( "Error while saving uploaded file as '{}'.", fileName, e );
             throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                                         "Error while saving uploaded file." + e.getMessage(),
@@ -279,38 +350,69 @@ public class UpgradeRestService
      */
     @GET
     @Path( "/monitor/{upgradeId}" )
-    public Response getUpgradeStatus( @PathParam( "upgradeId" ) String upgradeId)
+    public Response getUpgradeStatus( @PathParam( "upgradeId" ) String upgradeId )
         throws HMSRestException
     {
+
         UpgradeStatus upgradeStatus = new UpgradeStatus();
         upgradeStatus.setId( upgradeId );
+        String statusMessage = null;
+
         String hmsParentDir = HmsConfigHolder.getHMSConfigProperty( "hms.parent.dir" );
         String upgradeStatusFileName = upgradeId + ".json";
+
         logger.info( "Looking for upgrade status file '{}' at '{}' directory and its sub-directories.",
                      upgradeStatusFileName, hmsParentDir );
         File[] upgradeSatusFiles = FileUtil.findFiles( hmsParentDir, upgradeStatusFileName, true );
+
         if ( ( upgradeSatusFiles == null ) || ( upgradeSatusFiles != null && upgradeSatusFiles.length != 1 ) )
         {
-            logger.info( "No upgrade status file '{}' found for the given upgrade id '{}' at '{}' "
-                + "directory and its sub-directories.", upgradeStatusFileName, upgradeId, hmsParentDir );
+
+            statusMessage = String.format(
+                                           "No upgrade status file '%1s' found for the given upgrade id '%2s' at '%3s' "
+                                               + "directory and its sub-directories.",
+                                           upgradeStatusFileName, upgradeId, hmsParentDir );
+            logger.info( statusMessage );
+            upgradeStatus.setStatusMessage( statusMessage );
             return Response.status( Status.BAD_REQUEST ).entity( upgradeStatus ).build();
+
         }
-        File upgradeSatusFile = upgradeSatusFiles[0];
-        String upgradeStatusFileNameAbsPath = upgradeSatusFile.getAbsolutePath();
-        logger.info( "Found upgrade status file - '{}'. ", upgradeStatusFileNameAbsPath );
-        UpgradeStatus status = HmsUpgradeUtil.loadUpgradeStatus( upgradeSatusFile );
-        if ( status == null )
+        else
         {
-            logger.error( "Unable to load UpgradeStatus from the file - '{}'", upgradeStatusFileNameAbsPath );
-            return Response.status( Status.INTERNAL_SERVER_ERROR ).entity( upgradeStatus ).build();
+
+            File upgradeSatusFile = upgradeSatusFiles[0];
+            String upgradeStatusFileNameAbsPath = upgradeSatusFile.getAbsolutePath();
+            logger.info( "Found upgrade status file - '{}'. ", upgradeStatusFileNameAbsPath );
+
+            UpgradeStatus status = HmsUpgradeUtil.loadUpgradeStatus( upgradeSatusFile );
+            if ( status == null )
+            {
+
+                statusMessage =
+                    String.format( "Unable to load UpgradeStatus from the file - '{}'", upgradeStatusFileNameAbsPath );
+                logger.error( statusMessage );
+                upgradeStatus.setStatusMessage( statusMessage );
+                return Response.status( Status.INTERNAL_SERVER_ERROR ).entity( upgradeStatus ).build();
+
+            }
+            else
+            {
+
+                // additional check of upgrade id
+                if ( status.getId().equals( upgradeId ) )
+                {
+
+                    status.setStatusMessage( status.getStatusCode().getStatusMessage() );
+                    return Response.ok().entity( status ).build();
+
+                }
+                else
+                {
+
+                    return Response.status( Status.INTERNAL_SERVER_ERROR ).entity( upgradeStatus ).build();
+                }
+            }
         }
-        // additional check of upgrade id
-        if ( status.getId().equals( upgradeId ) )
-        {
-            status.setStatusMessage( status.getStatusCode().getStatusMessage() );
-            return Response.ok().entity( status ).build();
-        }
-        return null;
     }
 
     /**
@@ -321,33 +423,121 @@ public class UpgradeRestService
      */
     @DELETE
     @Path( "/backup/{upgradeId}" )
-    public Response deleteBackup( @PathParam( "upgradeId" ) String upgradeId)
+    public Response deleteBackup( @PathParam( "upgradeId" ) String upgradeId )
     {
+
         if ( StringUtils.isBlank( upgradeId ) )
         {
             return Response.status( Status.BAD_REQUEST ).build();
         }
+        UpgradeUtil.deleteUpgradeFiles( upgradeId );
+
         String hmsParentDir = HmsConfigHolder.getHMSConfigProperty( "hms.parent.dir" );
         String hmsBackupDir = String.format( "%1$s/hms_backup_%2$s", hmsParentDir, upgradeId );
+
         File backupDir = new File( hmsBackupDir );
         if ( backupDir.exists() && backupDir.isDirectory() )
         {
+
             if ( FileUtil.deleteDirectory( backupDir ) )
             {
+
                 logger.info( "Deleted HMS Backup - '{}'. ", hmsBackupDir );
                 return Response.status( Status.OK ).build();
+
             }
             else
             {
+
                 logger.info( "Faield to delete HMS Backup - '{}'. ", hmsBackupDir );
                 return Response.status( Status.INTERNAL_SERVER_ERROR ).build();
             }
         }
         else
         {
+
             logger.info( "HMS Backup Directory - '{}' either does not exist or not a directory "
                 + "for the upgradeId - '{}'.", hmsBackupDir, upgradeId );
             return Response.status( Status.BAD_REQUEST ).build();
         }
+    }
+
+    /**
+     * This is the API specifically only for Upgrades. Responsible for restart of Lighttpd by invoking the script
+     * hms_oob_restart_lighttpd_wrapper.sh. This script will be coped to Mgmt switch as part of upgrade file upload from
+     * Hms Aggregator. UpgradeId is the upgrade folder created at runtime while upgrade is initiated.
+     *
+     * @param upgradeId
+     * @return
+     * @throws HMSRestException
+     */
+    @POST
+    @Path( "/proxy/restart/{upgradeId}" )
+    public Response restartProxy( @PathParam( "upgradeId" ) String upgradeId )
+        throws HMSRestException
+    {
+
+        if ( StringUtils.isNotBlank( upgradeId ) )
+        {
+            String upgradeBaseDir = HmsConfigHolder.getHMSConfigProperty( Constants.HMS_UPGRADE_DIR );
+            String scriptLocation =
+                upgradeBaseDir + Constants.FILE_SEPERATOR + upgradeId + Constants.FILE_SEPERATOR + RESTART_PROXY_SCRIPT;
+            logger.debug( "starts executing the script: {}", scriptLocation );
+
+            List<String> cmdWithArgs = new ArrayList<String>();
+            cmdWithArgs.add( 0, scriptLocation );
+
+            int exitCode = ProcessUtil.executeCommand( cmdWithArgs );
+            if ( exitCode != 0 )
+            {
+                logger.error( "unsuccessful on executing the script, exit value {}", exitCode );
+                throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                                            "unsuccessful on executing the script", "exit code: " + exitCode );
+            }
+            logger.debug( "successfully completed executing the script: {}", scriptLocation );
+
+        }
+        else
+        {
+            logger.error( "upgrade token can't be blank" );
+            throw new HMSRestException( Status.BAD_REQUEST.getStatusCode(), "upgrade token is blank",
+                                        "Invalid input provided" );
+        }
+
+        BaseResponse baseResponse = HmsGenericUtil.getBaseResponse( Status.ACCEPTED, "restart proxy initiated." );
+        return Response.accepted().entity( baseResponse ).build();
+    }
+
+    // TODO-remove this later RTP3
+    /**
+     * Downloads the inventory file. Basically during upgrade Hms-oob will be backed-up initially. This method will
+     * download the inventory file from the backed-up location
+     *
+     * @return
+     * @throws HMSRestException
+     */
+    @GET
+    @Path( "/download/inventory/{upgradeId}" )
+    public File downloadInventoryFile( @PathParam( "upgradeId" ) String upgradeId )
+        throws HMSRestException
+    {
+        logger.debug( "download inventory starts" );
+
+        String hmsParentDir = HmsConfigHolder.getHMSConfigProperty( "hms.parent.dir" );
+        String hmsBackupDir = String.format( "%1$s/hms_backup_%2$s", hmsParentDir, upgradeId );
+
+        final String fileAbsLocation =
+            FilenameUtils.concat( hmsBackupDir,
+                                  HmsConfigHolder.getHMSConfigProperty( "hms.inventory.configuration.file" ) );
+
+        File inventoryFile = new File( fileAbsLocation );
+        if ( !inventoryFile.exists() )
+        {
+            String msg = String.format( "The inventory file doesn't exists at the location: %s", fileAbsLocation );
+            logger.error( msg );
+            throw new HMSRestException( Status.INTERNAL_SERVER_ERROR.getStatusCode(), msg, "inventory file not found" );
+        }
+        logger.debug( "returning the downloadable file" );
+        return inventoryFile;
     }
 }

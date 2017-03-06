@@ -17,6 +17,7 @@ package com.vmware.vrack.hms.common.resource;
 
 public class PrmHmsHandShakeRequest
 {
+
     String prmVersion;
 
     String timeStamp;
@@ -40,4 +41,5 @@ public class PrmHmsHandShakeRequest
     {
         this.timeStamp = timeStamp;
     }
+
 }

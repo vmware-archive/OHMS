@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -37,6 +36,7 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 public class StorageControllerInformationTask
     extends RmmTask
 {
+
     private static Logger logger = Logger.getLogger( StorageControllerInformationTask.class );
 
     public StorageControllerInformationTask( TaskResponse response )
@@ -55,16 +55,19 @@ public class StorageControllerInformationTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramsArray = new Object[] { serviceServerNode };
+                // Object[] paramsArray = new Object[] { serviceServerNode };
+                // List<StorageControllerInfo> storageControllerInfo =
+                // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService, serviceServerNode,
+                // "getStorageControllerInfo", paramsArray);
                 List<StorageControllerInfo> storageControllerInfo =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                        "getStorageControllerInfo", paramsArray );
+                    boardService.getStorageControllerInfo( serviceServerNode );
                 this.node.setStorageControllerInfo( storageControllerInfo );
             }
             else
             {
                 throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -79,4 +82,5 @@ public class StorageControllerInformationTask
             throw new HmsException( "Error while getting Storage Controller Info for Node:" + node.getNodeID(), e );
         }
     }
+
 }

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.boardvendorservice.api;
 
 import java.lang.annotation.Documented;
@@ -24,7 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * Every Board Service implementation must annotate its class with the BoardServiceImplementation annotation.
- *
+ * 
  * @author VMware, Inc.
  */
 @Documented

@@ -25,13 +25,16 @@ public class SwitchLagConfigDisassemblers
     public static SwitchLacpGroup fromSwitchLagConfig( NBSwitchLagConfig config )
     {
         SwitchLacpGroup lConfig = new SwitchLacpGroup();
+
         if ( config == null )
             return null;
+
         lConfig.setMode( config.getMode() );
         lConfig.setMtu( config.getMtu() );
         lConfig.setName( config.getName() );
         lConfig.setPorts( new ArrayList<String>() );
         lConfig.setIpAddress( SwitchNetworkPrefixDisassemblers.fromSwitchNetworkPrefix( config.getIpAddress() ) );
+
         if ( config.getPorts() != null )
         {
             for ( String port : config.getPorts() )
@@ -39,6 +42,7 @@ public class SwitchLagConfigDisassemblers
                 lConfig.getPorts().add( port );
             }
         }
+
         return lConfig;
     }
 }

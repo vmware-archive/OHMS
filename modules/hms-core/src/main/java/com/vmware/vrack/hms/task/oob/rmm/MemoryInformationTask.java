@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -55,16 +54,19 @@ public class MemoryInformationTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramsArray = new Object[] { serviceServerNode };
-                List<PhysicalMemory> physicalMemoryList =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                        "getPhysicalMemoryInfo", paramsArray );
+                // Object[] paramsArray = new Object[] { serviceServerNode };
+                List<PhysicalMemory> physicalMemoryList = boardService.getPhysicalMemoryInfo( serviceServerNode );
+                // List<PhysicalMemory> physicalMemoryList =
+                // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService, serviceServerNode,
+                // "getPhysicalMemoryInfo", paramsArray);
                 this.node.setPhysicalMemoryInfo( physicalMemoryList );
+
             }
             else
             {
                 throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -79,4 +81,5 @@ public class MemoryInformationTask
             throw new HmsException( "Error while getting System Memory Info for Node:" + node.getNodeID(), e );
         }
     }
+
 }

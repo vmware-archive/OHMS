@@ -65,11 +65,13 @@ public class SwitchType
             && other.model != null && manufacturer.equalsIgnoreCase( other.manufacturer )
             && model.equalsIgnoreCase( other.model ) )
             return true;
+
         if ( isRegexMatching() && manufacturer != null && other.manufacturer != null && model != null
             && other.model != null
             && Pattern.compile( manufacturer, Pattern.CASE_INSENSITIVE ).matcher( other.manufacturer ).matches()
             && Pattern.compile( model, Pattern.CASE_INSENSITIVE ).matcher( other.model ).matches() )
             return true;
+
         return false;
     }
 }

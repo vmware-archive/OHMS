@@ -34,14 +34,17 @@ import com.vmware.vrack.hms.common.notification.BaseResponse;
 public class ExceptionHandler
     implements ExceptionMapper<Throwable>
 {
+
     private Logger logger = Logger.getLogger( ExceptionHandler.class );
 
     @Override
     public Response toResponse( Throwable exception )
     {
         logger.error( "Returning Bad Request status due to unhandled exception.", exception );
+
         return Response.status( Status.BAD_REQUEST.getStatusCode() ).entity( new BaseResponse( Status.BAD_REQUEST.getStatusCode(),
                                                                                                "Bad Request",
                                                                                                exception.getMessage() ) ).type( MediaType.APPLICATION_JSON ).build();
     }
+
 }

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.boardvendorservice.api.ib;
 
 import java.util.List;
@@ -32,12 +33,13 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 
 /**
  * Interface to be implemented For performing Inband Operations.
- *
+ * 
  * @author VMware, Inc.
  */
 public interface IInbandService
     extends IComponentEventInfoProvider
 {
+
     /**
      * Get CPU Information
      * 
@@ -136,4 +138,5 @@ public interface IInbandService
      */
     public HostNameInfo getHostName( ServiceHmsNode serviceHmsNode )
         throws HmsException;
+
 }

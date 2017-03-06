@@ -29,106 +29,86 @@ public enum EntityId
     /**
      * Disk or disk bay.
      */
-    Disk( EntityId.DISK ),
-    PeripheralBay( EntityId.PERIPHERALBAY ),
-    SystemManagementModule( EntityId.SYSTEMMANAGEMENTMODULE ),
+    Disk( EntityId.DISK ), PeripheralBay( EntityId.PERIPHERALBAY ), SystemManagementModule( EntityId.SYSTEMMANAGEMENTMODULE ),
     /**
      * Main system board, may also be a processor board and/or internal expansion board.
      */
-    SystemBoard( EntityId.SYSTEMBOARD ), /**
-                                          * Board holding memory devices.
-                                          */
+    SystemBoard( EntityId.SYSTEMBOARD ),
+    /**
+     * Board holding memory devices.
+     */
     MemoryModule( EntityId.MEMORYMODULE ),
     /**
      * Holds processors, use this designation when processors are not mounted on system board
      */
-    ProcesorModule( EntityId.PROCESORMODULE ),
-    PowerSupply( EntityId.POWERSUPPLY ),
-    AddInCard( EntityId.ADDINCARD ),
-    FrontPanelBoard( EntityId.FRONTPANELBOARD ),
-    BackPanelBoard( EntityId.BACKPANELBOARD ),
-    PowerSystemBoard( EntityId.POWERSYSTEMBOARD ),
-    DriveBackplane( EntityId.DRIVEBACKPLANE ),
-    SystemInternalExpansionBoard( EntityId.SYSTEMINTERNALEXPANSIONBOARD ),
-    OtherSystemBoard( EntityId.OTHERSYSTEMBOARD ),
-    ProcessorBoard( EntityId.PROCESSORBOARD ),
+    ProcesorModule( EntityId.PROCESORMODULE ), PowerSupply( EntityId.POWERSUPPLY ), AddInCard( EntityId.ADDINCARD ), FrontPanelBoard( EntityId.FRONTPANELBOARD ), BackPanelBoard( EntityId.BACKPANELBOARD ), PowerSystemBoard( EntityId.POWERSYSTEMBOARD ), DriveBackplane( EntityId.DRIVEBACKPLANE ), SystemInternalExpansionBoard( EntityId.SYSTEMINTERNALEXPANSIONBOARD ), OtherSystemBoard( EntityId.OTHERSYSTEMBOARD ), ProcessorBoard( EntityId.PROCESSORBOARD ),
     /**
      * This Entity ID is typically used as a pre-defined logical entity for grouping power supplies and/or sensors that
      * are associated in monitoring a particular logical power domain.
      */
-    PowerUnit( EntityId.POWERUNIT ), /**
-                                      * DC-to-DC internal converter.
-                                      */
-    PowerModule( EntityId.POWERMODULE ), /**
-                                          * Power management / power distribution board
-                                          */
-    PowerManagement( EntityId.POWERMANAGEMENT ),
-    ChassisBackPanelBoard( EntityId.CHASSISBACKPANELBOARD ),
-    SystemChassis( EntityId.SYSTEMCHASSIS ),
-    SubChassis( EntityId.SUBCHASSIS ),
-    OtherChassis( EntityId.OTHERCHASSIS ), DiskDriveBay( EntityId.DISKDRIVEBAY ), /**
-                                                                                   * Duplicate of {@link #PeripheralBay}
-                                                                                   */
-    PeripheralBay2( EntityId.PERIPHERALBAY2 ),
-    DeviceBay( EntityId.DEVICEBAY ),
-    Fan( EntityId.FAN ),
-    CoolingUnit( EntityId.COOLINGUNIT ),
-    CableInterconnect( EntityId.CABLEINTERCONNECT ),
-    MemoryDevice( EntityId.MEMORYDEVICE ),
-    SystemManagementSoftware( EntityId.SYSTEMMANAGEMENTSOFTWARE ),
-    SystemFirmware( EntityId.SYSTEMFIRMWARE ),
-    OperatingSystem( EntityId.OPERATINGSYSTEM ),
-    SystemBus( EntityId.SYSTEMBUS ),
+    PowerUnit( EntityId.POWERUNIT ),
+    /**
+     * DC-to-DC internal converter.
+     */
+    PowerModule( EntityId.POWERMODULE ),
+    /**
+     * Power management / power distribution board
+     */
+    PowerManagement( EntityId.POWERMANAGEMENT ), ChassisBackPanelBoard( EntityId.CHASSISBACKPANELBOARD ), SystemChassis( EntityId.SYSTEMCHASSIS ), SubChassis( EntityId.SUBCHASSIS ), OtherChassis( EntityId.OTHERCHASSIS ), DiskDriveBay( EntityId.DISKDRIVEBAY ),
+    /**
+     * Duplicate of {@link #PeripheralBay}
+     */
+    PeripheralBay2( EntityId.PERIPHERALBAY2 ), DeviceBay( EntityId.DEVICEBAY ), Fan( EntityId.FAN ), CoolingUnit( EntityId.COOLINGUNIT ), CableInterconnect( EntityId.CABLEINTERCONNECT ), MemoryDevice( EntityId.MEMORYDEVICE ), SystemManagementSoftware( EntityId.SYSTEMMANAGEMENTSOFTWARE ), SystemFirmware( EntityId.SYSTEMFIRMWARE ), OperatingSystem( EntityId.OPERATINGSYSTEM ), SystemBus( EntityId.SYSTEMBUS ),
     /**
      * This is a logical entity for use with Entity Association records. It is provided to allow an Entityassociation
      * record to define a grouping of entities when there is no appropriate pre-defined entity for the container entity.
      * This Entity should not be used as a physical entity.
      */
-    Group( EntityId.GROUP ),
-    RemoteManagementCommunicationDevice( EntityId.REMOTEMANAGEMENTCOMMUNICATIONDEVICE ),
+    Group( EntityId.GROUP ), RemoteManagementCommunicationDevice( EntityId.REMOTEMANAGEMENTCOMMUNICATIONDEVICE ),
     /**
      * This Entity ID can be used to identify the environment outside the system chassis. For example, a system may have
      * a temperature sensor that monitors the temperature 'outside the box'. Such a temperature sensor can be associated
      * with an External Environment entity.
      */
-    ExternalEnvironment( EntityId.EXTERNALENVIRONMENT ),
-    Battery( EntityId.BATTERY ), /**
-                                  * A blade module that contains processor, memory, and I/O connections that enable it
-                                  * to operate as a processing entity.
-                                  */
+    ExternalEnvironment( EntityId.EXTERNALENVIRONMENT ), Battery( EntityId.BATTERY ),
+    /**
+     * A blade module that contains processor, memory, and I/O connections that enable it to operate as a processing
+     * entity.
+     */
     ProcessingBlade( EntityId.PROCESSINGBLADE ),
     /**
      * A blade module that provides the fabric or network connection for one or more processing blades or modules.
      */
-    ConnectivitySwitch( EntityId.CONNECTIVITYSWITCH ), /**
-                                                        * Processor and memory together on a module.
-                                                        */
+    ConnectivitySwitch( EntityId.CONNECTIVITYSWITCH ),
+    /**
+     * Processor and memory together on a module.
+     */
     ProcessorMemoryModule( EntityId.PROCESSORMEMORYMODULE ),
     /**
      * A module that contains the main elements of an I/O interface.
      */
-    IoModule( EntityId.IOMODULE ),
-    ProcessorIoModule( EntityId.PROCESSORIOMODULE ),
-    ManagementControllerFirmware( EntityId.MANAGEMENTCONTROLLERFIRMWARE ),
-    IpmiChannel( EntityId.IPMICHANNEL ),
-    PciBus( EntityId.PCIBUS ), PciExpressBus( EntityId.PCIEXPRESSBUS ), ScsiBus( EntityId.SCSIBUS ), /**
-                                                                                                      * SATA/SAS bus.
-                                                                                                      */
-    SataBus( EntityId.SATABUS ),
-    FrontSideBus( EntityId.FRONTSIDEBUS ),
-    RealTimeClock( EntityId.REALTIMECLOCK ), AirInlet( EntityId.AIRINLET ), /**
-                                                                             * Duplicate of {@link #AirInlet}.
-                                                                             */
-    AirInlet2( EntityId.AIRINLET2 ), /**
-                                      * Duplicate of {@link #Processor}.
-                                      */
-    Processor2( EntityId.PROCESSOR2 ), /**
-                                        * Handle OEM Entity ID
-                                        */
-    Oem( EntityId.OEM ), /**
-                          * Duplicate of {@link #SystemBoard}.
-                          */
+    IoModule( EntityId.IOMODULE ), ProcessorIoModule( EntityId.PROCESSORIOMODULE ), ManagementControllerFirmware( EntityId.MANAGEMENTCONTROLLERFIRMWARE ), IpmiChannel( EntityId.IPMICHANNEL ), PciBus( EntityId.PCIBUS ), PciExpressBus( EntityId.PCIEXPRESSBUS ), ScsiBus( EntityId.SCSIBUS ),
+    /**
+     * SATA/SAS bus.
+     */
+    SataBus( EntityId.SATABUS ), FrontSideBus( EntityId.FRONTSIDEBUS ), RealTimeClock( EntityId.REALTIMECLOCK ), AirInlet( EntityId.AIRINLET ),
+    /**
+     * Duplicate of {@link #AirInlet}.
+     */
+    AirInlet2( EntityId.AIRINLET2 ),
+    /**
+     * Duplicate of {@link #Processor}.
+     */
+    Processor2( EntityId.PROCESSOR2 ),
+    /**
+     * Handle OEM Entity ID
+     */
+    Oem( EntityId.OEM ),
+    /**
+     * Duplicate of {@link #SystemBoard}.
+     */
     Baseboard( EntityId.BASEBOARD );
+
     private static final int POWERSUPPLY = 10;
 
     private static final int ADDINCARD = 11;

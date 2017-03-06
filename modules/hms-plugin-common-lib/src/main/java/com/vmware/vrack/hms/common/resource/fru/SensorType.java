@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
  */
 public enum SensorType
 {
+
     CoolingDevice( SensorType.COOLINGDEVICE ),
     OtherUnitsBasedSensor( SensorType.OTHERUNITSBASEDSENSOR ),
     Memory( SensorType.MEMORY ),
@@ -68,6 +69,7 @@ public enum SensorType
     FruState( SensorType.FRUSTATE ),
     Oem( SensorType.OEM ),
     OemReserved( SensorType.OEMRESERVED );
+
     private static final int COOLINGDEVICE = 10;
 
     private static final int OTHERUNITSBASEDSENSOR = 11;

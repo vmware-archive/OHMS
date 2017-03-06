@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.boardvendorservice.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -97,4 +98,5 @@ public class ServiceServerNode
     {
         this.sshPort = sshPort;
     }
+
 }

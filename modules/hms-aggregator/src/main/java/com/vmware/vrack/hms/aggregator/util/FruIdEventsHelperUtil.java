@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * FruIdEventsHelperUtil.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.aggregator.util;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import com.vmware.vrack.hms.inventory.InventoryLoader;
  */
 public class FruIdEventsHelperUtil
 {
+
     private static Logger logger = Logger.getLogger( FruIdEventsHelperUtil.class );
 
     /**
@@ -57,12 +59,14 @@ public class FruIdEventsHelperUtil
                                                 ServerComponent serverComponent )
         throws HmsException
     {
-        ServerInfoHelperUtil serverInfoHelperUtil = new ServerInfoHelperUtil();
+
         ServerInfo serverInfo = new ServerInfo();
         List<Event> events = new ArrayList<Event>();
+
         try
         {
             ServerNode serverNode = InventoryLoader.getInstance().getNodeMap().get( nodeID );
+
             switch ( serverComponent )
             {
                 case CPU:
@@ -72,7 +76,7 @@ public class FruIdEventsHelperUtil
                         aggregator.setServerComponentInfo( serverNode, ServerComponent.CPU );
                     }
                     events =
-                        addFruIDtoCpuEvents( aggregatedEvents, serverInfoHelperUtil.convertToFruCpuInfo( serverNode ) );
+                        addFruIDtoCpuEvents( aggregatedEvents, ServerInfoHelperUtil.convertToFruCpuInfo( serverNode ) );
                     return events;
                 case MEMORY:
                     if ( serverNode.getPhysicalMemoryInfo() == null )
@@ -80,9 +84,8 @@ public class FruIdEventsHelperUtil
                         ServerComponentAggregator aggregator = new ServerComponentAggregator();
                         aggregator.setServerComponentInfo( serverNode, ServerComponent.MEMORY );
                     }
-                    events =
-                        addFruIDtoMemoryEvents( aggregatedEvents,
-                                                serverInfoHelperUtil.convertToFruMemoryInfo( serverNode ) );
+                    events = addFruIDtoMemoryEvents( aggregatedEvents,
+                                                     ServerInfoHelperUtil.convertToFruMemoryInfo( serverNode ) );
                     return events;
                 case STORAGE:
                     if ( serverNode.getHddInfo() == null )
@@ -90,9 +93,8 @@ public class FruIdEventsHelperUtil
                         ServerComponentAggregator aggregator = new ServerComponentAggregator();
                         aggregator.setServerComponentInfo( serverNode, ServerComponent.STORAGE );
                     }
-                    events =
-                        addFruIDtoStorageEvents( aggregatedEvents,
-                                                 serverInfoHelperUtil.convertFruStorageInfo( serverNode ) );
+                    events = addFruIDtoStorageEvents( aggregatedEvents,
+                                                      ServerInfoHelperUtil.convertFruStorageInfo( serverNode ) );
                     return events;
                 case STORAGE_CONTROLLER:
                     if ( serverNode.getStorageControllerInfo() == null )
@@ -102,7 +104,7 @@ public class FruIdEventsHelperUtil
                     }
                     events =
                         addFruIDtoStorageControllerEvents( aggregatedEvents,
-                                                           serverInfoHelperUtil.convertToFruStorageControllerInfo( serverNode ) );
+                                                           ServerInfoHelperUtil.convertToFruStorageControllerInfo( serverNode ) );
                     return events;
                 case NIC:
                     if ( serverNode.getEthernetControllerList() == null )
@@ -112,17 +114,19 @@ public class FruIdEventsHelperUtil
                     }
                     events =
                         addFruIDtoEthernetControllerEvents( aggregatedEvents,
-                                                            serverInfoHelperUtil.convertToFruNICInfo( serverNode ) );
+                                                            ServerInfoHelperUtil.convertToFruNICInfo( serverNode ) );
                     return events;
                 case SYSTEM:
                 case BMC:
                 case SERVER:
-                    serverInfo = serverInfoHelperUtil.convertServerNodeToServerInfo( serverNode );
+                    serverInfo = ServerInfoHelperUtil.convertServerNodeToServerInfo( serverNode );
                     String serverFruID = serverInfo.getFruId();
                     events = addFruIDtoHostEvents( aggregatedEvents, serverFruID );
                     return events;
             }
+
             return aggregatedEvents;
+
         }
         catch ( Exception e )
         {
@@ -141,16 +145,21 @@ public class FruIdEventsHelperUtil
     public static List<Event> addFruIDtoSwitchEventsHelper( List<Event> aggregatedSwitchEvents, String switchID )
         throws HmsException
     {
+
         try
         {
             if ( aggregatedSwitchEvents.size() != 0 )
             {
                 List<Event> events = new ArrayList<Event>();
+
                 HostDataAggregator aggregator = new HostDataAggregator();
                 SwitchInfo switchInfo = aggregator.getSwitchNodeOOBData( switchID );
+
                 if ( switchInfo == null )
                     return aggregatedSwitchEvents;
+
                 events = addFruIDtoSwitchEvents( aggregatedSwitchEvents, switchInfo.getFruId() );
+
                 return events;
             }
             return aggregatedSwitchEvents;
@@ -170,8 +179,10 @@ public class FruIdEventsHelperUtil
      */
     public static List<Event> addFruIDtoCpuEvents( List<Event> aggregatedEvents, List<CpuInfo> cpuInfoList )
     {
+
         List<Event> events = new ArrayList<Event>();
         CpuInfo cpuInfo = new CpuInfo();
+
         try
         {
             for ( int i = 0; i < aggregatedEvents.size(); i++ )
@@ -180,6 +191,7 @@ public class FruIdEventsHelperUtil
                 Map<EventComponent, String> eventComponentIdentifier = event.getHeader().getComponentIdentifier();
                 Map<String, String> eventBody = event.getBody().getData();
                 String componentId = eventComponentIdentifier.get( EventComponent.CPU );
+
                 for ( int j = 0; j < cpuInfoList.size(); j++ )
                 {
                     if ( componentId.contains( cpuInfoList.get( j ).getLocation() ) )
@@ -197,6 +209,7 @@ public class FruIdEventsHelperUtil
         {
             logger.error( "HMS aggregator error in adding Fru ID to CPU Events", e );
         }
+
         return null;
     }
 
@@ -209,8 +222,10 @@ public class FruIdEventsHelperUtil
      */
     public static List<Event> addFruIDtoMemoryEvents( List<Event> aggregatedEvents, List<MemoryInfo> memoryInfoList )
     {
+
         List<Event> events = new ArrayList<Event>();
         MemoryInfo memoryInfo = new MemoryInfo();
+
         try
         {
             for ( int i = 0; i < aggregatedEvents.size(); i++ )
@@ -219,6 +234,7 @@ public class FruIdEventsHelperUtil
                 Map<EventComponent, String> eventComponentIdentifier = event.getHeader().getComponentIdentifier();
                 Map<String, String> eventBody = event.getBody().getData();
                 String componentId = eventComponentIdentifier.get( EventComponent.MEMORY );
+
                 for ( int j = 0; j < memoryInfoList.size(); j++ )
                 {
                     if ( componentId.contains( memoryInfoList.get( j ).getLocation() ) )
@@ -236,6 +252,7 @@ public class FruIdEventsHelperUtil
         {
             logger.error( "HMS aggregator error in adding Fru ID to Memory Events", e );
         }
+
         return null;
     }
 
@@ -248,8 +265,10 @@ public class FruIdEventsHelperUtil
      */
     public static List<Event> addFruIDtoStorageEvents( List<Event> aggregatedEvents, List<StorageInfo> storageInfoList )
     {
+
         List<Event> events = new ArrayList<Event>();
         StorageInfo storageInfo = new StorageInfo();
+
         try
         {
             for ( int i = 0; i < aggregatedEvents.size(); i++ )
@@ -258,6 +277,7 @@ public class FruIdEventsHelperUtil
                 Map<EventComponent, String> eventComponentIdentifier = event.getHeader().getComponentIdentifier();
                 Map<String, String> eventBody = event.getBody().getData();
                 String componentId = eventComponentIdentifier.get( EventComponent.STORAGE );
+
                 for ( int j = 0; j < storageInfoList.size(); j++ )
                 {
                     // String deviceProductLocation = storageInfoList.get(j).getLocation() + " "
@@ -277,6 +297,7 @@ public class FruIdEventsHelperUtil
         {
             logger.error( "HMS aggregator error in adding Fru ID to Storage or HDD Events", e );
         }
+
         return null;
     }
 
@@ -290,8 +311,10 @@ public class FruIdEventsHelperUtil
     public static List<Event> addFruIDtoStorageControllerEvents( List<Event> aggregatedEvents,
                                                                  List<StorageController> storageControllerList )
     {
+
         List<Event> events = new ArrayList<Event>();
         StorageController storageController = new StorageController();
+
         try
         {
             for ( int i = 0; i < aggregatedEvents.size(); i++ )
@@ -300,11 +323,11 @@ public class FruIdEventsHelperUtil
                 Map<EventComponent, String> eventComponentIdentifier = event.getHeader().getComponentIdentifier();
                 Map<String, String> eventBody = event.getBody().getData();
                 String componentId = eventComponentIdentifier.get( EventComponent.STORAGE_CONTROLLER );
+
                 for ( int j = 0; j < storageControllerList.size(); j++ )
                 {
-                    String deviceNameProduct =
-                        storageControllerList.get( j ).getDeviceName() + " "
-                            + storageControllerList.get( j ).getComponentIdentifier().getProduct();
+                    String deviceNameProduct = storageControllerList.get( j ).getDeviceName() + " "
+                        + storageControllerList.get( j ).getComponentIdentifier().getProduct();
                     if ( componentId.equals( deviceNameProduct ) )
                     {
                         storageController = storageControllerList.get( j );
@@ -320,6 +343,7 @@ public class FruIdEventsHelperUtil
         {
             logger.error( "HMS aggregator error in adding Fru ID to Storage Controller Events", e );
         }
+
         return null;
     }
 
@@ -333,8 +357,10 @@ public class FruIdEventsHelperUtil
     public static List<Event> addFruIDtoEthernetControllerEvents( List<Event> aggregatedEvents,
                                                                   List<EthernetController> ethernetControllerList )
     {
+
         List<Event> events = new ArrayList<Event>();
         EthernetController ethernetController = new EthernetController();
+
         try
         {
             for ( int i = 0; i < aggregatedEvents.size(); i++ )
@@ -343,6 +369,7 @@ public class FruIdEventsHelperUtil
                 Map<EventComponent, String> eventComponentIdentifier = event.getHeader().getComponentIdentifier();
                 Map<String, String> eventBody = event.getBody().getData();
                 String componentId = eventComponentIdentifier.get( EventComponent.NIC );
+
                 boolean foundEthernetControllerFru = false;
                 for ( int j = 0; j < ethernetControllerList.size() && foundEthernetControllerFru == false; j++ )
                 {
@@ -365,6 +392,7 @@ public class FruIdEventsHelperUtil
         {
             logger.error( "HMS aggregator error in adding Fru ID to Ethernet Controller or NIC Events", e );
         }
+
         return null;
     }
 
@@ -377,7 +405,9 @@ public class FruIdEventsHelperUtil
      */
     public static List<Event> addFruIDtoHostEvents( List<Event> aggregatedEvents, String serverFruID )
     {
+
         List<Event> events = new ArrayList<Event>();
+
         try
         {
             for ( int i = 0; i < aggregatedEvents.size(); i++ )
@@ -393,6 +423,7 @@ public class FruIdEventsHelperUtil
         {
             logger.error( "HMS aggregator error in adding Fru ID to Host or BMC or SYSTEM Events", e );
         }
+
         return null;
     }
 
@@ -405,7 +436,9 @@ public class FruIdEventsHelperUtil
      */
     public static List<Event> addFruIDtoSwitchEvents( List<Event> aggregatedEvents, String switchFruID )
     {
+
         List<Event> events = new ArrayList<Event>();
+
         try
         {
             for ( int i = 0; i < aggregatedEvents.size(); i++ )
@@ -421,6 +454,7 @@ public class FruIdEventsHelperUtil
         {
             logger.error( "HMS aggregator error in adding Fru ID to Switch Events", e );
         }
+
         return null;
     }
 }

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere;
 
 import java.io.ByteArrayInputStream;
@@ -49,7 +50,6 @@ import com.vmware.vim.binding.vim.vm.device.VirtualDevice;
 import com.vmware.vim.binding.vim.vm.device.VirtualEthernetCard;
 import com.vmware.vim.binding.vmodl.ManagedObject;
 import com.vmware.vim.binding.vmodl.ManagedObjectReference;
-import com.vmware.vim.sso.client.util.codec.Base64;
 import com.vmware.vim.vmomi.core.impl.BlockingFuture;
 
 /**
@@ -96,17 +96,21 @@ public class VsphereUtils
             throw new IllegalArgumentException( "ESXi host certificate is empty." );
             // logger.debug("ESXi Host Certificate \n{}", new String(cert));
         }
+
         byte[] certData = new byte[cert.length - CERT_BEGIN_LEN - CERT_END_LEN];
         System.arraycopy( cert, CERT_BEGIN_LEN, certData, 0, certData.length );
+
         try
         {
             // pem -> der
-            certData = Base64.decodeBase64( certData );
+            certData = javax.xml.bind.DatatypeConverter.parseBase64Binary( new String( certData ) );
             // logger.debug("ESXi Host Certificate Decoded by BASE64 \n{}", certData);
+
             // sha-1 encoding
             MessageDigest msgDigest = MessageDigest.getInstance( "SHA-1" );
             certData = msgDigest.digest( certData );
             // logger.debug("ESXi Host Certificate Digested by SHA-1 \n{}", certData);
+
             char[] thumbprintData = new char[certData.length * 3 - 1];
             int b = certData[0] & 0xFF;
             thumbprintData[0] = hexChars[b >>> 4];
@@ -118,6 +122,7 @@ public class VsphereUtils
                 thumbprintData[i * 3] = hexChars[b >>> 4];
                 thumbprintData[i * 3 + 1] = hexChars[b & 0x0F];
             }
+
             String thumbprint = new String( thumbprintData );
             logger.info( "ESXi Host thumbprint: {}", thumbprint );
             return thumbprint;
@@ -223,7 +228,7 @@ public class VsphereUtils
 
     private static TaskInfo getTaskInfo( final Task task )
     {
-        BlockingFuture<TaskInfo> p = new BlockingFuture<TaskInfo>();
+        BlockingFuture<TaskInfo> p = new BlockingFuture();
         task.getInfo( p );
         try
         {
@@ -288,6 +293,7 @@ public class VsphereUtils
         {
             return source;
         }
+
         List<String> remaining = new ArrayList<>( source.length );
         for ( String s : source )
         {
@@ -343,7 +349,7 @@ public class VsphereUtils
 
     /**
      * Populate a map from a text which format is like '10.28.197.10-vmnic4,10.28.197.15-vmnic1'
-     *
+     * 
      * @param prop The text which format is like '10.28.197.10-vmnic4,10.28.197.15-vmnic1'
      * @return a map which key is the IP address and value is vmnic name
      */
@@ -355,6 +361,7 @@ public class VsphereUtils
             return Collections.emptyMap();
         }
         logger.info( "Property needs to be populated: {}", prop );
+
         String[] items = prop.split( "," );
         Map<String, String> map = new HashMap<>( items.length );
         for ( String item : items )

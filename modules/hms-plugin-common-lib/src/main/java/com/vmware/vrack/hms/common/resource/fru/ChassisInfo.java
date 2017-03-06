@@ -22,6 +22,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class ChassisInfo
     extends FruRecord
 {
+
     private ChassisType chassisType;
 
     private String chassisPartNumber;
@@ -69,4 +70,5 @@ public class ChassisInfo
     {
         this.customChassisInfo = customChassisInfo;
     }
+
 }

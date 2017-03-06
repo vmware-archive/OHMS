@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HmsNode.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -37,6 +37,7 @@ import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 public abstract class HmsNode
     extends Observable
 {
+
     private static Logger logger = Logger.getLogger( HmsNode.class );
 
     protected String managementIp = "0.0.0.0";
@@ -108,6 +109,7 @@ public abstract class HmsNode
     public void setPowered( boolean isPowered )
     {
         this.isPowered = isPowered;
+
         /*
          * if(this.isPowered) broadcastNodeAvailableEvent(null); else broadcastNodeFailureEvent(null);
          */
@@ -122,11 +124,13 @@ public abstract class HmsNode
     {
         if ( this.isDiscoverable != isDiscoverable )
             this.setChanged();
+
         this.isDiscoverable = isDiscoverable;
         if ( this.isDiscoverable )
             broadcastNodeAvailableEvent( null );
         else
             broadcastNodeFailureEvent( null );
+
     }
 
     public String getNodeID()
@@ -149,7 +153,6 @@ public abstract class HmsNode
         this.nodeOsDetails = nodeOsDetails;
     }
 
-    @JsonIgnore
     public String getManagementUserName()
     {
         return managementUserName;
@@ -160,7 +163,6 @@ public abstract class HmsNode
         this.managementUserName = managementUserName;
     }
 
-    @JsonIgnore
     public String getManagementUserPassword()
     {
         return managementUserPassword;
@@ -212,12 +214,15 @@ public abstract class HmsNode
         throws HmsException
     {
         ServiceHmsNode serviceHmsNode = new ServiceHmsNode();
+
         if ( !isNodeOperational() )
             throw new HmsException( this.getAdminStatus().getMessage( this.nodeID ) );
+
         serviceHmsNode.setNodeID( nodeID );
         serviceHmsNode.setManagementIp( managementIp );
         serviceHmsNode.setManagementUserName( managementUserName );
         serviceHmsNode.setManagementUserPassword( managementUserPassword );
+
         return serviceHmsNode;
     }
 
@@ -226,10 +231,12 @@ public abstract class HmsNode
         throws HmsException
     {
         ServiceHmsNode serviceHmsNode = new ServiceHmsNode();
+
         serviceHmsNode.setNodeID( nodeID );
         serviceHmsNode.setManagementIp( managementIp );
         serviceHmsNode.setManagementUserName( managementUserName );
         serviceHmsNode.setManagementUserPassword( managementUserPassword );
+
         return serviceHmsNode;
     }
 
@@ -335,4 +342,5 @@ public abstract class HmsNode
             }
         return criticalSensors;
     }
+
 }

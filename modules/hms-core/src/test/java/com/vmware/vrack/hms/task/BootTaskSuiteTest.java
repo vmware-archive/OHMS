@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * BootTaskSuiteTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -32,14 +32,14 @@ import com.vmware.vrack.hp.ilo.boardservice.BoardService_iLO;
 import com.vmware.vrack.intel.rmm.boardservice.BoardService_S2600GZ;
 
 /**
-* Test Class for Boot Task Suite
-* @author Yagnesh Chawda
-* TODO: Need to do some code refactoring
-*/
+ * Test Class for Boot Task Suite
+ * @author Yagnesh Chawda
+ * TODO: Need to do some code refactoring
+ */
 @Ignore
 public class BootTaskSuiteTest
 {
-	private static Logger logger = Logger.getLogger(BootTaskSuiteTest.class);
+	private static Logger logger = Logger.getLogger(BootTaskSuiteTest.class); 
 
 	
 	/**

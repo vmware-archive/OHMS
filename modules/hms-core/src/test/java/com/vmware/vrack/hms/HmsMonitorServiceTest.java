@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * HmsMonitorServiceTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -49,7 +49,7 @@ import com.vmware.vrack.hms.utils.EventsRegistrationsHolder;
 
 /**
  * Test Classes for Hms Event Notifications
- *
+ * 
  * @author Yagnesh Chawda
  */
 @Ignore
@@ -62,7 +62,7 @@ public class HmsMonitorServiceTest
     /**
      * Populate EventHolder with Events, If addAll is True, it will add all events irrespective of the selectedEvents It
      * will register events passed in @selectedEvents if addAll is false.
-     *
+     * 
      * @param addAll
      * @param selectedEvents
      */
@@ -74,6 +74,7 @@ public class HmsMonitorServiceTest
         requester.setAppType( "PRMTest" );
         requester.setBaseUrl( "http://localhost:8080/" );
         requester.setSubscriberId( "23" );
+
         List<Event> eventList = new ArrayList<>();
         if ( addAll )
         {
@@ -98,14 +99,16 @@ public class HmsMonitorServiceTest
                 }
             }
         }
+
         holder.setRequester( requester );
         holder.setEvents( eventList );
+
         EventsRegistrationsHolder.getInstance().setEventDetails( holder );
     }
 
     /**
      * Returns Dummy Sensor Data List with 3 Sensor Data
-     *
+     * 
      * @return
      */
     public List<Map<String, String>> getDummySensorData()
@@ -119,6 +122,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.Processor.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "sensor2" );
         sensor2.put( "reading", "47" );
@@ -127,6 +131,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.MemoryModule.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         Map<String, String> sensor3 = new HashMap<>();
         sensor3.put( "name", "sensor1" );
         sensor3.put( "reading", "48" );
@@ -135,13 +140,14 @@ public class HmsMonitorServiceTest
         sensor3.put( "entityId", EntityId.Processor.toString() );
         sensor3.put( "state", "ok" );
         sensorData.add( sensor3 );
+
         return sensorData;
     }
 
     /**
      * Test for Host Availability Event Notification, Should notify Event Requester with HOST_UP event in case any Host
      * becomes available.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -155,6 +161,7 @@ public class HmsMonitorServiceTest
         ServerNode node = new ServerNode( "N1", "10.28.197.208", "root", "root123" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         // Node becomes available(discoverable)
         node.setDiscoverable( true );
         try
@@ -165,22 +172,26 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( "HOST_UP", request.getEventType() );
             assertEquals( "N1", request.getTargetId() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Test for Host Failure Event Notification, Should Notify Event Requester with HOST_FAILURE Event in case any
      * Available host goes down.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -196,6 +207,7 @@ public class HmsMonitorServiceTest
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.setDiscoverable( true );
         node.addObserver( blockingHmsMonitorService );
+
         // Host becomes unavailable, earlier it was available
         node.setDiscoverable( false );
         try
@@ -206,21 +218,25 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( "HOST_FAILURE", request.getEventType() );
             assertEquals( "N1", request.getTargetId() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the HOST_MONITOR event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -233,11 +249,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.HOST_MONITOR );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -248,23 +267,28 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( "HOST_MONITOR", request.getEventType() );
             assertEquals( "N1", request.getTargetId() );
             assertNotNull( request.getListData() );
             assertEquals( 3, request.getListData().size() );
+
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the BMC_FW_HEALTH event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -277,11 +301,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.BMC_FW_HEALTH );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -292,24 +319,29 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.BMC_FW_HEALTH.toString(), request.getEventType() );
             assertEquals( "N1", request.getTargetId() );
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
+
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the BMC_FW_HEALTH event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -322,10 +354,12 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.BMC_FW_HEALTH );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "BMC FW health" );
@@ -335,6 +369,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.SystemBoard.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Module Board" );
         sensor2.put( "reading", "46" );
@@ -343,6 +378,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.SystemBoard.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -353,9 +389,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.BMC_FW_HEALTH.toString(), request.getEventType() );
@@ -363,14 +401,17 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 1, request.getListData().size() );
+
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the IPMI_WATCHDOG event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -383,11 +424,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.IPMI_WATCHDOG );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -398,24 +442,29 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.IPMI_WATCHDOG.toString(), request.getEventType() );
             assertEquals( "N1", request.getTargetId() );
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
+
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the IPMI_WATCHDOG event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -428,11 +477,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.IPMI_WATCHDOG );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "BMC FW health" );
         sensor1.put( "reading", "46" );
@@ -441,6 +493,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.SystemBoard.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "System watchDog" );
         sensor2.put( "reading", "46" );
@@ -449,6 +502,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.SystemBoard.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -459,9 +513,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.IPMI_WATCHDOG.toString(), request.getEventType() );
@@ -470,13 +526,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 1, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the POWER_SUPPLY event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -489,11 +547,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.POWER_SUPPLY );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -504,9 +565,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.POWER_SUPPLY.toString(), request.getEventType() );
@@ -514,14 +577,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the POWER_SUPPLY event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -534,11 +599,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.POWER_SUPPLY );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Power Supply 2" );
         sensor1.put( "reading", "46" );
@@ -547,6 +615,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.PowerSupply.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Power Supply 1" );
         sensor2.put( "reading", "46" );
@@ -555,6 +624,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.PowerSupply.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -565,9 +635,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.POWER_SUPPLY.toString(), request.getEventType() );
@@ -576,13 +648,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the SYSTEMBOARD_TEMPERATURE event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -595,11 +669,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.SYSTEMBOARD_TEMPERATURE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -610,9 +687,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.SYSTEMBOARD_TEMPERATURE.toString(), request.getEventType() );
@@ -620,14 +699,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the SYSTEMBOARD_TEMPERATURE event which gets triggered when new new Sensor Data is received. Tested with
      * related Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -640,11 +721,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.SYSTEMBOARD_TEMPERATURE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "System board tempertature 1" );
         sensor1.put( "reading", "46" );
@@ -653,6 +737,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.SystemBoard.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "System board tempertature 1" );
         sensor2.put( "reading", "46" );
@@ -661,6 +746,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.SystemBoard.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -671,9 +757,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.SYSTEMBOARD_TEMPERATURE.toString(), request.getEventType() );
@@ -682,13 +770,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the POWER_SUPPLY_FAN event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -701,11 +791,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.POWER_SUPPLY_FAN );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -716,9 +809,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.POWER_SUPPLY_FAN.toString(), request.getEventType() );
@@ -726,14 +821,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the POWER_SUPPLY_FAN event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -746,11 +843,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.POWER_SUPPLY_FAN );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Power Supply Fan 1" );
         sensor1.put( "reading", "46" );
@@ -759,6 +859,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.PowerSupply.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Power Supply fan 2" );
         sensor2.put( "reading", "46" );
@@ -767,6 +868,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.PowerSupply.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -777,9 +879,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.POWER_SUPPLY_FAN.toString(), request.getEventType() );
@@ -788,13 +892,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the HDD_STATUS event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -807,11 +913,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.HDD_STATUS );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -822,9 +931,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.HDD_STATUS.toString(), request.getEventType() );
@@ -832,14 +943,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the HDD_STATUS event which gets triggered when new new Sensor Data is received. Tested with related Sensor
      * Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -852,11 +965,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.HDD_STATUS );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Drive Backplane  1" );
         sensor1.put( "reading", "46" );
@@ -865,6 +981,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.DriveBackplane.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Drive Backplane  2" );
         sensor2.put( "reading", "46" );
@@ -873,6 +990,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.DriveBackplane.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -883,9 +1001,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.HDD_STATUS.toString(), request.getEventType() );
@@ -894,13 +1014,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the CHASSIS_SECURITY event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -913,11 +1035,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.CHASSIS_SECURITY );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -928,9 +1053,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.CHASSIS_SECURITY.toString(), request.getEventType() );
@@ -938,14 +1065,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the CHASSIS_SECURITY event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -958,11 +1087,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.CHASSIS_SECURITY );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Drive Backplane  1" );
         sensor1.put( "reading", "46" );
@@ -971,6 +1103,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.SystemChassis.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Drive Backplane  2" );
         sensor2.put( "reading", "46" );
@@ -979,6 +1112,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.SystemChassis.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -989,9 +1123,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.CHASSIS_SECURITY.toString(), request.getEventType() );
@@ -1000,13 +1136,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1019,11 +1157,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1034,9 +1175,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR.toString(), request.getEventType() );
@@ -1044,14 +1187,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertFalse( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR event which gets triggered when new new Sensor Data is received. Tested with related Sensor
      * Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1064,11 +1209,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Processor  1" );
         sensor1.put( "reading", "46" );
@@ -1077,6 +1225,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.Processor.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Processor  2" );
         sensor2.put( "reading", "46" );
@@ -1085,6 +1234,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.Processor.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1095,9 +1245,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR.toString(), request.getEventType() );
@@ -1106,13 +1258,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 4, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR_FAN event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1125,11 +1279,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR_FAN );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1140,9 +1297,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR_FAN.toString(), request.getEventType() );
@@ -1150,14 +1309,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertFalse( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR_FAN event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1170,11 +1331,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR_FAN );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Processor  1" );
         sensor1.put( "reading", "46" );
@@ -1183,6 +1347,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.Processor.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Processor  2" );
         sensor2.put( "reading", "46" );
@@ -1191,6 +1356,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.Processor.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1201,9 +1367,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR_FAN.toString(), request.getEventType() );
@@ -1212,13 +1380,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 3, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR_VOLTAGE event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1231,11 +1401,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR_VOLTAGE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1246,9 +1419,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR_VOLTAGE.toString(), request.getEventType() );
@@ -1256,14 +1431,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR_VOLTAGE event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1276,11 +1453,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR_VOLTAGE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Processor Voltage 1" );
         sensor1.put( "reading", "46" );
@@ -1289,6 +1469,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.Processor.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Processor Voltage 2" );
         sensor2.put( "reading", "46" );
@@ -1297,6 +1478,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.Processor.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1307,9 +1489,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR_VOLTAGE.toString(), request.getEventType() );
@@ -1318,13 +1502,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR_TEMPERATURE event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1337,11 +1523,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR_TEMPERATURE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1352,9 +1541,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR_TEMPERATURE.toString(), request.getEventType() );
@@ -1362,14 +1553,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the PROCESSOR_TEMPERATURE event which gets triggered when new new Sensor Data is received. Tested with
      * related Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1382,11 +1575,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.PROCESSOR_TEMPERATURE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Processor Temperature 1" );
         sensor1.put( "reading", "46" );
@@ -1395,6 +1591,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.Processor.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Processor Temperature 2" );
         sensor2.put( "reading", "46" );
@@ -1403,6 +1600,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.Processor.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1413,9 +1611,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.PROCESSOR_TEMPERATURE.toString(), request.getEventType() );
@@ -1424,13 +1624,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the MEMORY event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1443,11 +1645,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.MEMORY );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1458,9 +1663,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.MEMORY.toString(), request.getEventType() );
@@ -1468,13 +1675,15 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the MEMORY event which gets triggered when new new Sensor Data is received. Tested with related Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1487,11 +1696,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.MEMORY );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Memory 1" );
         sensor1.put( "reading", "46" );
@@ -1500,6 +1712,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.MemoryDevice.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Memory 2" );
         sensor2.put( "reading", "46" );
@@ -1508,6 +1721,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.MemoryDevice.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1518,9 +1732,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.MEMORY.toString(), request.getEventType() );
@@ -1529,13 +1745,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the MEMORY_VOLTAGE event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1548,11 +1766,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.MEMORY_VOLTAGE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1563,9 +1784,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.MEMORY_VOLTAGE.toString(), request.getEventType() );
@@ -1573,14 +1796,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the MEMORY_VOLTAGE event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1593,11 +1818,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.MEMORY_VOLTAGE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Memory 1" );
         sensor1.put( "reading", "46" );
@@ -1606,6 +1834,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.MemoryDevice.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Memory 2" );
         sensor2.put( "reading", "46" );
@@ -1614,6 +1843,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.MemoryDevice.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1624,9 +1854,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.MEMORY_VOLTAGE.toString(), request.getEventType() );
@@ -1635,13 +1867,15 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the MEMORY_TEMPERATURE event which gets triggered when new new Sensor Data is received.
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1654,11 +1888,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.MEMORY_TEMPERATURE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1669,9 +1906,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.MEMORY_TEMPERATURE.toString(), request.getEventType() );
@@ -1679,14 +1918,16 @@ public class HmsMonitorServiceTest
             assertNotNull( request.getListData() );
             assertTrue( request.getListData().isEmpty() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
 
     /**
      * Tests the MEMORY_TEMPERATURE event which gets triggered when new new Sensor Data is received. Tested with related
      * Sensor Data
-     *
+     * 
      * @throws JsonGenerationException
      * @throws JsonMappingException
      * @throws IOException
@@ -1699,11 +1940,14 @@ public class HmsMonitorServiceTest
         List<EventType> selectedEvent = new ArrayList<>();
         selectedEvent.add( EventType.MEMORY_TEMPERATURE );
         eventHolderSetup( false, selectedEvent );
+
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
         BlockingHmsMonitorService blockingHmsMonitorService = new BlockingHmsMonitorService();
         node.addObserver( blockingHmsMonitorService );
+
         List<Map<String, String>> sensorData = getDummySensorData();
+
         Map<String, String> sensor1 = new HashMap<>();
         sensor1.put( "name", "Memory Temperature 1" );
         sensor1.put( "reading", "46" );
@@ -1712,6 +1956,7 @@ public class HmsMonitorServiceTest
         sensor1.put( "entityId", EntityId.MemoryDevice.toString() );
         sensor1.put( "state", "ok" );
         sensorData.add( sensor1 );
+
         Map<String, String> sensor2 = new HashMap<>();
         sensor2.put( "name", "Memory Temperature 2" );
         sensor2.put( "reading", "46" );
@@ -1720,6 +1965,7 @@ public class HmsMonitorServiceTest
         sensor2.put( "entityId", EntityId.MemoryDevice.toString() );
         sensor2.put( "state", "ok" );
         sensorData.add( sensor2 );
+
         // Set SensorData
         // node.setSensorData(sensorData);
         try
@@ -1730,9 +1976,11 @@ public class HmsMonitorServiceTest
         {
             logger.error( e );
         }
+
         HMSNotificationRequest[] notificationRequests = blockingHmsMonitorService.getTestNotification();
         assertNotNull( notificationRequests );
         assertEquals( 1, notificationRequests.length );
+
         for ( HMSNotificationRequest request : notificationRequests )
         {
             assertEquals( EventType.MEMORY_TEMPERATURE.toString(), request.getEventType() );
@@ -1741,9 +1989,12 @@ public class HmsMonitorServiceTest
             assertFalse( request.getListData().isEmpty() );
             assertEquals( 2, request.getListData().size() );
         }
+
         logger.info( "Post Url for Notification: " + blockingHmsMonitorService.getPostUrl() );
         logger.info( "Final Post Payload Result: " + mapper.writeValueAsString( notificationRequests ) );
+
     }
+
 }
 
 class BlockingHmsMonitorService
@@ -1781,12 +2032,14 @@ class BlockingHmsMonitorService
                         List<String> urlParts = new ArrayList<String>();
                         urlParts.add( holder.getRequester().getBaseUrl() );
                         urlParts.add( event.getNotificationUrl() );
+
                         String url = HttpUtil.buildUrl( urlParts );// "http://10.113.225.133:8080/vrm-ui/rest/notifications/";//
                         logger.debug( "Triggered notification callback for event " + notification.getEventType()
                             + " to URL " + url + " for node" + hmsNode.getManagementIp() );
                         hmsNode.setMonitorExecutionLog( "TRIGGER HTTP CALLBACK FOR EVENT : "
                             + notification.getEventType() + " URL : " + url + " THREAD : "
                             + Thread.currentThread().getId() + " TIME :" + ( new Date() ).toString(), true );
+
                         switch ( event.getEventType() )
                         {
                             case SWITCH_FAILURE:
@@ -1840,6 +2093,7 @@ class BlockingHmsMonitorService
                                 event.setLastUpdatedTime( ( new Date() ).getTime() );
                                 break;
                         }
+
                         logger.debug( "Callback completed for event " + notification.getEventType() + " to URL "
                             + url );
                         hmsNode.setMonitorExecutionLog( "HTTP CALLBACK COMPLETE FOR EVENT : "
@@ -1854,8 +2108,10 @@ class BlockingHmsMonitorService
                 }
             }
         }
+
         // Latch.countdown will decrease the Count by 1, once it reaches zero, it will resume the awaiting thread
         latch.countDown();
+
     }
 
     public void waitUntilUpdateIsCalled()
@@ -1884,4 +2140,5 @@ class BlockingHmsMonitorService
     {
         this.postUrl = postUrl;
     }
+
 }

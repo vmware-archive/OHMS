@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * CumulusSwitchUpDownEventHelper.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -28,11 +28,11 @@ import com.vmware.vrack.hms.common.switches.api.SwitchNode;
 
 /**
  * Cumulus switch up or down server component event event helper
- *
  */
-public class CumulusSwitchUpDownEventHelper {
+public class CumulusSwitchUpDownEventHelper
+{
 
-    private static Logger logger = Logger.getLogger(CumulusSwitchUpDownEventHelper.class);
+    private static Logger logger = Logger.getLogger( CumulusSwitchUpDownEventHelper.class );
 
     private static final String SWITCH_UP = "Switch is up";
 
@@ -46,12 +46,17 @@ public class CumulusSwitchUpDownEventHelper {
      * @return List<Event>
      * @throws HmsException
      */
-    public static List<ServerComponentEvent> getSwitchUpDownEventHelper(SwitchNode switchNode, boolean switchPowerStatus) throws HmsException {
+    public static List<ServerComponentEvent> getSwitchUpDownEventHelper( SwitchNode switchNode,
+                                                                         boolean switchPowerStatus )
+        throws HmsException
+    {
 
-        if (switchNode != null) {
+        if ( switchNode != null )
+        {
             List<ServerComponentEvent> serverComponentSensorlist = new ArrayList<>();
 
-            try {
+            try
+            {
                 ServerComponentEvent serverComponentEvent = new ServerComponentEvent();
 
                 if ( switchPowerStatus )
@@ -68,12 +73,16 @@ public class CumulusSwitchUpDownEventHelper {
 
                 return serverComponentSensorlist;
 
-            } catch (Exception e) {
-                logger.error("Cannot get switch Up or Down event Information", e);
-                throw new HmsException("Unable to get switch Up or Down event information", e);
             }
-        } else {
-            throw new HmsException("Switch Node is Null or invalid");
+            catch ( Exception e )
+            {
+                logger.error( "Cannot get switch Up or Down event Information", e );
+                throw new HmsException( "Unable to get switch Up or Down event information", e );
+            }
+        }
+        else
+        {
+            throw new HmsException( "Switch Node is Null or invalid" );
         }
     }
 

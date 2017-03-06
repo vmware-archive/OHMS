@@ -22,6 +22,7 @@ import java.util.Map;
 @Deprecated
 public class CallbackRequestFactory
 {
+
     public static HMSNotificationRequest getNotificationRequest( EventType type, String targetId,
                                                                  List<Map<String, String>> listData )
     {
@@ -99,7 +100,10 @@ public class CallbackRequestFactory
                 break;
             default:
                 break;
+
         }
+
         return notification;
     }
+
 }

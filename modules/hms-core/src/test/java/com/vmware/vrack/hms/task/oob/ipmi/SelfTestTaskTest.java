@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * SelfTestTaskTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,7 +13,6 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
-
 package com.vmware.vrack.hms.task.oob.ipmi;
 
 import static org.junit.Assert.assertNotNull;
@@ -32,10 +31,10 @@ import com.vmware.vrack.hp.ilo.boardservice.BoardService_iLO;
 import com.vmware.vrack.intel.rmm.boardservice.BoardService_S2600GZ;
 
 /**
-* Test of SelfTestTask methods
-* @author Yagnesh Chawda
-*
-*/
+ * Test of SelfTestTask methods
+ * @author Yagnesh Chawda
+ *
+ */
 @Ignore
 public class SelfTestTaskTest
 {

@@ -23,9 +23,11 @@
       <directoryMode>0755</directoryMode>
       <includes>
         <include>config/*</include>
+        <!-- <include>upgrade-config/*</include> -->
       </includes>
       <excludes>
         <exclude>config/metadata.txt</exclude>
+        <exclude>config/hms-inventory.json</exclude>
       </excludes>
     </fileSet>
 	<fileSet>
@@ -45,14 +47,14 @@
           <include>lib/*</include>
       </includes>
     </fileSet>
-    <!-- Add entries for each partner plugin here -->
+    <!-- Add partner plugins to build -->
     <!-- <fileSet>
-      <directory>${project.basedir}/../partner-plugins/hms-dell-server-plugin</directory>
-      <outputDirectory>/</outputDirectory>
+      <directory>${project.basedir}/../partner-plugins/hms-arista-eos-switch-plugin/plugin-jars/</directory>
+      <outputDirectory>plugin-jars</outputDirectory>
       <fileMode>0644</fileMode>
       <directoryMode>0755</directoryMode>
       <includes>
-          <include>plugin-jars/*</include>
+          <include>*.jar</include>
       </includes>
     </fileSet> -->
 
@@ -68,7 +70,7 @@
       <scope>compile</scope>
     </dependencySet>
 
-    <dependencySet>
+    <!-- <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <useProjectArtifact>true</useProjectArtifact>
       <fileMode>0644</fileMode>
@@ -76,9 +78,11 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
+        <include>com.veraxsystems:vxIPMI</include>
         <include>org.apache.commons:commons-pool2</include>
+        <include>com.vmware.vrack:ipmi-service</include>
       </includes>
-    </dependencySet>
+    </dependencySet> -->
 
     <!-- Third-party API jars for runtime dependencies -->
     <dependencySet>
@@ -89,9 +93,19 @@
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
-     	<include>com.changeit.plugin:hms-sample-switch-plugin</include>
-     	<include>com.vmware.vrack:quanta-dummy-plugin</include>
+      	<!-- <include>com.vmware.vrack:hms-oob-ipmi-plugin</include>
+      	<include>com.vmware.vrack:quanta-rmm</include>
+      	<include>com.vmware.vrack:quanta-d51b</include>
+      	<include>com.vmware.vrack:quanta-ocp-api</include>
+      	<include>com.vmware.vrack:hms-hp-gen9-server-plugin</include>
+      	<include>com.vmware.vrack:intel-rmm</include>
+        <include>com.vmware.vrack.hms.dell:hms-dell-server-plugin</include>
+     	<include>com.changeit.plugin:hms-sample-server-plugin</include>
+     	<include>com.changeit.plugin:hms-sample-switch-plugin</include> -->
       	<include>com.vmware.vrack:cumulus-switch</include>
+      	<include>com.vmware.vrack:quanta-dummy-plugin</include>
+      	<!-- <include>com.vmware.vrack:quanta-switch</include>
+      	<include>com.vmware.vrack:cisco-switch</include> -->
       </includes>
     </dependencySet>
   </dependencySets>

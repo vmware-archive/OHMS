@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common;
 
 import java.io.FileInputStream;
@@ -41,6 +42,7 @@ public class PropertiesHolder
 
     private PropertiesHolder()
     {
+
     }
 
     /**
@@ -49,9 +51,11 @@ public class PropertiesHolder
     public PropertiesHolder( String fileName )
     {
         super();
+
         if ( fileName != null && !"".equals( fileName.trim() ) )
         {
             this.fileName = fileName;
+
             final Path path = Paths.get( this.fileName );
             try
             {
@@ -73,6 +77,7 @@ public class PropertiesHolder
             {
                 logger.error( "Recieved exception while loading Properties file ", e );
             }
+
             Properties systemProperties = System.getProperties();
             for ( Enumeration<Object> e = systemProperties.keys(); e.hasMoreElements(); )
             {
@@ -93,6 +98,7 @@ public class PropertiesHolder
 
     public void setProperties( Properties appProperties )
     {
+
         this.properties = appProperties;
     }
 
@@ -104,4 +110,5 @@ public class PropertiesHolder
         }
         return null;
     }
+
 }

@@ -17,8 +17,10 @@
 
 package com.vmware.vrack.hms.plugin.boardservice;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceImplementation;
-import com.vmware.vrack.hms.common.boardvendorservice.api.IRedfishService;
+import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.exception.OperationNotSupportedOOBException;
@@ -48,10 +50,10 @@ import com.vmware.vrack.hms.plugin.boardservice.redfish.discovery.RedfishResourc
 import com.vmware.vrack.hms.plugin.boardservice.redfish.discovery.RedfishResourcesInventoryException;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.BootOptionsMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.ComputerSystemMapper;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.MemoryMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.EthernetInterfaceMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.ManagerMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.MappingException;
+import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.MemoryMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.ProcessorMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.ResetTypeMapper;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.StorageControllerMapper;
@@ -59,31 +61,38 @@ import com.vmware.vrack.hms.plugin.boardservice.redfish.mappers.StorageDeviceMap
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ComputerSystemResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ComputerSystemResource.Actions.ResetType;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ComputerSystemResource.Boot;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.MemoryResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.EthernetInterfaceResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ManagerResource;
-import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.OdataId;
+import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.MemoryResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.ProcessorResource;
+import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.RedfishResource;
 import com.vmware.vrack.hms.plugin.boardservice.redfish.resources.SimpleStorageResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.vmware.vrack.hms.plugin.ServerPluginConstants.BOARD_MANUFACTURER;
 import static com.vmware.vrack.hms.plugin.ServerPluginConstants.BOARD_NAME;
-import static com.vmware.vrack.hms.plugin.boardservice.redfish.discovery.IdentificationHelper.decodeResourceUniqueId;
-import static com.vmware.vrack.hms.plugin.boardservice.redfish.discovery.IdentificationHelper.getUniqueIdForResource;
 import static java.util.Arrays.asList;
 
 @BoardServiceImplementation( name = BOARD_NAME )
 public class Redfish_serverPlugin
-    implements IRedfishService
+    implements IBoardService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( Redfish_serverPlugin.class );
+
+    private static final String redfishServicesConfigurationFile = "config/redfish-services.json";
 
     private static final List<HmsApi> SUPPORTED_HMS_API = asList(
         HmsApi.CPU_INFO,
@@ -99,6 +108,10 @@ public class Redfish_serverPlugin
         HmsApi.SUPPORTED_HMS_API
     );
 
+    private static Map<UUID, URI> computerSystemResources = new ConcurrentHashMap<>();
+
+    private final List<URI> redfishServices;
+
     private List<BoardInfo> supportedBoards = new ArrayList<>();
 
     public Redfish_serverPlugin()
@@ -107,6 +120,32 @@ public class Redfish_serverPlugin
         boardInfo.setBoardManufacturer( BOARD_MANUFACTURER );
         boardInfo.setBoardProductName( BOARD_NAME );
         supportedBoards.add( boardInfo );
+        redfishServices = readRedfishServices( redfishServicesConfigurationFile );
+    }
+
+    List<URI> readRedfishServices( String redfishServicesConfigurationFilePath )
+    {
+        File redfishServicesFile = new File( redfishServicesConfigurationFilePath );
+
+        if ( !redfishServicesFile.exists() )
+        {
+            LOGGER.warn( "{} configuration file does not exist", redfishServicesConfigurationFilePath );
+            return Collections.emptyList();
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        try
+        {
+            RedfishServices redfishServices =
+                mapper.readValue( redfishServicesFile, RedfishServices.class );
+            return redfishServices.getServices();
+        }
+        catch ( IOException e )
+        {
+            LOGGER.warn( "Could not read configuration file: {}, cause: ", redfishServicesConfigurationFilePath,
+                         e.getMessage() );
+            return Collections.emptyList();
+        }
     }
 
     @Override
@@ -127,15 +166,62 @@ public class Redfish_serverPlugin
     private ComputerSystemResource getComputerSystem( ServiceHmsNode node )
         throws HmsException
     {
+        UUID uuid = UUID.fromString( node.getNodeID() );
+        if ( computerSystemResources.get( uuid ) != null )
+        {
+            URI uri = computerSystemResources.get( uuid );
+            return fetchComputerSystemResource( uri );
+        }
+
+        try
+        {
+            ComputerSystemResource computerSystemResource = findComputerSystemResource( uuid );
+            computerSystemResources.put( uuid, computerSystemResource.getOrigin() );
+            return computerSystemResource;
+        }
+        catch ( HmsException | IllegalArgumentException e )
+        {
+            throw new HmsException( "Requested ComputerSystem: " + node.getNodeID() + " is not available", e );
+        }
+    }
+
+    private ComputerSystemResource fetchComputerSystemResource( URI uri )
+        throws HmsException
+    {
         try (RedfishResourcesInventory inventory = createRedfishResourcesInventory())
         {
-            OdataId odataId = decodeResourceUniqueId( node.getNodeID() );
-            return inventory.getResourceByURI( odataId.toUri() );
+            RedfishResource resource = inventory.getResourceByURI( uri );
+            if ( resource instanceof ComputerSystemResource )
+            {
+                return (ComputerSystemResource) resource;
+            }
+            throw new HmsException( "Resource at uri " + uri + " is not a ComputerSystemResource" );
         }
         catch ( RedfishResourcesInventoryException e )
         {
-            throw new HmsException( "Requested ComputerSystem {} " + node.getNodeID() + " is not available", e );
+            throw new HmsException( "Could not fetch ComputerSystem from uri:" + uri, e );
         }
+    }
+
+    private ComputerSystemResource findComputerSystemResource( UUID uuid )
+        throws HmsException
+    {
+        try (RedfishResourcesInventory inventory = createRedfishResourcesInventory())
+        {
+            for ( URI redfishService : redfishServices )
+            {
+                Set<ComputerSystemResource> computerSystemResources =
+                    inventory.getResourcesByClass( redfishService, ComputerSystemResource.class );
+                for ( ComputerSystemResource computerSystemResource : computerSystemResources )
+                {
+                    if ( Objects.equals( computerSystemResource.getUuid(), uuid ) )
+                    {
+                        return computerSystemResource;
+                    }
+                }
+            }
+        }
+        throw new HmsException( "Could not find ComputerSystemResource with UUID: " + uuid );
     }
 
     @Override
@@ -295,23 +381,22 @@ public class Redfish_serverPlugin
 
         ComputerSystemMapper mapper = new ComputerSystemMapper();
         ComputerSystemResource computerSystem = getComputerSystem( serviceHmsNode );
-        SystemBootOptions bootOptions = mapper.mapBootOptions( computerSystem );
 
-        return bootOptions;
+        return mapper.mapBootOptions( computerSystem );
     }
 
     @Override
     public boolean setBootOptions( ServiceHmsNode serviceHmsNode, SystemBootOptions data )
         throws HmsException
     {
-        final String dataString = new StringBuilder( "SystemBootOptions{" )
-            .append( "bootFlagsValid=" ).append( data.getBootFlagsValid() )
-            .append( ", bootOptionsValidity=" ).append( data.getBootOptionsValidity() )
-            .append( ", biosBootType=" ).append( data.getBiosBootType() )
-            .append( ", bootDeviceType=" ).append( data.getBootDeviceType() )
-            .append( ", bootDeviceSelector=" ).append( data.getBootDeviceSelector() )
-            .append( ", bootDeviceInstanceNumber=" ).append( data.getBootDeviceInstanceNumber() )
-            .append( '}' ).toString();
+        final String dataString = "SystemBootOptions{" +
+            "bootFlagsValid=" + data.getBootFlagsValid() +
+            ", bootOptionsValidity=" + data.getBootOptionsValidity() +
+            ", biosBootType=" + data.getBiosBootType() +
+            ", bootDeviceType=" + data.getBootDeviceType() +
+            ", bootDeviceSelector=" + data.getBootDeviceSelector() +
+            ", bootDeviceInstanceNumber=" + data.getBootDeviceInstanceNumber() +
+            '}';
 
         LOGGER.trace( "Setting Boot Options for {} using {}", serviceHmsNode.getNodeID(), dataString );
 
@@ -437,6 +522,13 @@ public class Redfish_serverPlugin
     }
 
     @Override
+    public boolean setBmcPassword( ServiceHmsNode serviceHmsNode, String username, String newPassword )
+        throws HmsException
+    {
+        throw new OperationNotSupportedOOBException( "SetBmcPassword operation is not supported" );
+    }
+
+    @Override
     public boolean createManagementUser( ServiceHmsNode serviceHmsNode, BmcUser bmcUser )
         throws HmsException
     {
@@ -503,40 +595,14 @@ public class Redfish_serverPlugin
         return SUPPORTED_HMS_API;
     }
 
-    /**
-     * Method used for initial discovery of Computer Systems that maps to HMS Server Node
-     *
-     * @param serviceEndpoint
-     * @return
-     * @throws HmsException
-     */
-    @Override
-    public List<ServiceHmsNode> getNodesForComputerSystems( URI serviceEndpoint )
-        throws HmsException
+    private static class RedfishServices
     {
-        LOGGER.trace( "Getting Nodes for ComputerSystems from service {}", serviceEndpoint );
+        @JsonProperty( "services" )
+        private List<URI> services;
 
-        try (RedfishResourcesInventory inventory = createRedfishResourcesInventory())
+        List<URI> getServices()
         {
-            Set<ComputerSystemResource> systems =
-                inventory.getResourcesByClass( serviceEndpoint, ComputerSystemResource.class );
-
-            List<ServiceHmsNode> systemsDiscovered = new ArrayList<>();
-            for ( ComputerSystemResource systemResource : systems )
-            {
-                try
-                {
-                    ServiceHmsNode node = new ServiceHmsNode();
-                    node.setNodeID( getUniqueIdForResource( serviceEndpoint, systemResource.getOdataId() ) );
-                    node.setUuid( systemResource.getUuid() == null ? null : systemResource.getUuid().toString() );
-                    systemsDiscovered.add( node );
-                }
-                catch ( RedfishResourcesInventoryException e )
-                {
-                    LOGGER.error( "Could not discover ComputerSystem " + systemResource.getOdataId(), e );
-                }
-            }
-            return systemsDiscovered;
+            return services;
         }
     }
 }

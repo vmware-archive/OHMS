@@ -18,7 +18,6 @@ package com.vmware.vrack.hms.task.oob.ipmi;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -31,12 +30,14 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 /**
  * Task to Get System Event Logs
- * 
+ *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class SelInfoTask
     extends IpmiTask
 {
+
     private static Logger logger = Logger.getLogger( SelInfoTask.class );
 
     public ServerNode node;
@@ -65,24 +66,33 @@ public class SelInfoTask
                 {
                     preparedParameter.setSelTask( SelTask.SelInfo );
                 }
+
                 SelInfo selInfo = null;
+
                 switch ( preparedParameter.getSelTask() )
                 {
                     case SelDetails:
-                        Object[] paramsArray = new Object[] { serviceServerNode, preparedParameter.getRecordCount(),
-                            preparedParameter.getDirection() };
-                        selInfo = HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                                      "getSelDetails", paramsArray );
+                        // Object[] paramsArray = new Object[] { serviceServerNode,
+                        // preparedParameter.getRecordCount(),
+                        // preparedParameter.getDirection() };
+                        selInfo = boardService.getSelDetails( serviceServerNode, preparedParameter.getRecordCount(),
+                                                              preparedParameter.getDirection() );
+                        // selInfo =
+                        // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                        // serviceServerNode, "getSelDetails", paramsArray);
                         break;
                     default:
                         break;
                 }
+
                 this.node.setSelInfo( selInfo );
+
             }
             else
             {
                 throw new Exception( "Board Service is NULL for node:" + node.getNodeID() );
             }
+
         }
         catch ( HmsResourceBusyException e )
         {
@@ -93,7 +103,6 @@ public class SelInfoTask
         }
         catch ( Exception e )
         {
-            logger.error( "Error while getting SEL Info for Node:" + node.getNodeID(), e );
             throw new HmsException( "Error while getting SEL Info for Node:" + node.getNodeID(), e );
         }
     }

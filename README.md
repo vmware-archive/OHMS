@@ -2,6 +2,7 @@
 
 ## Overview, how to build and run
 
+
 OHMS codebase can be found in the develop branch. Also one can take a look into the file [OHMS_userGuide.pdf](https://github.com/vmware/OHMS/blob/master/OHMS_userGuide.pdf) to know more about the OHMS project apart from the steps to build and run the project.
 
 ## License

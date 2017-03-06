@@ -20,6 +20,8 @@ import com.vmware.vrack.hms.task.IHmsTask;
 public abstract class OobTask
     implements IHmsTask
 {
+
     public abstract void destroy()
         throws Exception;
+
 }

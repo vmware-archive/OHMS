@@ -13,11 +13,13 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.exception;
 
 public class HmsObjectNotFoundException
     extends HmsException
 {
+
     private static final long serialVersionUID = 1087536995722226753L;
 
     public HmsObjectNotFoundException()
@@ -44,4 +46,5 @@ public class HmsObjectNotFoundException
     {
         super( message, cause, enableSuppression, writableStackTrace );
     }
+
 }

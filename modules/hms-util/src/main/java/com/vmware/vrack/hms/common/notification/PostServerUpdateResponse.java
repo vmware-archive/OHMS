@@ -26,17 +26,20 @@ import com.vmware.vrack.hms.common.util.HttpClientService;
 public class PostServerUpdateResponse
     implements ITaskResponseLifecycleHandler
 {
+
     private static Logger logger = Logger.getLogger( PostServerUpdateResponse.class );
 
     @Override
     public void init( TaskResponse taskResponse )
     {
         // TODO Auto-generated method stub
+
     }
 
     @Override
     public void onTaskComplete( TaskResponse taskResponse )
     {
+
         try
         {
             if ( taskResponse.callbackEndpoint != null )
@@ -45,10 +48,13 @@ public class PostServerUpdateResponse
                 String requestBody = mapper.writeValueAsString( taskResponse );
                 HttpClientService.getInstance().post( taskResponse.callbackEndpoint, requestBody, true, true );
             }
+
         }
         catch ( Exception e )
         {
             logger.error( "error completing task response", e );
         }
+
     }
+
 }

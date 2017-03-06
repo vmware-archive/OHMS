@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class HmsUpgradeSpec
 {
+
     /** Unique id for the upgrade. */
     private String id;
 

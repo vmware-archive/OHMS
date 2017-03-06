@@ -70,8 +70,14 @@ public class Constants
 
     public static final String GET_ESXI_HOSTNAME_COMMAND = "esxcli system hostname get";
 
+    public static final String HOST_CONNECTED_SWITCH_PORT =
+        "vim-cmd hostsvc/net/query_networkhint | grep portId | awk -F'\"' '{print $2 }'";
+
     // Provides a mapping between HBAs and the storage devices
     public static final String GET_STORAGE_DEVICE_CONNECTED = "esxcfg-scsidevs -A";
+
+    // Command helps to get the IsCapacityFlash given the storage device name
+    public static final String GET_IS_CAPACITY_FLASH = "vdq -q -d {device}";
 
     public static final String OFFLINE = "offline";
 
@@ -80,4 +86,5 @@ public class Constants
     public static final String UNBOUND = "unbound";
 
     public static final String UNKNOWN = "unknown";
+
 }

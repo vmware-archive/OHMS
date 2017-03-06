@@ -18,11 +18,13 @@ package com.vmware.vrack.hms.boardservice.ib.api;
 import java.util.Properties;
 import java.util.Scanner;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jcraft.jsch.Session;
 import com.vmware.vim.binding.vim.AboutInfo;
 import com.vmware.vim.binding.vim.ServiceInstanceContent;
+import com.vmware.vrack.hms.boardservice.ib.InbandConstants;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.servernodes.api.esxinfo.HostNameInfo;
@@ -37,7 +39,8 @@ import com.vmware.vrack.hms.vsphere.VsphereClient;
  */
 public class ESXIInfoHelper
 {
-    private static Logger logger = Logger.getLogger( ESXIInfoHelper.class );
+
+    private static Logger logger = LoggerFactory.getLogger( ESXIInfoHelper.class );
 
     private static String DOMAIN_NAME_STRING = "Domain Name: ";
 
@@ -46,6 +49,8 @@ public class ESXIInfoHelper
     private static String HOST_NAME_STRING = "Host Name: ";
 
     private static String ESXI_RESPONSE_SPLITTER = ": ";
+
+    private static int SSH_CONNECTION_TIMEOUT = 30000;
 
     public static OSInfo getEsxiInfo( VsphereClient client )
         throws Exception
@@ -94,13 +99,14 @@ public class ESXIInfoHelper
         if ( node != null )
         {
             Properties config = new java.util.Properties();
-            config.put( "StrictHostKeyChecking", "no" );
+            config.put( InbandConstants.STRICT_HOST_KEY_CHECKING, InbandConstants.STRICT_HOST_KEY_CHECK_YES );
             Session session = EsxiSshUtil.getSessionObject( node.getOsUserName(), node.getOsPassword(),
                                                             node.getIbIpAddress(), node.getSshPort(), config );
             String hostNameString = null;
+
             try
             {
-                session.connect( 30000 );
+                session.connect( SSH_CONNECTION_TIMEOUT );
                 hostNameString = EsxiSshUtil.executeCommand( session, Constants.GET_ESXI_HOSTNAME_COMMAND );
             }
             catch ( Exception e )
@@ -140,6 +146,7 @@ public class ESXIInfoHelper
             while ( scanner.hasNextLine() )
             {
                 String line = scanner.nextLine();
+
                 if ( line.contains( FULLY_QUALIFIED_DOMAIN_NAME_STRING ) )
                 {
                     String[] str = line.split( ESXI_RESPONSE_SPLITTER, 2 );
@@ -169,6 +176,7 @@ public class ESXIInfoHelper
                 }
             }
             scanner.close();
+
             return info;
         }
         else
@@ -178,4 +186,82 @@ public class ESXIInfoHelper
             throw new HmsException( err );
         }
     }
+
+    public static String getHostConnectedSwitchPort( ServiceServerNode node )
+        throws HmsException
+    {
+        if ( node != null )
+        {
+            Properties config = new java.util.Properties();
+            config.put( InbandConstants.STRICT_HOST_KEY_CHECKING, InbandConstants.STRICT_HOST_KEY_CHECK_YES );
+            Session session = EsxiSshUtil.getSessionObject( node.getOsUserName(), node.getOsPassword(),
+                                                            node.getIbIpAddress(), node.getSshPort(), config );
+            String result = null;
+
+            try
+            {
+                session.connect( SSH_CONNECTION_TIMEOUT );
+                result = EsxiSshUtil.executeCommand( session, Constants.HOST_CONNECTED_SWITCH_PORT );
+                logger.debug( "After executing the command:{} on host:{}, result:{}",
+                              Constants.HOST_CONNECTED_SWITCH_PORT, node.getNodeID(), result );
+                if ( result != null )
+                {
+                    if ( result.endsWith( "\n" ) )
+                    {
+                        result = result.substring( 0, result.length() - 1 );
+                    }
+
+                    String[] portNameArray = result.split( "[\n]" );
+                    /* Assuming that the host has two physical NICs */
+                    if ( portNameArray.length == 2 )
+                    {
+                        if ( portNameArray[0].equalsIgnoreCase( portNameArray[1] ) )
+                        {
+                            return portNameArray[0];
+                        }
+                        else
+                        {
+                            String err =
+                                String.format( "The ports on the two switches through which host:%s is connected, aren't matching. Port names:%s & %s.",
+                                               node.getNodeID(), portNameArray[0], portNameArray[1] );
+                            throw new HmsException( err );
+                        }
+                    }
+                    else
+                    {
+                        String err =
+                            String.format( "The number of ports through which host is connected to the switch should be two. Instead it is %s. ",
+                                           portNameArray.length );
+                        throw new HmsException( err );
+                    }
+                }
+                else
+                {
+                    String err = String.format( "Error while getting portName to which Node: %s, is connected.",
+                                                node.getNodeID() );
+                    logger.error( err );
+                    throw new HmsException( err );
+                }
+            }
+            catch ( Exception e )
+            {
+                String err = String.format( "Unable to create jsch CLI session for node: %s", node.getNodeID() );
+                logger.error( err, e );
+                throw new HmsException( err, e );
+            }
+            finally
+            {
+                if ( session != null )
+                {
+                    session.disconnect();
+                    session = null;
+                }
+            }
+        }
+        else
+        {
+            throw new HmsException( "Server Node object can not be null" );
+        }
+    }
+
 }

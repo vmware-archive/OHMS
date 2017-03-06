@@ -21,7 +21,7 @@ import com.vmware.vrack.hms.common.servernodes.api.cpu.CPUInfo;
 
 /**
  * Class for CPU related Properties
- *
+ * 
  * @author VMware Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -103,24 +103,33 @@ public class CpuInfo
 
     /**
      * Get the Physical CPU FRU information. Wrapper method to get the CpuInfo object for the node
-     *
+     * 
      * @param serverNodeCpuInfo
      * @param nodeID
      * @return CpuInfo
      */
     public CpuInfo getCpuInfo( CPUInfo serverNodeCpuInfo, String nodeID )
     {
+
         CpuInfo cpuInfo = new CpuInfo();
+
         cpuInfo.setId( serverNodeCpuInfo.getId() );
         cpuInfo.setCpuFrequencyInHertz( serverNodeCpuInfo.getMaxClockFrequency() );
         cpuInfo.setNumOfCores( serverNodeCpuInfo.getTotalCpuCores() );
         cpuInfo.setFirmwareVersion( serverNodeCpuInfo.getFirmwareVersion() );
         cpuInfo.setLocation( serverNodeCpuInfo.getLocation() );
         cpuInfo.setHostId( nodeID );
+
+        if ( serverNodeCpuInfo.getFruOperationalStatus() != null )
+        {
+            cpuInfo.setOperationalStatus( serverNodeCpuInfo.getFruOperationalStatus().toString() );
+        }
+
         if ( serverNodeCpuInfo.getComponentIdentifier() != null )
         {
             cpuInfo.setComponentIdentifier( serverNodeCpuInfo.getComponentIdentifier() );
         }
+
         return cpuInfo;
     }
 }

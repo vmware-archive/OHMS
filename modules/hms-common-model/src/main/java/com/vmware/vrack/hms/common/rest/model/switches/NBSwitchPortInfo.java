@@ -20,6 +20,7 @@ import com.vmware.vrack.hms.common.servernodes.api.NodeAdminStatus;
 
 public class NBSwitchPortInfo
 {
+
     private String name;
 
     private String macAddress;
@@ -127,4 +128,5 @@ public class NBSwitchPortInfo
     {
         this.adminStatus = status;
     }
+
 }

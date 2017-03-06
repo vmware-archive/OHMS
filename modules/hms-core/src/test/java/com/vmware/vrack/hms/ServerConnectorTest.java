@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * ServerConnectorTest.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,12 +13,6 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
-
-
-/// *
-// * To change this template, choose Tools | Templates
-// * and open the template in the editor.
-// */
 // package com.vmware.vrack.hms;
 //
 // import com.vmware.vrack.hms.node.server.ServerNode;

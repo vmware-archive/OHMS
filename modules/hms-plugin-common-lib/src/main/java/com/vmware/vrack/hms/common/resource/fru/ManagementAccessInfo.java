@@ -21,17 +21,19 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class ManagementAccessInfo
     extends MultiRecordInfo
 {
+
     private ManagementAccessRecordType recordType;
 
     private String accessInfo;
 
     /**
      * Creates and populates record
-     *
+     * 
      * @param fruData - raw data containing record
      * @param offset - offset to the record in the data
      * @param length - length of the record
      */
+
     public ManagementAccessRecordType getRecordType()
     {
         return recordType;
@@ -51,4 +53,5 @@ public class ManagementAccessInfo
     {
         this.accessInfo = accessInfo;
     }
+
 }

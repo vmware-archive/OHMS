@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vmware.vrack.hms.common.switches.api.SwitchHardwareInfo;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode;
@@ -33,10 +33,10 @@ import com.vmware.vrack.hms.common.switches.api.SwitchVxlan;
 /**
  * The GetSwitchResponse represents the JSON response that you'll receive when you invoke the GET
  * /api/1.0/hms/switches/S1 endpoint.
- *
+ * 
  * @author sunil
  */
-@JsonInclude( JsonInclude.Include.NON_NULL )
+@JsonIgnoreProperties( ignoreUnknown = true )
 public class GetSwitchResponse
 {
     public GetSwitchResponse( String switchId, String protocol, String ipAddress, Integer port, String username,

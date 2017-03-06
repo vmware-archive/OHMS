@@ -15,6 +15,33 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.aggregator.util;
 
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
+
 import com.vmware.vrack.common.event.Event;
 import com.vmware.vrack.common.event.enums.EventCatalog;
 import com.vmware.vrack.common.event.enums.EventComponent;
@@ -27,62 +54,31 @@ import com.vmware.vrack.hms.common.exception.HMSRestException;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.monitoring.MonitoringTaskRequestHandler;
 import com.vmware.vrack.hms.common.monitoring.MonitoringTaskResponse;
+import com.vmware.vrack.hms.common.notification.BaseResponse;
 import com.vmware.vrack.hms.common.resource.AboutResponse;
-import com.vmware.vrack.hms.common.resource.fru.EthernetController;
 import com.vmware.vrack.hms.common.rest.model.SwitchInfo;
 import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.common.servernodes.api.ServerNodePowerStatus;
 import com.vmware.vrack.hms.common.servernodes.api.SwitchComponentEnum;
-import com.vmware.vrack.hms.common.servernodes.api.cpu.CPUInfo;
 import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
 import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
-import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
-import com.vmware.vrack.hms.common.servernodes.api.memory.PhysicalMemory;
-import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageControllerInfo;
 import com.vmware.vrack.hms.common.switchnodes.api.HMSSwitchNode;
 import com.vmware.vrack.hms.common.util.Constants;
 import com.vmware.vrack.hms.common.util.NetworkInterfaceUtil;
 import com.vmware.vrack.hms.controller.HMSLocalServerRestService;
 import com.vmware.vrack.hms.inventory.InventoryLoader;
+import com.vmware.vrack.hms.rest.factory.HmsOobAgentRestTemplate;
 import com.vmware.vrack.hms.service.provider.InBandServiceProvider;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.ContentType;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
-
-import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 @Component
 public class MonitoringUtil
 {
-    private static Logger logger = Logger.getLogger( MonitoringUtil.class );
-
-    private static String hmsIpAddr;
+    private static Logger logger = LoggerFactory.getLogger( MonitoringUtil.class );
 
     private static String hmsLocalPort;
 
@@ -91,28 +87,6 @@ public class MonitoringUtil
     private static String hmsLocalProtocol;
 
     private static HMSLocalServerRestService hmsLocalServerRestService;
-
-    private final static Map<Class, ParameterizedTypeReference> TYPE_REFERENCE_MAP = new HashMap<>();
-
-    static
-    {
-        TYPE_REFERENCE_MAP.put( CPUInfo.class, new ParameterizedTypeReference<List<CPUInfo>>()
-        {
-        } );
-        TYPE_REFERENCE_MAP.put( HddInfo.class, new ParameterizedTypeReference<List<HddInfo>>()
-        {
-        } );
-        TYPE_REFERENCE_MAP.put( PhysicalMemory.class, new ParameterizedTypeReference<List<PhysicalMemory>>()
-        {
-        } );
-        TYPE_REFERENCE_MAP.put( EthernetController.class, new ParameterizedTypeReference<List<EthernetController>>()
-        {
-        } );
-        TYPE_REFERENCE_MAP.put( StorageControllerInfo.class,
-                                new ParameterizedTypeReference<List<StorageControllerInfo>>()
-                                {
-                                } );
-    }
 
     private static final String HMS_AGENT_STATUS_DESC_SEPARATOR = " -";
 
@@ -132,10 +106,8 @@ public class MonitoringUtil
      */
     private static long monitoringFrequency;
 
-    // Enable or disable Monitoring on HMS-Local by making setting true/false
+    // Enable or disable Monitoring on HMS-aggregator by making setting true/false
     private static String enableMonitoring;
-
-    private static int hmsPort;
 
     /**
      * Network interface name to which hms OOB will send data to hms IB
@@ -153,24 +125,13 @@ public class MonitoringUtil
         MonitoringUtil.hmsIbNetworkInterface = hmsIbNetworkInterface;
     }
 
-    @Value( "${hms.switch.host}" )
-    public void setHmsIpAddr( String hmsIpAddr )
-    {
-        MonitoringUtil.hmsIpAddr = hmsIpAddr;
-    }
-
-    @Value( "${hms.switch.port}" )
-    public void setHmsPort( int hmsPort )
-    {
-        MonitoringUtil.hmsPort = hmsPort;
-    }
-
     public static boolean isMonitoringEnabled()
     {
         if ( "true".equalsIgnoreCase( MonitoringUtil.enableMonitoring ) )
         {
             return true;
         }
+
         return false;
     }
 
@@ -188,7 +149,7 @@ public class MonitoringUtil
     }
 
     /**
-     * Gets the Hms-local Ip address by defined Network Interface Name
+     * Gets the Hms-aggregator Ip address by defined Network Interface Name
      */
     public static String getHmsLocalIP()
         throws SocketException
@@ -244,9 +205,9 @@ public class MonitoringUtil
     /**
      * Start HMS Health Monitoring
      */
-    public static void startHMSHealthMonitoring( ServerNode node )
+    public static void startHMSHealthMonitoring( ServerNode node, Long frequency )
     {
-        // Check if Monitoring has been enabled on HMS-local or NOT
+        // Check if Monitoring has been enabled on Hms-aggregator or NOT
         if ( isMonitoringEnabled() )
         {
             if ( node != null )
@@ -257,7 +218,7 @@ public class MonitoringUtil
                     {
                         MonitoringTaskResponse response = getServerTaskResponse( node, null );
                         HmsLocalHealthMonitorTaskSuite healthMonitorTaskSuite =
-                            new HmsLocalHealthMonitorTaskSuite( response, monitoringFrequency );
+                            new HmsLocalHealthMonitorTaskSuite( response, frequency );
                         MonitoringTaskRequestHandler.getInstance().executeServerMonitorTask( healthMonitorTaskSuite );
                         healthMonitoringStarted = true;
                     }
@@ -280,20 +241,20 @@ public class MonitoringUtil
     }
 
     /**
-     * Start hms-local side monitoring for particular NODE is it is NOT already getting monitored.
-     * 
+     * Start Hms-aggregator side monitoring for particular NODE is it is NOT already getting monitored.
+     *
      * @param node
      */
     public static void startMonitoring( HmsNode node )
     {
-        // Check if Monitoring has been enabled on HMS-local or NOT
+        // Check if Monitoring has been enabled on Hms-aggregator or NOT
         if ( isMonitoringEnabled() )
         {
             if ( node != null )
             {
                 // First Check if this node is already in the monitoredNode.
-                // If it is present, it means that it is already being monitored. In that case it will simply skip
-                // following.
+                // If it is present, it means that it is already being
+                // monitored. In that case it will simply skip following.
                 if ( !monitoredNodes.contains( node.getNodeID() ) )
                 {
                     /*
@@ -305,15 +266,20 @@ public class MonitoringUtil
                     {
                         MonitoringTaskResponse response = null;
                         logger.debug( "Monitoring server and switch nodes" );
+
                         if ( node instanceof ServerNode )
                         {
-                            // Setting sensorInfoProvider as InbandServiceProvide because this monitoring will be
-                            // limited to hms-local
+                            logger.debug( "In startMonitoring, starting monitoring for Server: '{}'.",
+                                          node.getNodeID() );
+                            // Setting sensorInfoProvider as
+                            // InbandServiceProvide because this monitoring will
+                            // be limited to Hms-aggregator
                             sensorInfoProvider = InBandServiceProvider.getBoardService( node.getServiceObject() );
                             response = getServerTaskResponse( node, sensorInfoProvider );
                         }
                         else if ( node instanceof HMSSwitchNode )
                             response = getSwitchTaskResponse( node, null );
+
                         HmsLocalMonitorTaskSuite monitorTaskSuite =
                             new HmsLocalMonitorTaskSuite( response, monitoringFrequency );
                         MonitoringTaskRequestHandler.getInstance().executeServerMonitorTask( monitorTaskSuite );
@@ -330,8 +296,7 @@ public class MonitoringUtil
                 }
                 else
                 {
-                    logger.error( "Can not start Monitoring for empty node: "
-                        + ( ( node != null ) ? node.getNodeID() : null ) );
+                    logger.debug( "In startMonitoring, Monitoring already started for Node '{}'.", node.getNodeID() );
                 }
             }
             else
@@ -344,11 +309,12 @@ public class MonitoringUtil
             logger.warn( "Monitoring Disabled. Not starting Monitoring for node: "
                 + ( ( node != null ) ? node.getNodeID() : null ) );
         }
+
     }
 
     /**
      * Returns MonitoringTaskResponse object to start MonitorTaskSuite.
-     * 
+     *
      * @param node
      * @param sensorInfoProvider
      * @return
@@ -373,6 +339,22 @@ public class MonitoringUtil
     {
         List<ServerComponent> monitoredComponents =
             new ArrayList<ServerComponent>( Arrays.asList( ServerComponent.values() ) );
+        try
+        {
+            Collections.sort( monitoredComponents, new Comparator<ServerComponent>()
+            {
+                @Override
+                public int compare( ServerComponent a1, ServerComponent a2 )
+                {
+                    return a1.getPriority() - a2.getPriority();
+                }
+            } );
+        }
+        catch ( Exception e )
+        {
+            logger.error( "Error in sorting the Server Components based on the priority: {}", e );
+            monitoredComponents = new ArrayList<ServerComponent>( Arrays.asList( ServerComponent.values() ) );
+        }
         return monitoredComponents;
     }
 
@@ -380,6 +362,22 @@ public class MonitoringUtil
     {
         List<SwitchComponentEnum> monitoredComponents =
             new ArrayList<SwitchComponentEnum>( Arrays.asList( SwitchComponentEnum.values() ) );
+        try
+        {
+            Collections.sort( monitoredComponents, new Comparator<SwitchComponentEnum>()
+            {
+                @Override
+                public int compare( SwitchComponentEnum a1, SwitchComponentEnum a2 )
+                {
+                    return a1.getPriority() - a2.getPriority();
+                }
+            } );
+        }
+        catch ( Exception e )
+        {
+            logger.error( "Error in sorting the Switch Components based on the priority: {}", e );
+            monitoredComponents = new ArrayList<SwitchComponentEnum>( Arrays.asList( SwitchComponentEnum.values() ) );
+        }
         return monitoredComponents;
     }
 
@@ -393,6 +391,7 @@ public class MonitoringUtil
         Collection<ServerNode> serverNodes = null;
         serverNodes = InventoryLoader.getInstance().getNodeMap().values();
         Object[] switches = data.get( Constants.SWITCHES );
+
         // Monitor Server Nodes
         if ( serverNodes != null )
         {
@@ -401,6 +400,7 @@ public class MonitoringUtil
                 startMonitoring( node );
             }
         }
+
         // Monitor Switch Nodes
         for ( int i = 0; i < switches.length; i++ )
         {
@@ -408,19 +408,22 @@ public class MonitoringUtil
             Map<String, String> switchMap = (Map<String, String>) switches[i];
             String switchId = switchMap.get( "switchId" );
             String switchManagementIpAddress = switchMap.get( "ipAddress" );
+
             HmsNode hmsNode = new HMSSwitchNode( switchId, switchManagementIpAddress );
             startMonitoring( hmsNode );
         }
+
     }
 
     /**
      * Populate Server Components (CPU, NIC, HDD etc) via Inband Apis
-     * 
+     *
      * @param node
      */
     public static void populateServerComponents( HmsNode node )
     {
         logger.debug( "Populating Server Components for the node : " + node );
+
         if ( node != null )
         {
             try
@@ -460,7 +463,7 @@ public class MonitoringUtil
 
     /**
      * Gets On Demand Events from OOB Api.
-     * 
+     *
      * @param nodeId
      * @param serverComponent
      * @param targetId
@@ -470,29 +473,30 @@ public class MonitoringUtil
     public static List<Event> getOnDemandEventsOOB( String nodeId, ServerComponent serverComponent )
         throws HmsException
     {
+
         if ( nodeId != null && serverComponent != null )
         {
-            URI uri = null;
             try
             {
-                uri = new URI( "http", null, hmsIpAddr, hmsPort, Constants.HMS_ON_DEMAND_EVENTS_FETCH_URI + "/" + nodeId
-                    + "/" + serverComponent.getEventComponent(), null, null );
-                RestTemplate restTemplate = new RestTemplate();
-                HttpHeaders headers = new HttpHeaders();
-                headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-                HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+                String path =
+                    Constants.HMS_ON_DEMAND_EVENTS_FETCH_URI + "/" + nodeId + "/" + serverComponent.getEventComponent();
+                HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
                 ParameterizedTypeReference<List<Event>> typeRef = new ParameterizedTypeReference<List<Event>>()
                 {
                 };
-                ResponseEntity<List<Event>> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeRef );
+                ResponseEntity<List<Event>> oobResponse = restTemplate.exchange( HttpMethod.GET, path, typeRef );
+
                 if ( oobResponse.getStatusCode() != HttpStatus.OK )
                 {
                     throw new HmsException( "Error while getting Response from Hms-core. For node: " + nodeId
                         + ", serverComponent: " + serverComponent + ", with Status code: "
                         + oobResponse.getStatusCode() );
                 }
+
                 List<Event> events = oobResponse.getBody();
-                logger.debug( "Got Events from HMS-OOB:" + events );
+                logger.debug( "Got Events from HMS-OOB, no. of events received: {}",
+                              ( events == null ) ? 0 : events.size() );
+
                 return events;
             }
             catch ( Exception e )
@@ -520,29 +524,30 @@ public class MonitoringUtil
     public static List<Event> getOnDemandSwitchEventsOOB( String switchId, SwitchComponentEnum switchComponent )
         throws HmsException
     {
+
         if ( switchId != null && switchComponent != null )
         {
-            URI uri = null;
             try
             {
-                uri = new URI( "http", null, hmsIpAddr, hmsPort, Constants.HMS_ON_DEMAND_SWITCH_EVENTS_FETCH_URI + "/"
-                    + switchId + "/" + switchComponent.getEventComponent(), null, null );
-                RestTemplate restTemplate = new RestTemplate();
-                HttpHeaders headers = new HttpHeaders();
-                headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-                HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+
+                String path = Constants.HMS_ON_DEMAND_SWITCH_EVENTS_FETCH_URI + "/" + switchId + "/"
+                    + switchComponent.getEventComponent();
+                HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
                 ParameterizedTypeReference<List<Event>> typeRef = new ParameterizedTypeReference<List<Event>>()
                 {
                 };
-                ResponseEntity<List<Event>> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeRef );
+                ResponseEntity<List<Event>> oobResponse = restTemplate.exchange( HttpMethod.GET, path, typeRef );
+
                 if ( oobResponse.getStatusCode() != HttpStatus.OK )
                 {
                     throw new HmsException( "Error while getting Response from HMS OOB agent. For switch node: "
                         + switchId + ", switchComponent: " + switchComponent + ", with Status code: "
                         + oobResponse.getStatusCode() );
                 }
+
                 List<Event> switchEvents = oobResponse.getBody();
-                logger.debug( "Got Switch Events from HMS-OOB:" + switchEvents );
+                logger.debug( "Got Switch Events from HMS-OOB, no. of events received: {}",
+                              ( switchEvents == null ) ? 0 : switchEvents.size() );
                 return switchEvents;
             }
             catch ( Exception e )
@@ -571,92 +576,88 @@ public class MonitoringUtil
     public static List<Event> getHealthMonitorEventsOOB()
         throws HmsException
     {
-        URI uri = null;
+        String path = null;
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, Constants.HMS_OOB_HEALTH_MONITOR_ENDPOINT, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-            HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+            path = Constants.HMS_OOB_HEALTH_MONITOR_ENDPOINT;
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
             ParameterizedTypeReference<List<Event>> typeRef = new ParameterizedTypeReference<List<Event>>()
             {
             };
-            ResponseEntity<List<Event>> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeRef );
+            ResponseEntity<List<Event>> oobResponse = restTemplate.exchange( HttpMethod.GET, path, typeRef );
+
             if ( oobResponse.getStatusCode() != HttpStatus.OK )
             {
                 throw new HmsException( "Error while getting Response from Hms-core. For OOB HEALTH MONITOR AGENT." );
             }
             List<Event> events = oobResponse.getBody();
-            logger.error( "Got Events from HMS-OOB: " + Constants.HMS_OOB_HEALTH_MONITOR_ENDPOINT );
+            logger.debug( "Got Events from HMS-OOB: " + Constants.HMS_OOB_HEALTH_MONITOR_ENDPOINT );
+
             return events;
         }
         catch ( Exception e )
         {
-            logger.error( "Error comminicating to HMS - uri" + uri, e );
+            logger.error( "Error comminicating to HMS - path" + path, e );
             return generateHealthMonitorFailureEvents();
         }
     }
 
     /**
      * In the event of HMS not responding the failure object will be returned for the effective message communication.
-     * 
+     *
      * @return
      */
     private static List<Event> generateHealthMonitorFailureEvents()
     {
+
         EventFactory eventFactory = new EventFactory();
         Map<String, String> dataMap = new HashMap<String, String>();
         Map<EventComponent, String> componentsMap = new HashMap<EventComponent, String>();
+
         String eventText = NodeEvent.HMS_AGENT_DOWN.getEventID().getEventText();
         String value = StringUtils.substringBefore( eventText, HMS_AGENT_STATUS_DESC_SEPARATOR );
         dataMap.put( "unit", EventUnitType.DISCRETE.name() );
         dataMap.put( "eventId", Constants.HMS_OOBAGENT_STATUS );
         dataMap.put( "value", value );
         dataMap.put( "eventName", NodeEvent.HMS_AGENT_DOWN.name() );
+
         Event event = eventFactory.buildFullEventObject( EventCatalog.HMS_AGENT_DOWN, componentsMap, dataMap,
                                                          Constants.HMS_EVENT_GENERATOR_ID, true );
         List<Event> eventLst = new ArrayList<Event>();
         eventLst.add( event );
+
         return eventLst;
     }
 
     /**
      * Gets ServerCOmponent from OOB Api.
-     * 
+     *
      * @param nodeId
      * @param serverComponent
      * @param targetId
      * @return
      * @throws HmsException
      */
-    public static <T> List<T> getServerComponentOOB( String endpoint, Class<T> type )
+    public static <T> List<T> getServerComponentOOB( String endpoint )
         throws HmsException
     {
-        ParameterizedTypeReference typeReference = TYPE_REFERENCE_MAP.get( type );
-
-        if ( typeReference == null )
-        {
-            throw new HmsException( "Server component of type: " + type + " is not available" );
-        }
-
-        URI uri = null;
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, endpoint, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-            HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
+            ParameterizedTypeReference<List<T>> typeRef = new ParameterizedTypeReference<List<T>>()
+            {
+            };
+            ResponseEntity<List<T>> oobResponse = restTemplate.exchange( HttpMethod.GET, endpoint, typeRef );
 
-            ResponseEntity<List<T>> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeReference );
             if ( oobResponse.getStatusCode() != HttpStatus.OK )
             {
                 throw new HmsException( "Error while getting Response from Hms-core for server component. Status Code : "
                     + oobResponse.getStatusCode() );
             }
+
             List<T> component = oobResponse.getBody();
             logger.info( "Got component from HMS-OOB" + endpoint );
+
             return component;
         }
         catch ( Exception e )
@@ -667,7 +668,7 @@ public class MonitoringUtil
 
     /**
      * Gets ServerCOmponent from OOB Api.
-     * 
+     *
      * @param nodeId
      * @param serverComponent
      * @param targetId
@@ -677,16 +678,11 @@ public class MonitoringUtil
     public static ServerNode getServerNodeOOB( String endpoint )
         throws HmsException
     {
-        URI uri = null;
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, endpoint, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-            HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
             ResponseEntity<ServerNode> oobResponse =
-                restTemplate.exchange( uri, HttpMethod.GET, entity, ServerNode.class );
+                restTemplate.exchange( HttpMethod.GET, endpoint, ServerNode.class );
             if ( oobResponse.getStatusCode() != HttpStatus.OK )
             {
                 throw new HmsException( "Error while getting Response from Hms-core for server node. Status Code : "
@@ -694,6 +690,7 @@ public class MonitoringUtil
             }
             ServerNode component = oobResponse.getBody();
             logger.info( "Got node info from HMS-OOB" + endpoint );
+
             return component;
         }
         catch ( Exception e )
@@ -714,23 +711,21 @@ public class MonitoringUtil
     public static SwitchInfo getSwitchNodeOOB( String endpoint )
         throws HmsException
     {
-        URI uri = null;
+
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, endpoint, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-            HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
             ResponseEntity<SwitchInfo> oobResponse =
-                restTemplate.exchange( uri, HttpMethod.GET, entity, SwitchInfo.class );
+                restTemplate.exchange( HttpMethod.GET, endpoint, SwitchInfo.class );
             if ( oobResponse.getStatusCode() != HttpStatus.OK )
             {
                 throw new HmsException( "Error while getting Response from Hms OOB agent for Switch node. Status Code : "
                     + oobResponse.getStatusCode() );
             }
+
             SwitchInfo component = oobResponse.getBody();
             logger.info( "Got node info from HMS-OOB" + endpoint );
+
             return component;
         }
         catch ( Exception e )
@@ -751,34 +746,43 @@ public class MonitoringUtil
     public static ServerNodePowerStatus getServerNodePowerStatusOOB( String endpoint )
         throws HmsException
     {
-        URI uri = null;
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, endpoint, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-            HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
             ResponseEntity<ServerNodePowerStatus> oobResponse =
-                restTemplate.exchange( uri, HttpMethod.GET, entity, ServerNodePowerStatus.class );
+                restTemplate.exchange( HttpMethod.GET, endpoint, ServerNodePowerStatus.class );
             if ( oobResponse.getStatusCode() != HttpStatus.OK )
             {
                 throw new HmsException( "Error while getting Response from Hms-core for server node. Status Code : "
                     + oobResponse.getStatusCode() );
             }
+
             ServerNodePowerStatus status = oobResponse.getBody();
-            logger.info( "Got node info from HMS-OOB" + endpoint );
+            if ( status != null )
+            {
+                logger.info( "Got node power status from HMS-OOB {}, PowerStatus :{}, Discoverable : {}, Operational :{}",
+                             endpoint, status.isPowered(), status.isDiscoverable(), status.getOperationalStatus() );
+            }
+            else
+            {
+                logger.warn( "Got null response body while getting Server node power status from OOB" );
+            }
+
             return status;
         }
         catch ( Exception e )
         {
-            throw new HmsException( "Error while getting Response from Hms-core for server power status.", e );
+            String error =
+                String.format( "Error while getting Response from Hms-core for server power status. Endpoint hit : %s",
+                               endpoint );
+            logger.error( error );
+            throw new HmsException( error, e );
         }
     }
 
     /**
      * Gets ServerEndpoint Response from OOB Api.
-     * 
+     *
      * @param nodeId
      * @param serverComponent
      * @param targetId
@@ -788,23 +792,20 @@ public class MonitoringUtil
     public static AboutResponse getServerEndpointAboutResponseOOB( String endpoint )
         throws HmsException
     {
-        URI uri = null;
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, endpoint, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-            HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
             ResponseEntity<AboutResponse> oobResponse =
-                restTemplate.exchange( uri, HttpMethod.GET, entity, AboutResponse.class );
+                restTemplate.exchange( HttpMethod.GET, endpoint, AboutResponse.class );
             if ( oobResponse.getStatusCode() != HttpStatus.OK )
             {
                 throw new HmsException( "Error while getting Response from Hms-core for server endpoint. " + endpoint
                     + ". Status Code : " + oobResponse.getStatusCode() );
             }
             logger.info( "Got component from HMS-OOB : " + endpoint );
+
             return oobResponse.getBody();
+
         }
         catch ( Exception e )
         {
@@ -814,18 +815,14 @@ public class MonitoringUtil
 
     public static boolean isHMSOOBAvailable()
     {
-        URI uri = null;
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, Constants.HMS_OOB_ABOUT_ENDPOINT, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", MediaType.APPLICATION_JSON.toString() );
-            HttpEntity<Object> entity = new HttpEntity<Object>( headers );
+            String path = Constants.HMS_OOB_ABOUT_ENDPOINT;
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
             ParameterizedTypeReference<AboutResponse> typeRef = new ParameterizedTypeReference<AboutResponse>()
             {
             };
-            ResponseEntity<AboutResponse> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeRef );
+            ResponseEntity<AboutResponse> oobResponse = restTemplate.exchange( HttpMethod.GET, path, typeRef );
             if ( oobResponse.getStatusCode() == HttpStatus.OK )
                 return true;
             else
@@ -839,8 +836,8 @@ public class MonitoringUtil
     }
 
     /**
-     * Subscribe to Hms-core for non maskable events during hms-local bootup. To be notified at specified url in
-     * hms-local
+     * Subscribe to Hms-core for non maskable events during Hms-aggregator bootup. To be notified at specified url in
+     * Hms-aggregator
      */
     public static boolean registerWithHmsCore()
     {
@@ -850,40 +847,112 @@ public class MonitoringUtil
             logger.warn( "Monitoring Disabled. Not Registering with HMS-core." );
             return false;
         }
-        // ResponseEntity<Object> nodes = null;
-        URI uri = null;
+
+        String path = Constants.HMS_REGISTER_NME_URI;
+
         try
         {
-            uri = new URI( "http", null, hmsIpAddr, hmsPort, Constants.HMS_REGISTER_NME_URI, null, null );
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add( "Content-Type", ContentType.APPLICATION_JSON.toString() );
             BaseEventMonitoringSubscription hmsLocalSubscription = new BaseEventMonitoringSubscription();
             hmsLocalSubscription.setRequestMethod( com.vmware.vrack.hms.common.RequestMethod.POST );
             hmsLocalSubscription.setNotificationEndpoint( hmsLocalProtocol + "://" + getHmsLocalIP() + ":"
                 + hmsLocalPort + "/" + hmsLocalContext + Constants.HMS_LOCAL_MONITORED_EVENTS_URI );
+
             List<BaseEventMonitoringSubscription> subscribers = new ArrayList<BaseEventMonitoringSubscription>();
             subscribers.add( hmsLocalSubscription );
-            HttpEntity<Object> entity = new HttpEntity<Object>( subscribers, headers );
-            restTemplate.exchange( uri, HttpMethod.POST, entity, Object.class );
+
+            HmsOobAgentRestTemplate<List<BaseEventMonitoringSubscription>> restTemplate =
+                new HmsOobAgentRestTemplate<List<BaseEventMonitoringSubscription>>( subscribers );
+            restTemplate.exchange( HttpMethod.POST, path, Object.class );
+
             return true;
         }
         catch ( HttpStatusCodeException e )
         {
-            logger.error( "Unable to Register HMS-Local with HMS-Core for Non-maskable events. Failed Http request for Url:"
-                + uri, e );
+            logger.error( "Unable to Register Hms-aggregator with HMS-Core for Non-maskable events. Failed Http request for Url:"
+                + path, e );
             return false;
         }
-        catch ( URISyntaxException e )
+        catch ( HmsException e )
         {
-            logger.error( "Unable to Register HMS-Local with HMS-Core for Non-maskable events. Failed to connect to Url:"
-                + uri, e );
+            logger.error( "Unable to Register Hms-aggregator with HMS-Core for Non-maskable events. Failed to connect to Url:"
+                + path, e );
             return false;
         }
         catch ( Exception e )
         {
-            logger.error( "Unable to Register HMS-Local with HMS-Core for Non-maskable events. Url:" + uri, e );
+            logger.error( "Unable to Register Hms-aggregator with HMS-Core for Non-maskable events. Url:" + path, e );
             return false;
         }
+    }
+
+    /**
+     * Gets HMS logs from OOB Api.
+     *
+     * @param nodeId
+     * @param serverComponent
+     * @param targetId
+     * @return
+     * @throws HmsException
+     */
+    public static byte[] getOobHmsLogs( String endpoint )
+        throws HmsException
+    {
+
+        try
+        {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept( Arrays.asList( MediaType.APPLICATION_OCTET_STREAM ) );
+
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>( headers );
+            restTemplate.getMessageConverters().add( new ByteArrayHttpMessageConverter() );
+
+            ResponseEntity<byte[]> oobHMSLogs = restTemplate.exchange( HttpMethod.GET, endpoint, byte[].class );
+
+            if ( oobHMSLogs.getStatusCode() != HttpStatus.OK )
+            {
+                throw new HmsException( "Error while getting Response from Hms OOB agent for HMS OOB logs. Status Code : "
+                    + oobHMSLogs.getStatusCode() );
+            }
+
+            return oobHMSLogs.getBody();
+        }
+        catch ( Exception e )
+        {
+            throw new HmsException( "Error while getting Response from Hms OOB agent for HMS OOB Logs.", e );
+        }
+    }
+
+    /**
+     * Deletes temporary OOB HMS log file
+     *
+     * @param endpoint
+     * @throws HmsException
+     */
+    public static void deleteTemporaryOOBHmsLogFile( String endpoint )
+        throws HmsException
+    {
+
+        try
+        {
+            HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>();
+            ResponseEntity<BaseResponse> response =
+                restTemplate.exchange( HttpMethod.DELETE, endpoint, BaseResponse.class );
+
+            if ( response.getStatusCode() != HttpStatus.OK )
+            {
+                throw new HmsException( "Error while deleting temporary HMS OOB log files. Status Code : "
+                    + response.getStatusCode() );
+            }
+
+        }
+        catch ( Exception e )
+        {
+            throw new HmsException( "Error while deleting temporary HMS OOB log files.", e );
+        }
+    }
+
+    public static Set<String> getMonitoredNodes()
+    {
+        return MonitoringUtil.monitoredNodes;
     }
 }

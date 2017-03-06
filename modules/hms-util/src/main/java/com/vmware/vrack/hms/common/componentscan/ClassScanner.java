@@ -27,11 +27,12 @@ import org.springframework.util.ClassUtils;
 
 /**
  * Utility class to scan for all classes under the packages, having Annotations as passed in the initialization
- *
+ * 
  * @author Yagnesh Chawda
  */
 public class ClassScanner
 {
+
     /**
      * Comma separated package names
      */
@@ -59,12 +60,13 @@ public class ClassScanner
 
     /**
      * Iterates through all Classes under basePackages and returns all classes which are annotated with given filter
-     *
+     * 
      * @return
      */
     public final List<Class<?>> findClasses()
     {
         final List<Class<?>> classes = new ArrayList<Class<?>>();
+
         for ( String basePackage : basePackages.split( "," ) )
         {
             basePackage = basePackage.replaceAll( "\\ ", "" );
@@ -74,12 +76,13 @@ public class ClassScanner
                                                           ClassUtils.getDefaultClassLoader() ) );
             }
         }
+
         return classes;
     }
 
     /**
      * Adds a filter to the scanner
-     *
+     * 
      * @param filter
      * @return
      */
@@ -91,7 +94,7 @@ public class ClassScanner
 
     /**
      * Adds Annotation filter to scanner.
-     *
+     * 
      * @param annotationClass
      * @return
      */
@@ -99,4 +102,5 @@ public class ClassScanner
     {
         return withIncludeFilter( new AnnotationTypeFilter( annotationClass ) );
     }
+
 }

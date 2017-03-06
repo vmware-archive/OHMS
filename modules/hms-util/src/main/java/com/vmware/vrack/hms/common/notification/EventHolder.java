@@ -53,11 +53,13 @@ public class EventHolder
         Event callBackEvent = null;
         for ( Event event : events )
         {
+
             if ( event.getEventType() == type && event.canPostCallBack() )
             {
                 callBackEvent = event;
                 break;
             }
+
         }
         return callBackEvent;
     }
@@ -65,6 +67,7 @@ public class EventHolder
     public List<Event> getCallBackEvents( EventType type )
     {
         List<Event> eventList = new ArrayList<Event>();
+
         for ( Event event : events )
         {
             Event callBackEvent = null;
@@ -82,4 +85,5 @@ public class EventHolder
     {
         return "EventHolder [requester=" + requester + ", events=" + events + "]";
     }
+
 }

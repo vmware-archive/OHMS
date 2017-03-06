@@ -15,35 +15,36 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.common.configuration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import com.vmware.vrack.hms.common.exception.HmsException;
+import com.vmware.vrack.hms.common.util.HmsGenericUtil;
+
 public class HmsInventoryConfigurationTest
 {
+
     private static Logger logger = Logger.getLogger( HmsInventoryConfigurationTest.class );
 
     @Test
     public void test()
+        throws IOException, HmsException
     {
         logger.info( "Testing HmsInventoryConfigurationTest" );
-        try
-        {
-            File file = null;
-            file = new File( "test-inventory.json" );
-            file.createNewFile();
-            HmsInventoryConfiguration hmsInventoryConfiguration = new HmsInventoryConfiguration();
-            hmsInventoryConfiguration.setFilename( "test-inventory.json" );
-            assertNotNull( hmsInventoryConfiguration.getFilename() );
-            hmsInventoryConfiguration.store( hmsInventoryConfiguration.getFilename() );
-            file.delete();
-        }
-        catch ( Exception e )
-        {
-            logger.info( "Test HmsInventoryConfigurationTest Failed!" );
-            e.printStackTrace();
-        }
+        File file = null;
+        final String fileName = "test-inventory.json";
+        file = new File( fileName );
+        file.createNewFile();
+        HmsInventoryConfiguration hmsInventoryConfiguration = new HmsInventoryConfiguration();
+        hmsInventoryConfiguration.setFilename( fileName );
+        assertNotNull( hmsInventoryConfiguration.getFilename() );
+        hmsInventoryConfiguration.store( hmsInventoryConfiguration.getFilename() );
+        file.delete();
+        HmsGenericUtil.deleteLatestInventoryBackup();
     }
 }

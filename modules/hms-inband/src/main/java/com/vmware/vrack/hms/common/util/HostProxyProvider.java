@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import java.util.Map;
@@ -28,7 +29,7 @@ import com.vmware.vrack.hms.vsphere.HostProxy;
 /**
  * HostProxy Provider class, that will facilitate the caching and reusing of HostProxy object for each node, and when
  * the hostProxy is requested, but is no longer valid, it will create a new HostProxy object, cache it and return it.
- *
+ * 
  * @author Vmware
  */
 public class HostProxyProvider
@@ -43,6 +44,7 @@ public class HostProxyProvider
 
     private HostProxyProvider()
     {
+
     }
 
     public static HostProxyProvider getInstance()
@@ -69,6 +71,7 @@ public class HostProxyProvider
         {
             HostIdentifier hostIdentifier = new HostIdentifier( node.getNodeID(), node.getIbIpAddress(),
                                                                 node.getOsUserName(), node.getOsPassword() );
+
             synchronized ( this )
             {
                 // If HostProxy is NOT available, then create Object for that node, so that later in this method, it can
@@ -81,15 +84,18 @@ public class HostProxyProvider
                     }
                 }
             }
+
             // Host proxy is NOT there or NOT valid.
             // Try to create HostProxy in Synchronous way, but will be synchronized only for same node.
             // If call comes for another Host, it creating HostProxy for that should NOT get blocked.
             Object lockObj = locksMap.get( node.getNodeID() );
+
             synchronized ( lockObj )
             {
                 if ( hostProxyMap.containsKey( hostIdentifier ) )
                 {
                     HostProxy cachedHostProxy = hostProxyMap.get( hostIdentifier );
+
                     if ( isHostProxyValid( cachedHostProxy ) )
                     {
                         return cachedHostProxy;
@@ -99,6 +105,7 @@ public class HostProxyProvider
                 {
                     removeStaleProxy( hostIdentifier );
                 }
+
                 HostProxy hostProxy = createHostProxy( node );
                 hostProxyMap.put( hostIdentifier, hostProxy );
                 return hostProxy;
@@ -194,6 +201,7 @@ public class HostProxyProvider
             {
                 HostProxy hostProxy = HostManager.getInstance().connect( node.getIbIpAddress(), node.getOsUserName(),
                                                                          node.getOsPassword() );
+
                 return hostProxy;
             }
             catch ( Exception e )
@@ -244,6 +252,7 @@ public class HostProxyProvider
                 logger.error( err );
                 throw new HmsException( err );
             }
+
         }
         else
         {

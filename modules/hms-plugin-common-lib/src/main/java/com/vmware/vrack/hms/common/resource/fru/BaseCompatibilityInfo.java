@@ -21,6 +21,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class BaseCompatibilityInfo
     extends MultiRecordInfo
 {
+
     private Integer manufacturerId;
 
     private EntityId entityId;
@@ -80,4 +81,5 @@ public class BaseCompatibilityInfo
     {
         this.codeRangeMasks = codeRangeMasks;
     }
+
 }

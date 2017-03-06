@@ -42,22 +42,28 @@ public class SwitchMonitorTask
     {
         TaskResponse response = new TaskResponse();
         boolean done = false;
+
         SwitchNodeConnector snc = SwitchNodeConnector.getInstance();
         SwitchNode node = snc.getSwitchNode( switchId );
         ISwitchService service = snc.getSwitchService( switchId );
+
         /* Read the sleep time from the properties file. */
         String frequencyProperty = HmsConfigHolder.getHMSConfigProperty( "hms.switch.monitor.frequency" );
         long sleepMs = ( frequencyProperty != null ) ? Long.parseLong( frequencyProperty ) : 5000;
+
         SwitchSession session = service.getSession( node );
         boolean currentStatus = session != null && session.isConnected();
         logger.info( "Starting monitor thread for switch " + switchId + " with initial status = "
             + ( currentStatus ? "UP" : "DOWN" ) );
+
         while ( !done )
         {
             try
             {
                 Thread.sleep( sleepMs );
+
                 boolean newStatus = session != null && session.isConnected();
+
                 if ( newStatus != currentStatus )
                 {
                     logger.info( "ALERT! Status of switch " + switchId + " changed to "
@@ -65,6 +71,7 @@ public class SwitchMonitorTask
                     currentStatus = newStatus;
                     /* TODO: When event framework is ready, integrate it here. */
                 }
+
                 session = service.getSession( node );
             }
             catch ( InterruptedException ie )
@@ -73,6 +80,7 @@ public class SwitchMonitorTask
                 logger.debug( "Thread interrupted." );
             }
         }
+
         return response;
     }
 

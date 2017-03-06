@@ -31,6 +31,7 @@ import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 public class HMSLocalHealthSensor
     implements IComponentEventInfoProvider
 {
+
     /**
      * Get ServerComponentSensor for given node and Component
      * 
@@ -41,6 +42,7 @@ public class HMSLocalHealthSensor
     public List<ServerComponentEvent> getComponentEventList( ServiceHmsNode serviceNode, ServerComponent component )
         throws HmsException
     {
+
         ArrayList<ServerComponentEvent> sensorComponnets = new ArrayList<ServerComponentEvent>();
         if ( component.equals( ServerComponent.HMS ) )
         {
@@ -51,6 +53,7 @@ public class HMSLocalHealthSensor
              * ServerComponentEvent serverCompEvent = isHMSOOBAgentRunning(); if(serverCompEvent != null) {
              * sensorComponnets.add(serverCompEvent); }
              */
+
             return sensorComponnets;
         }
         return null;
@@ -60,6 +63,7 @@ public class HMSLocalHealthSensor
         throws HmsException
     {
         List<HmsApi> supportedAPI = new ArrayList<HmsApi>();
+
         supportedAPI.add( HmsApi.HMS_INFO );
         supportedAPI.add( HmsApi.HMS_HEALTH_INFO );
         return supportedAPI;
@@ -70,15 +74,20 @@ public class HMSLocalHealthSensor
      */
     public static ServerComponentEvent isHMSOOBAgentRunning()
     {
+
         if ( !MonitoringUtil.isHMSOOBAvailable() )
         {
             ServerComponentEvent sensor = new ServerComponentEvent();
+
             sensor.setComponentId( "HMS_OOBAGENT_REACHABLE_STATUS" );
             sensor.setUnit( EventUnitType.DISCRETE );
             sensor.setDiscreteValue( "NOT REACHABLE" );
             sensor.setEventName( NodeEvent.HMS_AGENT_NON_RESPONSIVE );
             return sensor;
         }
+
         return null;
+
     }
+
 }

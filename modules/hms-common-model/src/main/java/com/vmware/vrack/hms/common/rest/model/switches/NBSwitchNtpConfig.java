@@ -34,4 +34,5 @@ public class NBSwitchNtpConfig
     {
         this.timeServerIpAddress = timeServerIpAddress;
     }
+
 }

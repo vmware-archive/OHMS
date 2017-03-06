@@ -24,9 +24,4 @@ public class RedfishResourcesInventoryException
     {
         super( message );
     }
-
-    public RedfishResourcesInventoryException( String message, Throwable cause )
-    {
-        super( message, cause );
-    }
 }

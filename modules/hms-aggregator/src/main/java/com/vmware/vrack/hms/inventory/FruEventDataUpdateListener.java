@@ -13,26 +13,39 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.inventory;
 
-import org.apache.log4j.Logger;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import com.vmware.vrack.common.event.Event;
 import com.vmware.vrack.common.event.enums.EventComponent;
 import com.vmware.vrack.hms.aggregator.switches.HmsSwitchManager;
+import com.vmware.vrack.hms.aggregator.util.AggregatorUtil;
+import com.vmware.vrack.hms.common.resource.fru.FruOperationalStatus;
+import com.vmware.vrack.hms.common.rest.model.ServerInfo;
+import com.vmware.vrack.hms.common.servernodes.api.ServerComponent;
+import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 import com.vmware.vrack.hms.controller.HMSLocalServerRestService;
 import com.vmware.vrack.hms.controller.HmsSwitchRestService;
 
 /**
  * HMS FRU Event Data update listener
  */
+@SuppressWarnings( "deprecation" )
 @Component
 public class FruEventDataUpdateListener
     implements ApplicationListener<FruEventStateChangeMessage>
 {
+
     @Autowired
     private HmsDataCache hmsDataCache;
 
@@ -43,9 +56,18 @@ public class FruEventDataUpdateListener
     private HmsSwitchManager switchManager;
 
     @Autowired
+    private ApplicationContext context;
+
+    @Autowired
     private HmsSwitchRestService hmsSwitchRestService;
 
-    private static Logger logger = Logger.getLogger( FruEventDataUpdateListener.class );
+    @Value( "${esxi.ssh.retry.count}" )
+    private int sshRetryCount;
+
+    @Value( "${esxi.ssh.retry.delay}" )
+    private int sshRetryDelay;
+
+    private static Logger logger = LoggerFactory.getLogger( FruEventDataUpdateListener.class );
 
     public HmsDataCache getHmsDataCache()
     {
@@ -66,6 +88,7 @@ public class FruEventDataUpdateListener
     public void onApplicationEvent( FruEventStateChangeMessage message )
     {
         // read event and update the cache.
+
         String nodeId = null;
         String switchId = null;
         try
@@ -77,6 +100,7 @@ public class FruEventDataUpdateListener
                     nodeId = event.getHeader().getComponentIdentifier().get( EventComponent.SERVER );
                 else if ( event.getHeader().getComponentIdentifier().containsKey( EventComponent.SWITCH ) )
                     switchId = event.getHeader().getComponentIdentifier().get( EventComponent.SWITCH );
+
                 switch ( event.getHeader().getEventName() )
                 {
                     case CPU_CAT_ERROR:
@@ -135,9 +159,14 @@ public class FruEventDataUpdateListener
                         switchManager.getSwitchAllPortInfoList( switchId );
                         updateCache = false;
                         break;
+                    case BMC_NOT_REACHABLE:
+                        setHostNotDiscoverableInHmsDataCache( nodeId );
+                        updateCache = false;
+                        break;
                     default:
                         break;
                 }
+
                 // break from for loop as it's already updated the cache
                 if ( updateCache == false )
                     break;
@@ -146,6 +175,45 @@ public class FruEventDataUpdateListener
         catch ( Exception e )
         {
             logger.error( "Error in the HMS event data update listener ", e );
+        }
+    }
+
+    /**
+     * Sets hosts discoverable and operational to false when bmc is not reachable
+     * 
+     * @param hostId
+     */
+    private void setHostNotDiscoverableInHmsDataCache( String hostId )
+    {
+        try
+        {
+            Map<String, ServerInfo> serverInfoMap = hmsDataCache.getServerInfoMap();
+            ServerInfo serverInfo = serverInfoMap.get( hostId );
+
+            // Will update the discovery and operation status by considering
+            // ESXI reachable status as well.
+            ServerNode serverNode = InventoryLoader.getInstance().getNode( hostId );
+            boolean isInbandReachable = AggregatorUtil.isEsxiHostReachable( serverNode, sshRetryCount, sshRetryDelay );
+
+            logger.debug( "Node: {} inband ip: {} reachability status: {}", hostId, serverNode.getIbIpAddress(),
+                          isInbandReachable );
+
+            if ( serverInfo != null && !isInbandReachable )
+            {
+                serverInfo.setDiscoverable( false );
+                serverInfo.setOperationalStatus( FruOperationalStatus.NonOperational );
+                context.publishEvent( new ServerDataChangeMessage( serverInfo, ServerComponent.SERVER ) );
+            }
+            else
+            {
+                logger.warn( String.format( "Unable to update hms data cache and publish event for host [%s] as serverInfo is Null",
+                                            hostId ) );
+            }
+        }
+        catch ( Exception e )
+        {
+            logger.warn( String.format( "Unable to update hms data cache and publish event for host [%s]", hostId ),
+                         e );
         }
     }
 }

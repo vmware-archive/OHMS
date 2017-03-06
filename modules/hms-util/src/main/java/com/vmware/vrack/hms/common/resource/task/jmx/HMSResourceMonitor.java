@@ -33,6 +33,7 @@ import com.vmware.vrack.hms.common.util.EventsUtil;
 public class HMSResourceMonitor
     extends MonitorTask
 {
+
     private static Logger logger = Logger.getLogger( HMSResourceMonitor.class );
 
     public HMSResourceMonitor()
@@ -53,12 +54,14 @@ public class HMSResourceMonitor
     public MonitoringTaskResponse call()
         throws Exception
     {
+
         return executeTask();
     }
 
     public MonitoringTaskResponse executeTask()
         throws HmsException
     {
+
         Map<ServerComponent, List<ServerComponentEvent>> componentSensorData =
             new HashMap<ServerComponent, List<ServerComponentEvent>>();
         if ( EventsUtil.isComponentServerApiSupported( response.getSensorInfoProvider(), component,
@@ -76,6 +79,7 @@ public class HMSResourceMonitor
             throw new HmsOperationNotSupportedException( error );
         }
         ( (ServerNode) node ).setComponentSensorData( componentSensorData );
+
         return response;
     }
 }

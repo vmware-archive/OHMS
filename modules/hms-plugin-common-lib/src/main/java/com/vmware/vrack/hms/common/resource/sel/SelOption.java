@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.sel;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Option to pass that decides which SEL entries to fetch(Recent or Oldest)
- *
+ * 
  * @author VMware, Inc.
  */
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -74,4 +75,5 @@ public class SelOption
     {
         this.selFilters = selFilters;
     }
+
 }

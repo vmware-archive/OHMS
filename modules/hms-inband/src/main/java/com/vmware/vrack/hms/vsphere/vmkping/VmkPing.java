@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.vsphere.vmkping;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -63,6 +64,7 @@ public class VmkPing
     {
         VmkPingInputSpec inputSpec = new VmkPingInputSpec();
         inputSpec.setHost( destIp );
+
         return execute( srcHost, inputSpec );
     }
 
@@ -73,6 +75,7 @@ public class VmkPing
         inputSpec.setNic( device );
         inputSpec.setSize( 56 );
         inputSpec.setCount( 3 );
+
         return execute( srcHost, inputSpec );
     }
 
@@ -83,8 +86,10 @@ public class VmkPing
         {
             logger.debug( "SoapArgument {}: \n{}", i, args[i] );
         }
+
         String apiVersion = getSoapApiVersion( srcHost.getVersion() );
         SoapResult result = executeSoap( srcHost, args, apiVersion );
+
         if ( null == result )
         {
             throw new NullPointerException();
@@ -94,6 +99,7 @@ public class VmkPing
             logger.error( result.getFault().getFaultMsg() );
             logger.error( result.getFault().getFaultDetail() );
             logger.error( "inputSpec: {}", inputSpec );
+
             String errMsg = UNKNOWN;
             try
             {
@@ -109,6 +115,7 @@ public class VmkPing
             }
             // TODO throw exception for message
         }
+
         return decode( result ).getDataObject();
     }
 
@@ -117,6 +124,7 @@ public class VmkPing
         try
         {
             DynamicTypeManager dynamicTypeManager = srcHost.getDynamicTypeManager();
+
             MoFilterSpec moFilterSpec = new MoFilterSpec();
             moFilterSpec.setTypeSubstr( VIM_ESX_CLI_NETWORK_DIAG );
             MoInstance[] moInstances = dynamicTypeManager.queryMoInstances( moFilterSpec );
@@ -124,8 +132,10 @@ public class VmkPing
             {
                 throw new RuntimeException( THERE_IS_NO_AVAILABLE_MO_INSTANCE );
             }
+
             ManagedMethodExecuter executer = srcHost.getManagedMethodExecuter();
             String version = URN_VIM25 + apiVersion;
+
             return executer.executeSoap( moInstances[0].getId(), version, VIM_ESX_CLI_NETWORK_DIAG_PING, args );
         }
         catch ( Exception e )
@@ -137,6 +147,7 @@ public class VmkPing
     private SoapArgument[] encode( VmkPingInputSpec inputSpec, String hostVersion )
     {
         List<SoapArgument> args = new ArrayList<SoapArgument>();
+
         Field[] fields = VmkPingInputSpec.class.getDeclaredFields();
         for ( Field field : fields )
         {
@@ -145,6 +156,7 @@ public class VmkPing
                 field.setAccessible( true );
                 String vmkPingFieldName = field.getName();
                 Object value = field.get( inputSpec );
+
                 VmkPingField vmkPingField = field.getAnnotation( VmkPingField.class );
                 if ( null != vmkPingField )
                 {
@@ -162,6 +174,7 @@ public class VmkPing
                         continue;
                     }
                 }
+
                 if ( null != value )
                 {
                     SoapArgument arg = new SoapArgument();
@@ -183,6 +196,7 @@ public class VmkPing
                 throw new RuntimeException( e );
             }
         }
+
         return args.toArray( new SoapArgument[0] );
     }
 

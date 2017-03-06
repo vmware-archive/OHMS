@@ -20,10 +20,12 @@ package com.vmware.vrack.hms.common.servernodes.api;
  */
 public enum NodeAdminStatus
 {
-    OPERATIONAL( "Node ID: {node_id} is operational." ),
-    MAINTENANCE( "Node ID: {node_id} is under maintenance." ),
-    DECOMISSION( "Node ID: {node_id} is decomissioned." ),
-    MAINTENANCE_ERROR( "Node ID: {node_id} is in error state after Maintenance." );
+
+    OPERATIONAL( "Node ID: {node_id} is OPERATIONAL." ),
+    MAINTENANCE( "Node ID: {node_id} is under MAINTENANCE." ),
+    DECOMISSION( "Node ID: {node_id} is DECOMISSION." ),
+    MAINTENANCE_ERROR( "Node ID: {node_id} is in ERROR state after MAINTENANCE." );
+
     String message;
 
     private NodeAdminStatus( String message )

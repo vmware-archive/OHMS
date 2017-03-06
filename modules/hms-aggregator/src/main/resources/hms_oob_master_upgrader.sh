@@ -14,6 +14,7 @@ declare HMS_OOB_SERVICE_SCRIPT_FULLPATH;
 declare HMS_OOB_UPGRADE_SCRIPT_FULLPATH;
 declare HMS_OOB_RECOVER_SCRIPT_FULLPATH;
 declare HMS_OOB_VALIDATE_SCRIPT_FULLPATH;
+declare LIGHTTPD_RESTART_SCRIPT_FULLPATH;
 
 # Remote upgrade directory
 declare HMS_OOB_UPGRADE_DIR_NAME;
@@ -30,6 +31,9 @@ declare HMS_OOB_BACKUP_DIR_FULLPATH;
 # HMS OOB UpgradeStatus JSON file absoulte path
 declare HMS_OOB_UPGRADE_STATUS_JSON_FILENAME_FULLPATH;
 
+# Full Path to Lighttpd install directory
+declare LIGHTTPD_DIR_FULLPATH;
+
 ################CHANGE HERE FOR ENVIRONMENT SETUP#####################
 HMS_QUERY_WAIT=15;
 HMS_WAIT_BEFORE_UPGRADE=30;
@@ -37,6 +41,7 @@ HMS_DIR_NAME="hms"
 HMS_PARENT_DIR_FULLPATH="/opt/vrack"
 HMS_UPGRADE_DIR_FULLPATH="/opt/vrack/upgrade"
 HMS_DIR_FULLPATH="$HMS_PARENT_DIR_FULLPATH/$HMS_DIR_NAME"
+LIGHTTPD_DIR_FULLPATH="/etc/lighttpd"
 
 ########################### Vars related to scripts and validation ###############
 HMS_OOB_HOST="localhost"
@@ -56,10 +61,15 @@ HMS_OOB_UPGRADE_SCRIPT="hms_oob_upgrade.sh"
 #Hms oob recover script that will recover from the previous running build.
 HMS_OOB_RECOVER_SCRIPT="hms_oob_recover.sh"
 
+#Hms oob Upgrade Script
+LIGHTTPD_RESTART_SCRIPT="hms_oob_restart_lighttpd.sh"
+
 # Valid Tokens for services
 STOP_TOKEN="stop"
 START_TOKEN="start"
 QUERY_TOKEN="status"
+
+CURL_OPTIONS=' -k '
 
 ######################Vars for remote HMS OOB  ##########################
 
@@ -121,6 +131,8 @@ function check_arguments()
         # HMS OOB UpgradeStatus JSON file abs path
         HMS_OOB_UPGRADE_STATUS_JSON_FILENAME_FULLPATH="$HMS_UPGRADE_DIR_FULLPATH/$HMS_TOKEN.json"
 
+        # LIGHTTPD RESTART script file abs path
+        LIGHTTPD_RESTART_SCRIPT_FULLPATH="${HMS_SCRIPT_DIR}/${LIGHTTPD_RESTART_SCRIPT}"
     else
 
         loginfo "FAILED: Required number of arguments must be passed before continuing.";
@@ -163,6 +175,24 @@ function stopHmsOOB()
     }
 }
 
+# Restarts lighttpd
+function restart_lighttpd()
+{
+    #Check if the restart lighttpd script file exist
+    local restartlighttpdscript="$LIGHTTPD_RESTART_SCRIPT_FULLPATH"
+    if [[ -f "$restartlighttpdscript" ]]; then
+        loginfo "restart lighttpd script exists."
+
+        #execute restart lighttpd script
+        ($LIGHTTPD_RESTART_SCRIPT_FULLPATH) || {
+            echo "Error in restarting lighttpd";
+            return 194;
+        }
+    else
+        return 195
+    fi
+}
+
 # takes backup of oob agent
 function hms_oob_backup()
 {
@@ -199,6 +229,33 @@ function hms_oob_upgrade()
         echo "Unable to Start HMS OOB Service.";
         return 120;
     }
+}
+
+# takes backup of Lighttpd config
+function lighttpd_backup()
+{
+    mkdir -p $LIGHTTPD_DIR_FULLPATH/backup || { echo "Failed to create Lighttpd backup dir [ $LIGHTTPD_DIR_FULLPATH/backup ]"; return 190; }
+    cp $LIGHTTPD_DIR_FULLPATH/lighttpd.conf $LIGHTTPD_DIR_FULLPATH/backup || { echo "unable to take the backup of lighttpd.conf file"; return 191; }
+
+    loginfo "lighttpd.conf backup is created under $LIGHTTPD_DIR_FULLPATH/backup"
+}
+
+# upgrades Lighttpd
+function lighttpd_upgrade()
+{
+    loginfo "applying lighttpd upgrade configs"
+
+    cp $HMS_DIR_FULLPATH/upgrade-config/lighttpd.conf $LIGHTTPD_DIR_FULLPATH || {
+        echo "Unable to copy lighttpd.conf!!!";
+        return 192;
+    }
+
+    cp $HMS_DIR_FULLPATH/upgrade-config/lighttpd-misc.conf $LIGHTTPD_DIR_FULLPATH || {
+        echo "Unable to copy lighttpd-misc.conf!!!";
+        return 193;
+    }
+
+    loginfo "lighttpd configuration has been upgraded"
 }
 
 # rollbacks oob agent upgrade
@@ -264,8 +321,8 @@ function getLastUpgradeStatus_HmsOOB()
     # Wait before querying if the HMS OOB is up and responsive.
     loginfo "Waiting for $HMS_QUERY_WAIT seconds, before querying HMS OOB response"
     sleep $HMS_QUERY_WAIT
-    about_http_url="http://${HMS_OOB_HOST}:8448/api/1.0/hms/about"
-    about_response=`curl ${about_http_url}`
+    about_http_url="https://${HMS_OOB_HOST}:8450/api/1.0/hms/about"
+    about_response=`curl ${CURL_OPTIONS} ${about_http_url}`
 
     loginfo "Checking for HMS OOB Response";
     # Checking if the HMS OOB is responsive, by hitting its /about endpoint.
@@ -391,7 +448,15 @@ hms_oob_backup || {
     fatal_exit "HMS OOB Backup Phase: Failed" $? RESTORE_OOB;
 }
 
-# 3. HMS OOB Upgrade Phase
+# 3. Lighttpd Backup Phase
+lighttpd_backup || {
+    save_upgrade_status "$HMS_TOKEN" "LIGHTTPD_BACKUP_FAILED" || {
+        loginfo "Unable to save upgrade status to - $HMS_OOB_UPGRADE_STATUS_JSON_FILENAME_FULLPATH"
+    }
+    fatal_exit "Lighttpd Backup Phase: Failed" $? RESTORE_OOB;
+}
+
+# 4. HMS OOB Upgrade Phase
 hms_oob_upgrade || {
     save_upgrade_status "$HMS_TOKEN" "HMS_OOB_UPGRADE_FAILED"|| {
         loginfo "Unable to save upgrade status to - $HMS_OOB_UPGRADE_STATUS_JSON_FILENAME_FULLPATH"
@@ -399,7 +464,23 @@ hms_oob_upgrade || {
     fatal_exit "HMS OOB Upgrade Phase: Failed" $? RESTORE_OOB;
 }
 
-# 4. Check if HMS OOB started afer upgrade
+# 5. Lighttpd Upgrade Phase (e.g. Lighttpd)
+lighttpd_upgrade || {
+    save_upgrade_status "$HMS_TOKEN" "LIGHTTPD_UPGRADE_FAILED"|| {
+        loginfo "Unable to save upgrade status to - $HMS_OOB_UPGRADE_STATUS_JSON_FILENAME_FULLPATH"
+    }
+    fatal_exit "Lighttpd Upgrade Phase: Failed" $? RESTORE_OOB;
+}
+
+# 6. Restarts Lighttpd after config upgrade
+#restart_lighttpd || {
+#    save_upgrade_status "$HMS_TOKEN" "LIGHTTPD_RESTART_FAILED"|| {
+#        loginfo "Unable to save upgrade status to - $HMS_OOB_UPGRADE_STATUS_JSON_FILENAME_FULLPATH"
+#    }
+#    fatal_exit "lighttpd Restart Phase: Failed" $? RESTORE_OOB;
+#}
+
+# 7. Check if HMS OOB started afer upgrade
 # This check is not done because, on the out-of-band agent curl command is not available.
 #getLastUpgradeStatus_HmsOOB || {
 #fatal_exit "HMS OOB upgrade status: Failed" $? RESTORE_OOB;
@@ -410,7 +491,7 @@ save_upgrade_status "$HMS_TOKEN" "HMS_OOB_UPGRADE_SUCCESS"|| {
 }
 
 # delete upgrade files
-#delete_upgrade_files
+# delete_upgrade_files
 
 loginfo
 loginfo "***********************************************************************"

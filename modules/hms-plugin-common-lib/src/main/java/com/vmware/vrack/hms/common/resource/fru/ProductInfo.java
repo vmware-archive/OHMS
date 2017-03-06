@@ -24,6 +24,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class ProductInfo
     extends FruRecord
 {
+
     private String manufacturerName;
 
     private String productName;
@@ -119,4 +120,5 @@ public class ProductInfo
     {
         this.customProductInfo = customProductInfo;
     }
+
 }

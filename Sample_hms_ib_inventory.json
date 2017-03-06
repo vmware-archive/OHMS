@@ -1,0 +1,101 @@
+{
+  "switches" : [ {
+    "switchId" : "S0",
+    "protocol" : "ssh",
+    "ipAddress" : "10.28.197.242",
+    "port" : 22,
+    "username" : "S0_UN",
+    "password" : "S0_PWD",
+    "location" : "4U",
+    "topology" : null,
+    "role" : "MANAGEMENT",
+    "type" : {
+      "manufacturer" : "sample_vendor",
+      "model" : "sample_product"
+    },
+    "componentIdentifier" : null,
+    "firmwareName" : null,
+    "firmwareVersion" : null,
+    "osName" : null,
+    "osVendor" : null
+  }, {
+    "switchId" : "S1",
+    "protocol" : "ssh",
+    "ipAddress" : "10.28.197.242",
+    "port" : 22,
+    "username" : "S1_UN",
+    "password" : "S1_PWD",
+    "location" : "4U",
+    "topology" : null,
+    "role" : "TOR",
+    "type" : {
+      "manufacturer" : "sample_vendor",
+      "model" : "sample_product"
+    },
+    "componentIdentifier" : null,
+    "firmwareName" : null,
+    "firmwareVersion" : null,
+    "osName" : null,
+    "osVendor" : null
+  }, {
+    "switchId" : "S2",
+    "protocol" : "ssh",
+    "ipAddress" : "10.28.197.242",
+    "port" : 22,
+    "username" : "S2_UN",
+    "password" : "S2_PWD",
+    "location" : "4U",
+    "topology" : null,
+    "role" : "SPINE",
+    "type" : {
+      "manufacturer" : "sample_vendor",
+      "model" : "sample_product"
+    },
+    "componentIdentifier" : null,
+    "firmwareName" : null,
+    "firmwareVersion" : null,
+    "osName" : null,
+    "osVendor" : null
+  } ],
+  "hosts" : [ {
+    "managementIp" : "10.175.17.229",
+    "managementUserName" : "N0_BMC_UN",
+    "managementUserPassword" : "N0_BMC_PWD",
+    "nodeID" : "N0",
+    "nodeOsDetails" : { },
+    "adminStatus" : "OPERATIONAL",
+    "ibIpAddress" : "10.18.228.104",
+    "ibInitialIpAddress" : "127.0.0.1",
+    "osUserName" : "N0_IB_UN",
+    "osPassword" : "N0_IB_PWD",
+    "oobMacAddress" : "",
+    "bmcUserList" : [ ],
+    "boardProductName" : "PowerEdge R630",
+    "boardVendor" : "DELL",
+    "location" : "2U",
+    "hypervisorName" : "ESXI",
+    "hypervisorProvider" : "VMWARE",
+    "discoverable" : true,
+    "powered" : true
+  },{
+    "managementIp" : "10.28.197.191",
+    "managementUserName" : "N1_BMC_UN",
+    "managementUserPassword" : "N1_BMC_PWD",
+    "nodeID" : "N1",
+    "nodeOsDetails" : { },
+    "adminStatus" : "OPERATIONAL",
+    "ibIpAddress" : "10.28.197.178",
+    "ibInitialIpAddress" : "127.0.0.1",
+    "osUserName" : "N1_IB_UN",
+    "osPassword" : "N1_IB_PWD",
+    "oobMacAddress" : "",
+    "bmcUserList" : [ ],
+    "boardProductName" : "Dummy",
+    "boardVendor" : "Quanta",
+    "location" : "2U",
+    "hypervisorName" : "ESXI",
+    "hypervisorProvider" : "VMWARE",
+    "discoverable" : true,
+    "powered" : true
+  }]
+}

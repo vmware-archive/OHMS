@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.util;
 
 import static org.junit.Assert.assertNotNull;
@@ -55,6 +56,7 @@ public class HostProxyProviderTest
     public void initializeProperties()
     {
         properties = new Properties();
+
         try
         {
             properties.load( this.getClass().getResourceAsStream( "/test.properties" ) );
@@ -79,10 +81,13 @@ public class HostProxyProviderTest
         node.setIbIpAddress( properties.getProperty( HMS_IB_IP_ADDRESS ) );
         node.setOsUserName( properties.getProperty( HMS_IB_USERNAME ) );
         node.setOsPassword( properties.getProperty( HMS_IB_PASSWORD ) );
+
         HostProxy hostProxy = HostProxyProvider.getInstance().getHostProxy( node );
+
         assertTrue( hostProxy.getHostSystem() != null );
         assertTrue( hostProxy.getHostSystem().getHardware() != null );
         assertTrue( hostProxy.getHostSystem().getHardware().getCpuPkg().length > 0 );
+
     }
 
     /**
@@ -99,10 +104,13 @@ public class HostProxyProviderTest
         node.setIbIpAddress( properties.getProperty( HMS_CHANGED_IB_IP_ADDRESS ) );
         node.setOsUserName( properties.getProperty( HMS_CHANGED_IB_USERNAME ) );
         node.setOsPassword( properties.getProperty( HMS_CHANGED_IB_PASSWORD ) );
+
         HostProxy hostProxy = HostProxyProvider.getInstance().getHostProxy( node );
+
         assertNotNull( hostProxy.getHostSystem() );
         assertNotNull( hostProxy.getHostSystem().getHardware() );
         assertTrue( hostProxy.getHostSystem().getHardware().getCpuPkg().length > 0 );
+
     }
 
     /**
@@ -119,6 +127,7 @@ public class HostProxyProviderTest
         node.setIbIpAddress( properties.getProperty( HMS_DUMMY_IB_IP_ADDRESS ) );
         node.setOsUserName( properties.getProperty( HMS_CHANGED_IB_USERNAME ) );
         node.setOsPassword( properties.getProperty( HMS_CHANGED_IB_PASSWORD ) );
+
         HostProxyProvider.getInstance().getHostProxy( node );
     }
 
@@ -136,9 +145,13 @@ public class HostProxyProviderTest
         node.setIbIpAddress( properties.getProperty( HMS_IB_IP_ADDRESS ) );
         node.setOsUserName( properties.getProperty( HMS_IB_USERNAME ) );
         node.setOsPassword( properties.getProperty( HMS_IB_PASSWORD ) );
+
         HostProxy hostProxy = HostProxyProvider.getInstance().getHostProxy( node );
+
         assertNotNull( hostProxy.getHostSystem() );
         assertNotNull( hostProxy.getHostSystem().getHardware() );
         assertTrue( hostProxy.getHostSystem().getHardware().getCpuPkg().length > 0 );
+
     }
+
 }

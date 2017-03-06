@@ -103,4 +103,5 @@ public class SwitchPortInfo
     {
         this.adminStatus = adminStatus;
     }
+
 }

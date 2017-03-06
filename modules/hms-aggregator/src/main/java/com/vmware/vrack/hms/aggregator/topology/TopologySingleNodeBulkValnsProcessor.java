@@ -15,35 +15,29 @@
  * *******************************************************************************/
 package com.vmware.vrack.hms.aggregator.topology;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import com.vmware.vrack.hms.aggregator.topology.object.CumulativeObject;
+import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.switches.api.SwitchVlan;
+import com.vmware.vrack.hms.rest.factory.HmsOobAgentRestTemplate;
 
 public class TopologySingleNodeBulkValnsProcessor
     implements Callable<CumulativeObject>
 {
-    String hmsIpAddr;
-
-    int hmsPort;
 
     String node;
 
     static final String VLANBULK = "VlanBulk";
 
-    public TopologySingleNodeBulkValnsProcessor( String hmsIpAddr, int hmsPort, String node )
+    public TopologySingleNodeBulkValnsProcessor( String node )
     {
-        this.hmsIpAddr = hmsIpAddr;
-        this.hmsPort = hmsPort;
         this.node = node;
     }
 
@@ -59,23 +53,21 @@ public class TopologySingleNodeBulkValnsProcessor
     }
 
     SwitchVlan[] getAllVlansForSwitch()
-        throws URISyntaxException
+        throws HmsException
     {
         /*
          * Now get list of all the VLANs configured on the switch
          */
-        URI uri =
-            new URI( "http", null, hmsIpAddr, hmsPort,
-                     "/api/1.0/hms/switches/{nodeName}/vlansbulk".replaceAll( "\\{nodeName\\}", node ), null, null );
-        RestTemplate restTemplate = new RestTemplate();
+        String path = "/api/1.0/hms/switches/{nodeName}/vlansbulk".replaceAll( "\\{nodeName\\}", node );
         HttpHeaders headers = new HttpHeaders();
-        headers.add( "Accept", "application/json" );
-        HttpEntity<Object> entity = new HttpEntity<Object>( null, headers );
+        headers.add( "Accept", MediaType.APPLICATION_JSON_VALUE );
         ParameterizedTypeReference<SwitchVlan[]> typeRef = new ParameterizedTypeReference<SwitchVlan[]>()
         {
         };
-        ResponseEntity<SwitchVlan[]> oobResponse = restTemplate.exchange( uri, HttpMethod.GET, entity, typeRef );
+        HmsOobAgentRestTemplate<Object> restTemplate = new HmsOobAgentRestTemplate<Object>( headers );
+        ResponseEntity<SwitchVlan[]> oobResponse = restTemplate.exchange( HttpMethod.GET, path, typeRef );
         SwitchVlan[] vlanArray = oobResponse.getBody();
         return vlanArray;
     }
+
 }

@@ -23,7 +23,7 @@ import com.vmware.vrack.hms.common.servernodes.api.hdd.HddInfo;
 
 /**
  * Class for Storage related properties
- *
+ * 
  * @author VMware Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -42,6 +42,12 @@ public class StorageInfo
     private String operationalStatus;
 
     private String hostId;
+
+    /**
+     * isCapacityDisk - Used in the AllFalsh Environment where we mark the SSD Disk to IsCapacityFlash Based on this
+     * flag we can confirm whether we use this SSD Disk for the capacity or cache.
+     */
+    private boolean isCapacityDisk;
 
     public String getId()
     {
@@ -103,6 +109,16 @@ public class StorageInfo
         this.hostId = hostId;
     }
 
+    public boolean isCapacityDisk()
+    {
+        return isCapacityDisk;
+    }
+
+    public void setCapacityDisk( boolean isCapacityDisk )
+    {
+        this.isCapacityDisk = isCapacityDisk;
+    }
+
     /**
      * Get the Physical Storage Device or HDD FRU Information Wrapper method to get the StorageInfo object for the node
      *
@@ -112,7 +128,9 @@ public class StorageInfo
      */
     public StorageInfo getStorageInfo( HddInfo serverNodeHddInfo, String nodeID )
     {
+
         StorageInfo storageInfo = new StorageInfo();
+
         storageInfo.setId( serverNodeHddInfo.getId() );
         storageInfo.setDiskCapacityInMB( serverNodeHddInfo.getDiskCapacityInMB() );
         storageInfo.setDiskType( serverNodeHddInfo.getType() );
@@ -120,10 +138,13 @@ public class StorageInfo
         storageInfo.setOperationalStatus( getStorageOperationaState( serverNodeHddInfo.getState() ).name() );
         storageInfo.setLocation( serverNodeHddInfo.getLocation() );
         storageInfo.setHostId( nodeID );
+        storageInfo.setCapacityDisk( serverNodeHddInfo.isCapacityDisk() );
+
         if ( serverNodeHddInfo.getComponentIdentifier() != null )
         {
             storageInfo.setComponentIdentifier( serverNodeHddInfo.getComponentIdentifier() );
         }
+
         return storageInfo;
     }
 
@@ -158,5 +179,7 @@ public class StorageInfo
         {
             throw new IllegalArgumentException( "Invalid state: " + state );
         }
+
     }
+
 }

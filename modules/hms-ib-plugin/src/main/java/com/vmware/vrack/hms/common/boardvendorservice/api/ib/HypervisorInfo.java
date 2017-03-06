@@ -13,10 +13,12 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.boardvendorservice.api.ib;
 
 public class HypervisorInfo
 {
+
     private String name;
 
     private String provider;
@@ -40,4 +42,5 @@ public class HypervisorInfo
     {
         this.provider = provider;
     }
+
 }

@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.sel;
 
 import java.util.ArrayList;
@@ -97,4 +98,5 @@ public class SelInfo
     {
         this.selRecords = selRecords;
     }
+
 }

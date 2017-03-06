@@ -22,7 +22,7 @@ import com.vmware.vrack.hms.common.servernodes.api.nic.NicStatus;
 
 /**
  * Class for Ethernet controllers Port Properties
- *
+ * 
  * @author VMware Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -85,11 +85,14 @@ public class PortInfo
      */
     public PortInfo getPortInfo( com.vmware.vrack.hms.common.servernodes.api.nic.PortInfo ethernetControllerPortInfo )
     {
+
         PortInfo portInfo = new PortInfo();
         portInfo.setMacAddress( ethernetControllerPortInfo.getMacAddress() );
         portInfo.setLinkSpeedInMBps( ethernetControllerPortInfo.getLinkSpeedInMBps() );
         portInfo.setLinkStatus( ethernetControllerPortInfo.getLinkStatus() );
         portInfo.setDeviceName( ethernetControllerPortInfo.getDeviceName() );
+
         return portInfo;
     }
+
 }

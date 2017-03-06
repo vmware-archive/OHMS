@@ -13,11 +13,13 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.exception;
 
 public class HmsException
     extends Exception
 {
+
     private static final long serialVersionUID = 1415748195510407711L;
 
     public HmsException()

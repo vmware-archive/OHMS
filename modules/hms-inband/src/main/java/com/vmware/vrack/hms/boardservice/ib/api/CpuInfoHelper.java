@@ -45,13 +45,13 @@ public class CpuInfoHelper
     {
         if ( hardwareInfo != null )
         {
-            List<CPUInfo> cpuInfos = new ArrayList<>();
-            CpuPackage[] cpuPkgs = hardwareInfo.getCpuPkg();
+            List<CPUInfo> cpuInfoList = new ArrayList<>();
+            CpuPackage[] cpuPkgArray = hardwareInfo.getCpuPkg();
             CpuInfo ci = hardwareInfo.getCpuInfo();
             int numCoresPerCpu = ci.getNumCpuCores() / ci.getNumCpuPackages();
-            if ( cpuPkgs != null )
+            if ( cpuPkgArray != null )
             {
-                for ( CpuPackage cp : cpuPkgs )
+                for ( CpuPackage cp : cpuPkgArray )
                 {
                     CPUInfo cpuInfo = new CPUInfo();
                     ComponentIdentifier componentIdentifier = new ComponentIdentifier();
@@ -63,10 +63,11 @@ public class CpuInfoHelper
                     componentIdentifier.setManufacturer( cp.getVendor() );
                     componentIdentifier.setProduct( cp.getDescription() );
                     cpuInfo.setComponentIdentifier( componentIdentifier );
-                    cpuInfos.add( cpuInfo );
+
+                    cpuInfoList.add( cpuInfo );
                 }
             }
-            return cpuInfos;
+            return cpuInfoList;
         }
         else
         {
@@ -85,10 +86,11 @@ public class CpuInfoHelper
      */
     public static List<ServerComponentEvent> getCpuSensor( ServiceHmsNode serviceNode, ServerComponent component,
                                                            InbandServiceImpl inbandServiceImpl )
-                                                               throws HmsException
+        throws HmsException
     {
         List<CPUInfo> cpuInfos = null;
         List<ServerComponentEvent> componentSensors = new ArrayList<ServerComponentEvent>();
+
         try
         {
             if ( inbandServiceImpl != null )

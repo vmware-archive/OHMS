@@ -22,6 +22,7 @@ package com.vmware.vrack.hms.common.resource.fru;
 public class DcLoadInfo
     extends MultiRecordInfo
 {
+
     private Integer outputNumber;
 
     /**
@@ -108,4 +109,5 @@ public class DcLoadInfo
     {
         this.maximumCurrentLoad = maximumCurrentLoad;
     }
+
 }

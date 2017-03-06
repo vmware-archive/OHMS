@@ -22,15 +22,18 @@ import org.junit.Test;
 
 public class InBandServiceFactoryTest
 {
+
     private static Logger logger = Logger.getLogger( InBandServiceFactoryTest.class );
 
     @Test
     public void test()
     {
         logger.info( "Test hmsutil InBandServiceFactoryTest" );
+
         try
         {
             InBandServiceFactory inBandServiceFactory = InBandServiceFactory.getBoardServiceFactory();
+
             InBandServiceFactory.initialize();
             assertNotNull( inBandServiceFactory.getBoardServiceImplementationClasses() );
         }
@@ -39,5 +42,7 @@ public class InBandServiceFactoryTest
             logger.info( "Test hmsutil InBandServiceFactoryTest Failed!" );
             e.printStackTrace();
         }
+
     }
+
 }

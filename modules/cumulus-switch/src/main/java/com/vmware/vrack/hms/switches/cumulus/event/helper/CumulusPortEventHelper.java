@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * CumulusPortEventHelper.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.servernodes.api.event.EventUnitType;
+import com.vmware.vrack.hms.common.servernodes.api.event.NodeEvent;
 import com.vmware.vrack.hms.common.servernodes.api.event.ServerComponentEvent;
 import com.vmware.vrack.hms.common.switches.api.SwitchNode;
 import com.vmware.vrack.hms.common.switches.api.SwitchSession;
@@ -31,15 +32,11 @@ import com.vmware.vrack.hms.switches.cumulus.CumulusUtil;
 
 /**
  * Cumulus switch port server component event event helper
- *
  */
-public class CumulusPortEventHelper {
+public class CumulusPortEventHelper
+{
 
-    private static Logger logger = Logger.getLogger(CumulusPortEventHelper.class);
-
-    private static final String SWITCH_PORT_UP = "Switch Port up";
-
-    private static final String SWITCH_PORT_DOWN = "Switch Port Down";
+    private static Logger logger = Logger.getLogger( CumulusPortEventHelper.class );
 
     /**
      * method to get Switch Port server component event
@@ -49,18 +46,22 @@ public class CumulusPortEventHelper {
      * @return List<ServerComponentEvent>
      * @throws HmsException
      */
-    public static List<ServerComponentEvent> getSwitchPortEventHelper(SwitchNode switchNode, List<String> portList) throws HmsException {
+    public static List<ServerComponentEvent> getSwitchPortEventHelper( SwitchNode switchNode, List<String> portList )
+        throws HmsException
+    {
 
-        if (switchNode != null) {
+        if ( switchNode != null )
+        {
             List<ServerComponentEvent> serverComponentSensorlist = new ArrayList<>();
 
-            try {
+            try
+            {
                 SwitchSession switchSession = CumulusUtil.getSession( switchNode );
 
                 for ( String port : portList )
                 {
                     String command = CumulusConstants.GET_SWITCH_PORT_STATE.replaceAll( "\\{portName\\}", port );
-                    String portStatus = switchSession.execute(command);
+                    String portStatus = switchSession.execute( command );
 
                     if ( port.equals( "lo" ) )
                         continue;
@@ -69,11 +70,11 @@ public class CumulusPortEventHelper {
 
                     if ( portStatus.equals( "UP" ) )
                     {
-                        serverComponentEvent.setDiscreteValue( SWITCH_PORT_UP );
+                        serverComponentEvent.setDiscreteValue( "Switch Port up" );
                     }
                     else if ( portStatus.equals( "DOWN" ) )
                     {
-                        serverComponentEvent.setDiscreteValue( SWITCH_PORT_DOWN );
+                        serverComponentEvent.setDiscreteValue( "Switch Port Down" );
                     }
                     else
                     {
@@ -90,12 +91,16 @@ public class CumulusPortEventHelper {
 
                 return serverComponentSensorlist;
 
-            } catch (Exception e) {
-                logger.error("Cannot get switch port event Information", e);
-                throw new HmsException("Unable to get switch ports event information", e);
             }
-        } else {
-            throw new HmsException("Switch Node is Null or invalid");
+            catch ( Exception e )
+            {
+                logger.error( "Cannot get switch port event Information", e );
+                throw new HmsException( "Unable to get switch ports event information", e );
+            }
+        }
+        else
+        {
+            throw new HmsException( "Switch Node is Null or invalid" );
         }
     }
 

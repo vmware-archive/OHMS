@@ -76,7 +76,7 @@ public class MockRedfishClient
         try
         {
             RedfishResource redfishResource = mapper.readValue( resource, RedfishResource.class );
-            redfishResource.setOrigin( URI.create( "" ) );
+            redfishResource.setOrigin( targetUri );
             return redfishResource;
         }
         catch ( IOException | UnsupportedOperationException e )

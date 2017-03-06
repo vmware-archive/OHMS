@@ -27,6 +27,7 @@ public class ServerNodeConnectorTest
     public ServerNodeConnectorTest()
     {
     }
+
     /*
      * Test caes commented out as OS details code is deleted from ServerNodeConnector / // // /** // * Test of isValidOs
      * method, of class ServerNodeConnector when valid OS name is sent as parameter. //
@@ -189,6 +190,7 @@ public class ServerNodeConnectorTest
     // logger.info("[TS] :End updateNodeOsDetailsWithDiscoverableNodeAsParam");
     // }
     //
+
     /**
      * Test of refreshNodeStatus method, of class ServerNodeConnector, when a Valid Discoverable IP address and Positive
      * Node ID is passed as parameters
@@ -450,6 +452,7 @@ public class ServerNodeConnectorTest
     // }
     //
     //
+
     /*
      * Test caes commented out as OS details code is deleted from ServerNodeConnector / // // /** // * Test of
      * updateNodeOsDetails method, of class ServerNodeConnector when Non Discoverable Node is sent as parameter. //

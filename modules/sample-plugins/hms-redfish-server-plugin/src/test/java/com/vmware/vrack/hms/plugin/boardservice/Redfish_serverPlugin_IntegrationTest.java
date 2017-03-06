@@ -17,7 +17,6 @@
 
 package com.vmware.vrack.hms.plugin.boardservice;
 
-import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.exception.OperationNotSupportedOOBException;
@@ -40,19 +39,20 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @Category( IntegrationTest.class )
 public class Redfish_serverPlugin_IntegrationTest
 {
-    private static URI serviceEndpoint;
+    static Redfish_serverPlugin plugin;
 
     private static Logger logger = LoggerFactory.getLogger( Redfish_serverPlugin_IntegrationTest.class );
 
-    static Redfish_serverPlugin plugin = new Redfish_serverPlugin();
-
     static ServiceServerNode node;
+
+    private static URI serviceEndpoint;
 
     /**
      * Function to be executed before start
@@ -61,20 +61,19 @@ public class Redfish_serverPlugin_IntegrationTest
     public static void init()
         throws IOException, HmsException
     {
-        if ( System.getProperty( "testServiceEndpoint" ) != null )
-        {
-            serviceEndpoint = URI.create( System.getProperty( "testServiceEndpoint" ) );
-        }
-        else
-        {
-            serviceEndpoint = URI.create( "http://localhost:8888/redfish/v1" );
-        }
+        serviceEndpoint = URI.create( System.getProperty( "testServiceEndpoint" ) );
 
-        List<ServiceHmsNode> nodes = plugin.getNodesForComputerSystems( serviceEndpoint );
-
-        ServiceHmsNode hmsNode = nodes.iterator().next();
         node = new ServiceServerNode();
-        node.setNodeID( hmsNode.getNodeID() );
+        node.setNodeID( System.getProperty( "testNodeId" ) );
+
+        plugin = new Redfish_serverPlugin()
+        {
+            @Override
+            List<URI> readRedfishServices( String redfishServicesConfigurationFilePath )
+            {
+                return singletonList( serviceEndpoint );
+            }
+        };
     }
 
     /**
@@ -283,15 +282,5 @@ public class Redfish_serverPlugin_IntegrationTest
         }
         assertNotNull( "boardInfoList cannot be null!", boardInfoList );
         assertTrue( "boardInfoList cannot be empty, there must be at least 1 Board!", boardInfoList.size() > 0 );
-    }
-
-    @Test
-    public void testGetNodesForComputerSystems()
-        throws HmsException
-    {
-        logger.info( "Test Redfish Service getNodesForComputerSystems" );
-        List<ServiceHmsNode> computerSystems = plugin.getNodesForComputerSystems( serviceEndpoint );
-
-        return;
     }
 }

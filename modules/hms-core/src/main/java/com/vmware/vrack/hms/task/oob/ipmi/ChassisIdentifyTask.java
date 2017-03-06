@@ -18,7 +18,6 @@ package com.vmware.vrack.hms.task.oob.ipmi;
 import org.apache.log4j.Logger;
 
 import com.vmware.vrack.hms.boardservice.BoardServiceProvider;
-import com.vmware.vrack.hms.boardservice.HmsPluginServiceCallWrapper;
 import com.vmware.vrack.hms.common.boardvendorservice.api.IBoardService;
 import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceServerNode;
 import com.vmware.vrack.hms.common.exception.HmsException;
@@ -29,12 +28,14 @@ import com.vmware.vrack.hms.common.servernodes.api.ServerNode;
 
 /**
  * Task to Identify Chassis via some kind of mechanism(i.e flashing lights, sounds, front panel LEDs).
- * 
+ *
  * @author Yagnesh Chawda
  */
+@SuppressWarnings( "deprecation" )
 public class ChassisIdentifyTask
     extends IpmiTask
 {
+
     private static Logger logger = Logger.getLogger( ChassisIdentifyTask.class );
 
     public ServerNode node;
@@ -60,10 +61,12 @@ public class ChassisIdentifyTask
             IBoardService boardService = BoardServiceProvider.getBoardService( serviceServerNode );
             if ( boardService != null )
             {
-                Object[] paramsArray = new Object[] { serviceServerNode, preparedParameter };
-                boolean status =
-                    HmsPluginServiceCallWrapper.invokeHmsPluginService( boardService, serviceServerNode,
-                                                                        "setChassisIdentification", paramsArray );
+                // Object[] paramsArray = new Object[] { serviceServerNode,
+                // preparedParameter };
+                boolean status = boardService.setChassisIdentification( serviceServerNode, preparedParameter );
+                // boolean status =
+                // HmsPluginServiceCallWrapper.invokeHmsPluginService(boardService,
+                // serviceServerNode, "setChassisIdentification", paramsArray);
             }
             else
             {
@@ -79,7 +82,6 @@ public class ChassisIdentifyTask
         }
         catch ( Exception e )
         {
-            logger.error( "Error while performing Chassis Identification for Node:" + node.getNodeID(), e );
             throw new HmsException( "Error while performing Chassis Identification for Node:" + node.getNodeID(), e );
         }
     }
@@ -88,4 +90,5 @@ public class ChassisIdentifyTask
     {
         return "";
     }
+
 }

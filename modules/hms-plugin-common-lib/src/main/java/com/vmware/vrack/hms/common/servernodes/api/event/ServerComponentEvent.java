@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.servernodes.api.event;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.Map;
  */
 public class ServerComponentEvent
 {
+
     /** @EventUnitType unit - key to identify unit of the corresponding Value. */
     private EventUnitType unit;
 
@@ -106,7 +108,9 @@ public class ServerComponentEvent
             data.put( "value", discreteValue );
         else if ( eventName.getValueType() == EventValueType.READING )
             data.put( "value", Float.toString( value ) );
+
         data.put( "unit", ( unit != null ) ? unit.toString() : EventUnitType.DISCRETE.toString() );
+
         return data;
     }
 
@@ -119,4 +123,5 @@ public class ServerComponentEvent
     {
         this.componentId = componentId;
     }
+
 }

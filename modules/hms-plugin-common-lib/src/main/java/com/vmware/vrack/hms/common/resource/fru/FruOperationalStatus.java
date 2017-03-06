@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.fru;
 
 /**
@@ -20,6 +21,7 @@ package com.vmware.vrack.hms.common.resource.fru;
  */
 public enum FruOperationalStatus
 {
+
     /*
      * If the FRU is operational set the Operational status as "Operational" otherwise it's "Non Operational"
      */

@@ -71,9 +71,6 @@ public final class ComputerSystemMapper
         SystemBootOptions bootOptions = new SystemBootOptions();
         ComputerSystemResource.Boot boot = computerSystem.getBoot();
 
-        /**
-         *
-         */
         if ( boot.getBootSourceOverrideEnabled() != null )
         {
             switch ( boot.getBootSourceOverrideEnabled() )

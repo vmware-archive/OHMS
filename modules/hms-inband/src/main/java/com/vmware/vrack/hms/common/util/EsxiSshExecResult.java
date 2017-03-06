@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class EsxiSshExecResult
 {
+
     private static Logger logger = LoggerFactory.getLogger( EsxiSshExecResult.class );
 
     private String command;
@@ -106,9 +107,11 @@ public class EsxiSshExecResult
                 logger.error( "stdout: " + new String( stdout ) );
         }
     }
+
     /*
      * public void log(Logger logger, Level level) { logger.log(level, "command: " + command); logger.log(level,
      * "exit code: " + exitCode); if (stdout.length > 0) logger.log (level, "stdout: " + new String (stdout)); if
      * (stderr.length > 0) logger.log (level, "stderr: " + new String (stderr)); }
      */
+
 }

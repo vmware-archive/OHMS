@@ -18,6 +18,7 @@ package com.vmware.vrack.hms.common.exception;
 public class HmsOperationNotSupportedException
     extends HmsException
 {
+
     public HmsOperationNotSupportedException()
     {
         super();

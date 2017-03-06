@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -51,6 +52,7 @@ public class HmsLocalComponentEventRestServiceTest
         // Setup Spring test in standalone mode
         this.mockMvc = MockMvcBuilders.standaloneSetup( new HmsLocalComponentEventRestService() ).build();
         // this.mockMvc = MockMvcBuilders.webAppContextSetup(applicationContext).build();
+
         Map<String, ServerNode> nodeMap = new HashMap<String, ServerNode>();
         ServerNode node = new ServerNode();
         node.setNodeID( "N1" );
@@ -58,12 +60,15 @@ public class HmsLocalComponentEventRestServiceTest
         node.setOsUserName( "root" );
         node.setOsPassword( "root123" );
         nodeMap.put( "N1", node );
+
         // populating Nodemap before we could query its peripheral info
         InventoryLoader.getInstance().setNodeMap( nodeMap );
+
         // Adding our test Implementation class to provide sample data.
         InBandServiceProvider.addBoardService( node.getServiceObject(), new InbandServiceTestImpl(), true );
     }
 
+    @Ignore
     @Test( expected = HMSRestException.class )
     public void getHddEvents()
         throws Throwable
@@ -85,6 +90,7 @@ public class HmsLocalComponentEventRestServiceTest
         assertTrue( result.getResponse().getContentAsString().contains( "HDD_WEAROUT_ABOVE_THRESHOLD" ) );
     }
 
+    @Ignore
     @Test( expected = HMSRestException.class )
     public void getNicEvents()
         throws Throwable
@@ -106,6 +112,7 @@ public class HmsLocalComponentEventRestServiceTest
         assertTrue( result.getResponse().getContentAsString().contains( "NIC_PACKET_DROP_ABOVE_THRESHOLD" ) );
     }
 
+    @Ignore
     @Test( expected = HMSRestException.class )
     public void getCPUEvents()
         throws Throwable
@@ -127,6 +134,7 @@ public class HmsLocalComponentEventRestServiceTest
         assertTrue( result.getResponse().getContentAsString().contains( "CPU_POST_FAILURE" ) );
     }
 
+    @Ignore
     @Test( expected = HMSRestException.class )
     public void getMemoryEvents()
         throws Throwable
@@ -148,6 +156,7 @@ public class HmsLocalComponentEventRestServiceTest
         assertTrue( result.getResponse().getContentAsString().contains( "DIMM_ECC_ERROR" ) );
     }
 
+    @Ignore
     @Test( expected = HMSRestException.class )
     public void getBmcEvents()
         throws Throwable

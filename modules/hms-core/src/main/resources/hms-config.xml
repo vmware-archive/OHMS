@@ -41,6 +41,10 @@
                     class="org.eclipse.jetty.server.ServerConnector">
                     <constructor-arg ref="server" />
                     <property
+                        name="host"
+                        value="localhost">
+                    </property>
+                    <property
                         name="port"
                         value="8448">
                     </property>

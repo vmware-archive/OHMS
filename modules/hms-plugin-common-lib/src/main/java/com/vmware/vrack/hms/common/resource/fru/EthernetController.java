@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.resource.fru;
 
 import java.util.List;
@@ -31,6 +32,7 @@ import com.vmware.vrack.hms.common.servernodes.api.nic.PortInfo;
 public class EthernetController
     extends AbstractServerComponent
 {
+
     private String speedInMbps;
 
     private String firmwareVersion;
@@ -83,18 +85,22 @@ public class EthernetController
     public int hashCode()
     {
         int hash = 1;
+
         if ( componentIdentifier.getManufacturer() != null )
         {
             hash = 31 * hash + componentIdentifier.getManufacturer().hashCode();
         }
+
         if ( portInfos != null )
         {
             hash = 31 * hash + portInfos.hashCode();
         }
+
         if ( componentIdentifier.getProduct() != null )
         {
             hash = 31 * hash + componentIdentifier.getProduct().hashCode();
         }
+
         return hash;
     }
 
@@ -131,4 +137,5 @@ public class EthernetController
             return false;
         return true;
     }
+
 }

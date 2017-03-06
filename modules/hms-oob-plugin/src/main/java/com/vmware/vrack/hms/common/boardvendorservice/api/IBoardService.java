@@ -1,6 +1,6 @@
 /* ********************************************************************************
  * IBoardService.java
- *
+ * 
  * Copyright © 2013 - 2016 VMware, Inc. All Rights Reserved.
 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.boardvendorservice.api;
 
 import java.util.List;
@@ -38,15 +39,16 @@ import com.vmware.vrack.hms.common.servernodes.api.storagecontroller.StorageCont
 
 /**
  * Interface for implementing server board service Out Of Band (OOB) plug-in
- *
+ * 
  * @author VMware, Inc.
  */
 public interface IBoardService
     extends IComponentEventInfoProvider
 {
+
     /**
      * Method to get Server Power Status This is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param serviceHmsNode
      */
     public boolean getServerPowerStatus( ServiceHmsNode serviceHmsNode )
@@ -55,7 +57,7 @@ public interface IBoardService
     /**
      * Method to perform Power operations power down, power up, power cycle, reset and cold reset This is a mandatory
      * method, Out Of Band Implementation is required
-     *
+     * 
      * @param serviceHmsNode
      * @param powerOperationAction (power down/up/reset/cycle/cold reset)
      */
@@ -64,7 +66,7 @@ public interface IBoardService
 
     /**
      * Method to get Management (BMC) MAC address This is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param hmsNode
      */
     public String getManagementMacAddress( ServiceHmsNode serviceHmsNode )
@@ -72,7 +74,7 @@ public interface IBoardService
 
     /**
      * Method to get the List of BMC Users This is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param hmsNode
      */
     public List<BmcUser> getManagementUsers( ServiceHmsNode serviceHmsNode )
@@ -80,7 +82,7 @@ public interface IBoardService
 
     /**
      * Method for BMC to do a Self Test This is a optional method.
-     *
+     * 
      * @param hmsNode
      */
     public SelfTestResults runSelfTest( ServiceHmsNode serviceHmsNode )
@@ -88,7 +90,7 @@ public interface IBoardService
 
     /**
      * Method to get the ACPI Power State This is a optional method.
-     *
+     * 
      * @param hmsNode
      */
     public AcpiPowerState getAcpiPowerState( ServiceHmsNode serviceHmsNode )
@@ -96,7 +98,7 @@ public interface IBoardService
 
     /**
      * Method to get CPU Information This is a mandatory method, Out Of Band or In Band Implementation is required
-     *
+     * 
      * @param hmsNode
      */
     public List<CPUInfo> getCpuInfo( ServiceHmsNode serviceHmsNode )
@@ -104,7 +106,7 @@ public interface IBoardService
 
     /**
      * Method to get FAN Information This is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param hmsNode
      */
     public List<FanInfo> getFanInfo( ServiceHmsNode serviceHmsNode )
@@ -113,7 +115,7 @@ public interface IBoardService
     /**
      * Method to get EthernetControllers information This is a mandatory method, Out Of Band or In Band Implementation
      * is required
-     *
+     * 
      * @param hmsNode
      */
     public List<EthernetController> getEthernetControllersInfo( ServiceHmsNode serviceHmsNode )
@@ -121,7 +123,7 @@ public interface IBoardService
 
     /**
      * Method to get Boot Options This is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param hmsNode
      */
     public SystemBootOptions getBootOptions( ServiceHmsNode serviceHmsNode )
@@ -129,7 +131,7 @@ public interface IBoardService
 
     /**
      * Method to set Boot Options This is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param hmsNode
      * @param data (biosBootType- Legacy/EFI, bootFlagsValid, bootOptionsValidity, bootDeviceType and
      *            bootDeviceSelector)
@@ -140,7 +142,7 @@ public interface IBoardService
     /**
      * Method to get Server board related Information like board manufacturer, board product model This is a mandatory
      * method, Out Of Band Implementation is required
-     *
+     * 
      * @param hmsNode
      * @return ServerNodeInfo
      */
@@ -149,7 +151,7 @@ public interface IBoardService
 
     /**
      * Method to get HDD Information This is a mandatory method, Out Of Band or In Band Implementation is required
-     *
+     * 
      * @param hmsNode
      * @return List<HddInfo>
      * @throws HmsException
@@ -160,7 +162,7 @@ public interface IBoardService
     /**
      * Method to get the Storage controller/HBA adapter information This is a mandatory method, Out Of Band or In Band
      * Implementation is required
-     *
+     * 
      * @param hmsNode
      * @return List<StorageControllerInfo>
      * @throws HmsException
@@ -171,7 +173,7 @@ public interface IBoardService
     /**
      * Method to implement by Board vendor to return the names of the board, which are supported. This is a mandatory
      * method, Out Of Band Implementation is required
-     *
+     * 
      * @return List<BoardInfo>
      */
     public List<BoardInfo> getSupportedBoard();
@@ -179,7 +181,7 @@ public interface IBoardService
     /**
      * Method for BMC Chassis to start identify itself / Stop identification via some kind of mechanism like blinking
      * lights or sounds. This is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param serviceHmsNode
      * @param data
      * @return
@@ -189,7 +191,7 @@ public interface IBoardService
 
     /**
      * Method to set the management IP address This is a optional method
-     *
+     * 
      * @param serviceHmsNode
      * @return
      * @throws Exception
@@ -198,8 +200,20 @@ public interface IBoardService
         throws HmsException;
 
     /**
+     * Method to change user's password
+     * 
+     * @param serviceHmsNode
+     * @param username
+     * @param newPassword
+     * @return
+     * @throws HmsException
+     */
+    public boolean setBmcPassword( ServiceHmsNode serviceHmsNode, String username, String newPassword )
+        throws HmsException;
+
+    /**
      * Method to create new BMC Management User This is a optional method
-     *
+     * 
      * @param serviceHmsNode
      * @param bmcUser
      * @return
@@ -211,7 +225,7 @@ public interface IBoardService
     /**
      * Method to get System Event Log (SEL) Information along with populating entire System Event Log Records List This
      * is a mandatory method, Out Of Band Implementation is required
-     *
+     * 
      * @param serviceHmsNode
      * @param recordCount - number of System Event Log record to fetch
      * @param direction - start from the recent entries or old entries
@@ -224,7 +238,7 @@ public interface IBoardService
     /**
      * Method to check node if it is reachable and responsive. If yes, returns true This is a mandatory method, Out Of
      * Band Implementation is required
-     *
+     * 
      * @param serviceHmsNode
      * @return
      * @throws HmsException
@@ -235,11 +249,12 @@ public interface IBoardService
     /**
      * Method to get List of Physical memory details in the System This is a mandatory method, Out Of Band or In Band
      * Implementation is required
-     *
+     * 
      * @param serviceHmsNode
      * @return
      * @throws HmsException
      */
     public List<PhysicalMemory> getPhysicalMemoryInfo( ServiceHmsNode serviceHmsNode )
         throws HmsException;
+
 }

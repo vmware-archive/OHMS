@@ -13,12 +13,15 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.testplugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.vmware.vrack.hms.common.boardvendorservice.api.BoardServiceImplementation;
+import com.vmware.vrack.hms.common.boardvendorservice.resource.ServiceHmsNode;
+import com.vmware.vrack.hms.common.exception.HmsException;
 import com.vmware.vrack.hms.common.resource.fru.BoardInfo;
 
 /**
@@ -28,6 +31,7 @@ import com.vmware.vrack.hms.common.resource.fru.BoardInfo;
 public class BoardService_TESTV2
     extends AbstractTestBoardService
 {
+
     private List<BoardInfo> supportedBoards;
 
     public BoardService_TESTV2()
@@ -45,12 +49,22 @@ public class BoardService_TESTV2
         {
             supportedBoards = new ArrayList<BoardInfo>();
         }
+
         return supportedBoards.add( boardInfo );
     }
 
     @Override
     public List<BoardInfo> getSupportedBoard()
     {
+
         return supportedBoards;
     }
+
+    @Override
+    public boolean setBmcPassword( ServiceHmsNode serviceHmsNode, String username, String newPassword )
+        throws HmsException
+    {
+        return false;
+    }
+
 }

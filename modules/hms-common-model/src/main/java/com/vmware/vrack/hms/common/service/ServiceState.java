@@ -13,6 +13,7 @@
  * specific language governing permissions and limitations under the License.
  *
  * *******************************************************************************/
+
 package com.vmware.vrack.hms.common.service;
 
 /**
@@ -23,10 +24,16 @@ package com.vmware.vrack.hms.common.service;
  */
 public enum ServiceState
 {
+
     /** Service State RUNNING. */
-    RUNNING( "RUNNING" ), /** Service State NORMAL_MAINTENANCE. */
-    NORMAL_MAINTENANCE( "NORMAL_MAINTENANCE" ), /** Service State FORCE_MAINTENANCE. */
+    RUNNING( "RUNNING" ),
+
+    /** Service State NORMAL_MAINTENANCE. */
+    NORMAL_MAINTENANCE( "NORMAL_MAINTENANCE" ),
+
+    /** Service State FORCE_MAINTENANCE. */
     FORCE_MAINTENANCE( "FORCE_MAINTENANCE" ),;
+
     /** The state message. */
     private String stateMessage;
 
@@ -37,6 +44,7 @@ public enum ServiceState
      */
     private ServiceState( String stateMessage )
     {
+
         this.stateMessage = stateMessage;
     }
 
@@ -47,6 +55,7 @@ public enum ServiceState
      */
     public String getServiceState()
     {
+
         return this.stateMessage;
     }
 }

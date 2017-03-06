@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Class for Ethernet Controller related Properties
- *
+ * 
  * @author VMware Inc.
  */
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class EthernetController
     extends FruComponent
 {
+
     private String id;
 
     private String speedInMbps;
@@ -114,18 +115,22 @@ public class EthernetController
     public EthernetController getEthernetController( com.vmware.vrack.hms.common.resource.fru.EthernetController serverNodeEthernetController,
                                                      String nodeID )
     {
+
         EthernetController ethernetController = new EthernetController();
         List<PortInfo> portInfoList = new ArrayList<PortInfo>();
+
         ethernetController.setId( serverNodeEthernetController.getId() );
         ethernetController.setFirmwareVersion( serverNodeEthernetController.getFirmwareVersion() );
         ethernetController.setSpeedInMbps( serverNodeEthernetController.getSpeedInMbps() );
         ethernetController.setLocation( serverNodeEthernetController.getLocation() );
         ethernetController.setNumPorts( serverNodeEthernetController.getPortInfos().size() );
         ethernetController.setHostId( nodeID );
+
         if ( serverNodeEthernetController.getComponentIdentifier() != null )
         {
             ethernetController.setComponentIdentifier( serverNodeEthernetController.getComponentIdentifier() );
         }
+
         int portSize = serverNodeEthernetController.getPortInfos().size();
         for ( int i = 0; i < portSize; i++ )
         {
@@ -134,6 +139,8 @@ public class EthernetController
             portInfoList.add( portInfo );
         }
         ethernetController.setPortInfos( portInfoList );
+
         return ethernetController;
     }
+
 }

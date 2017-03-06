@@ -20,6 +20,7 @@ package com.vmware.vrack.hms.vsphere.guest;
  */
 public class SecondBootConfiguration
 {
+
     public String id;
 
     public int allocatedIpNumber;

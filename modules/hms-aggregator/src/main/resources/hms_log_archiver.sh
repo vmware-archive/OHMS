@@ -24,11 +24,14 @@ declare HMS_IB_GENERATED_LOG;
 #absolute path to the already generated events log
 declare HMS_EVENT_LOG_FULLPATH;
 
+#absolute path to the already generated NBSwitchInfo or ServerInfo log file
+declare HMS_NODEINFO_LOG_FULLPATH 
 
 ################CHANGE HERE FOR ENVIRONMENT SETUP#####################
-HMS_SCRIPT_DIR="/home/vrack/vrm/webapps/hms-local/WEB-INF/classes/"
+HMS_SCRIPT_DIR="/home/vrack/vrm/webapps/hms-aggregator/WEB-INF/classes/"
 
-HMS_OOB_REMOTE_LOG_DIR_FULLPATH="/opt/vrack/hms/logs"
+#HMS_OOB_REMOTE_LOG_DIR_FULLPATH="/opt/vrack/hms/logs"
+HMS_OOB_REMOTE_LOG_DIR_FULLPATH="/Volumes/WORK/temp/hms-1.0.1/logs"
 HMS_IB_LOG_DIR_FULLPATH="/home/vrack/vrm/logs";
 
 ####################################################
@@ -56,21 +59,38 @@ loginfo()
 # check arguments
 function check_arguments()
 {
-	if [ "$#" -ge 9 ] 
+	
+
+	if [ "$#" -ge 8 ] 
 	then
-		loginfo "###Got OOB Host, UserName, Path and archive_name";
-		HMS_OOB_HOST="$1";
-		HMS_OOB_USERNAME="$2";
-		HMS_LOG_FOLDER_ABSOLUTE_PATH="$3";
-		HMS_LOG_ARCHIVE_NAME="$4";
-		TIMESTAMP="$5";
-		HMS_OOB_REMOTE_LOG_FULLPATH="$6";
-		HMS_IB_LOG_FULLPATH="$7";
-		HMS_EVENT_LOG_FULLPATH="$8"
-		NO_OF_LINES="$9"
 		
-		HMS_OOB_GENERATED_LOG="hms_oob_${TIMESTAMP}.log";
-		HMS_IB_GENERATED_LOG="hms_ib_${TIMESTAMP}.log";
+
+		#loginfo "###Got OOB Host, UserName, Path and archive_name";
+		NODE_ID="$1";
+		HMS_LOG_FOLDER_ABSOLUTE_PATH="$2";
+		HMS_LOG_ARCHIVE_NAME="$3";
+		TIMESTAMP="$4";
+		HMS_OOB_GENERATED_LOG="$5";
+		HMS_IB_LOG_FULLPATH="$6";
+		HMS_NODEINFO_LOG_FULLPATH="$7";
+		NO_OF_LINES="$8";
+		EXECUTION_FOR="$9";
+
+		#if script is running for the server then check required parameter is not NULL
+
+		if [ "$EXECUTION_FOR" == "SERVER" ]; 
+		then
+			echo "Inside Server";
+			HMS_EVENT_LOG_FULLPATH="${10}";
+			echo "HMS_EVENT_LOG_FULLPATH" $HMS_EVENT_LOG_FULLPATH;
+			if [ ! $HMS_EVENT_LOG_FULLPATH ]; 
+			then
+			 loginfo "FAILED: Please provide the HMS_EVENT_LOG_FULLPATH when script executing on the server";
+			 return 9;
+			fi
+		fi
+
+		HMS_IB_GENERATED_LOG="${NODE_ID}_hms_ib_${TIMESTAMP}.log";
 	else
 		loginfo "FAILED: Required number of arguments must be passed before continuing.";
 		return 9;
@@ -80,6 +100,7 @@ function check_arguments()
 #Create Log directory
 function create_log_dir()
 {
+	echo "In log dir....."; 
 		test -d "$HMS_LOG_FOLDER_ABSOLUTE_PATH" || {
 		mkdir -p "$HMS_LOG_FOLDER_ABSOLUTE_PATH" || {
 		loginfo "Unable to create folder at [ $HMS_LOG_FOLDER_ABSOLUTE_PATH ]";
@@ -126,23 +147,51 @@ function get_ib_logs()
 	fi
 }
 
+
+
+
+
 # creates a zip archive of Hms oob and hms ib logs
 function create_archive()
 {
 	#TODO: CHeck the availablility of event log file, if not present, skip that
-	HMS_EVENT_LOG_FILENAME="${HMS_EVENT_LOG_FULLPATH##*/}";
+	#HMS_NODEINFO_LOG_FILENAME="${HMS_NODEINFO_LOG_FULLPATH##*/}";
+	HMS_NODEINFO_LOG_FILENAME="${HMS_NODEINFO_LOG_FULLPATH}";
 	
 	cd $HMS_LOG_FOLDER_ABSOLUTE_PATH;
-	if ( ! test -f $HMS_EVENT_LOG_FILENAME )
+	if ( ! test -f "$HMS_NODEINFO_LOG_FILENAME" )
 	then
-		echo "Events data not found" > $HMS_EVENT_LOG_FULLPATH;
+		echo "Node Info data not found " > $HMS_NODEINFO_LOG_FULLPATH;
 	fi
 	
-	cd $HMS_LOG_FOLDER_ABSOLUTE_PATH && zip -m $HMS_LOG_ARCHIVE_NAME $HMS_IB_GENERATED_LOG $HMS_OOB_GENERATED_LOG $HMS_EVENT_LOG_FILENAME || {
-	loginfo "Error in creating archive with name [ $HMS_LOG_ARCHIVE_NAME ] in directory [ $HMS_LOG_FOLDER_ABSOLUTE_PATH ]";
-	return 19;
+	if [ "$EXECUTION_FOR" == "SERVER" ]; 
+	then {
+		#HMS_EVENT_LOG_FILENAME="${HMS_EVENT_LOG_FULLPATH##*/}";
+		HMS_EVENT_LOG_FILENAME="${HMS_EVENT_LOG_FULLPATH}";
+		
+		cd $HMS_LOG_FOLDER_ABSOLUTE_PATH;
+		if ( ! test -f $HMS_EVENT_LOG_FILENAME )
+		then
+			echo "Event Info data not found" > $HMS_EVENT_LOG_FULLPATH;
+		fi
+
+		cd $HMS_LOG_FOLDER_ABSOLUTE_PATH && zip -m $HMS_LOG_ARCHIVE_NAME $HMS_IB_GENERATED_LOG $HMS_OOB_GENERATED_LOG $HMS_EVENT_LOG_FILENAME $HMS_NODEINFO_LOG_FILENAME  || {
+				loginfo "Error in creating archive with name [ $HMS_LOG_ARCHIVE_NAME ] in directory [ $HMS_LOG_FOLDER_ABSOLUTE_PATH ]";
+				return 19;
+			   }
 	}
-	loginfo "Log archive successfully created at [ ${HMS_LOG_FOLDER_ABSOLUTE_PATH}/${HMS_LOG_ARCHIVE_NAME} ]"
+	
+
+	else
+		echo "=========================HMS_NODEINFO_LOG_FILENAME===="$HMS_NODEINFO_LOG_FILENAME;
+		cd $HMS_LOG_FOLDER_ABSOLUTE_PATH && zip -m $HMS_LOG_ARCHIVE_NAME $HMS_IB_GENERATED_LOG $HMS_NODEINFO_LOG_FILENAME $HMS_OOB_GENERATED_LOG || {
+				loginfo "Error in creating archive with name [ $HMS_LOG_ARCHIVE_NAME ] in directory [ $HMS_LOG_FOLDER_ABSOLUTE_PATH ]";
+				return 19;
+			   }
+
+    	fi	
+
+	loginfo "Log archive successfully created at [ ${HMS_LOG_FOLDER_ABSOLUTE_PATH}/${HMS_LOG_ARCHIVE_NAME} ]";
 }
 
 
@@ -166,9 +215,9 @@ create_log_dir || {
 fatal_exit "HMS log directory creation: Failed" $?;
 }
 
-get_oob_logs || {
-fatal_exit "Failed to get OOB logs: Failed" $?;
-}
+#get_oob_logs || {
+#fatal_exit "Failed to get OOB logs: Failed" $?;
+#}
 
 get_ib_logs || {
 fatal_exit "failed to get IB logs: Failed" $?;

@@ -22,9 +22,12 @@ public class SwitchNetworkPrefixDisassemblers
     public static String fromSwitchNetworkPrefix( NBSwitchNetworkPrefix prefix )
     {
         String retVal = null;
+
         if ( prefix == null )
             return null;
+
         retVal = String.format( "%s/%d", prefix.getPrefix(), prefix.getPrefixLen() );
+
         return retVal;
     }
 }

@@ -25,6 +25,7 @@ import java.util.Date;
 public class BoardInfo
     extends FruRecord
 {
+
     private String boardManufacturer;
 
     private String boardProductName;
@@ -60,4 +61,5 @@ public class BoardInfo
     {
         this.boardSerialNumber = boardSerialNumber;
     }
+
 }

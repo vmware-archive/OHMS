@@ -22,7 +22,7 @@
     <groupId>com.intel.plugin</groupId>
     <artifactId>hms-redfish-server-plugin</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0</version>
+    <version>1.1.0-RELEASE</version>
     <url>http://maven.apache.org</url>
     <properties>
         <httpclient.version>4.5.1</httpclient.version>
@@ -31,8 +31,7 @@
         <junit.version>4.12</junit.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j-log4j12.version>1.7.12</slf4j-log4j12.version>
-        <hms.version>1.0.0</hms.version>
-        <event-catalogue.version>1.0.0</event-catalogue.version>
+        <hms.version>2.0.0-RELEASE</hms.version>
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
@@ -62,11 +61,6 @@
             <artifactId>hms-oob-plugin-testlib</artifactId>
             <version>${hms.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vmware.vrack</groupId>
-            <artifactId>event-catalogue</artifactId>
-            <version>${event-catalogue.version}</version>
         </dependency>
         <!-- External Dependencies -->
         <dependency>
@@ -228,11 +222,11 @@
                                     </fileset>
                                 </checksum>
                                 <!-- Uncomment the following if including an event Mapper .json file -->
-                                <!--checksum algorithm="MD5" pattern="config/{1} {0}" fileext=".MD5">
+                                <checksum algorithm="MD5" pattern="config/{1} {0}" fileext=".MD5">
                                     <fileset dir="${project.build.directory}">
                                         <include name="config/*.json"/>
                                     </fileset>
-                                </checksum-->
+                                </checksum>
                                 <echo file="${project.build.directory}/metadata.txt" append="true">
                                     package-version=${project.version}${line.separator}
                                 </echo>
